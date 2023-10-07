@@ -6,4 +6,5 @@ sidebar:
     nav: "leettags"
 categories: LeetCode
 #tag: [문제 유형]
+#use_math: true
 ---

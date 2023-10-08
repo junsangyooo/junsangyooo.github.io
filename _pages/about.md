@@ -4,7 +4,7 @@ layout: single
 permalink: /about/
 
 # side bar: profile
-author_profile: false
+author_profile: true
 
 # side bar: table of contents
 toc: true
@@ -41,8 +41,8 @@ Hello World
 
 + 
 
-# <span style='color: DimGrey;'>Contact</span>
+<!-- # <span style='color: DimGrey;'>Contact</span>
 
 + <i class="fas fa-envelope-square"></i> [Email](mailto:dbwnstkddb@gmail.com)
 + <i class="fab fa-linkedin-in"></i> [LinkedIn](https://www.linkedin.com/in/junsang-yoo-305288227/?locale=en_US)
-+ <i class="fab fa-github"></i> [Github](https://github.com/junsangyooo)
++ <i class="fab fa-github"></i> [Github](https://github.com/junsangyooo) -->

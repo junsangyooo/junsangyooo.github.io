@@ -2,39 +2,75 @@
 main:
   - title: "Home"
     url: https://junsangyooo.github.io
+  - title: "Study Note"
+    url: /study-note/
+  - title: "Problem Solving"
+    url: /problem-solving/
   - title: "About"
     url: /about/
-  - title: "Category"
-    url: /categories/
-  - title: "Tag"
-    url: /tags/
+  # - title: "Category"
+  #   url: /categories/
+  # - title: "Tag"
+  #   url: /tags/
 
-docs:
-  - title: "Contents"
-    children:
-      - title: "Category"
-        url: /categories/
-      - title: "Tag"
-        url: /tags/
-
-# leettags:
-#   - title: "Tags"
+# study-note:
+#   - title: "Study Note"
 #     children:
-#       - title: "Algorithms"
+#       - title: "Data Structure"
 #         url: //
-#       - title: "Database"
+#         children:
+#           - title: "Array & String"
+#             url: //
+#           - title: "Linked List"
+#             url: //
+#           - title: "Stack & Queue"
+#             url: //
+#           - title: "Tree"
+#             url: //
+#           - title: "Graph"
+#             url: //
+#       - title: "Algorighms"
 #         url: //
-#       - title: "Pandas"
-#         url: //
-#       - title: "Shell"
-#         url: //
-#       - title: "Concurrency"
-#         url: //
-  # - title: "About"
-  #   url: https://mmistakes.github.io/minimal-mistakes/about/
-  # - title: "Sample Posts"
-  #   url: /year-archive/
-  # - title: "Sample Collections"
-  #   url: /collection-archive/
-  # - title: "Sitemap"
-  #   url: /sitemap/
+#         children:
+#           - title: "Searching"
+#             url: //
+#           - title: "Sorting"
+#             url: //
+#           - title: "Backtracking"
+#             url: //
+#           - title: "Dynamic"
+#             url: //
+#           - title: "Bitwise"
+#             url: //
+
+study-note:
+  - title: "Study Note"
+    children:
+      - title: "Data Structure"
+        use: true
+        url: "https://junsantyooo.github.io/"
+      - title: "Algorighm"
+        use: true
+        url: //
+      - title: "CS"
+        use: true
+        url: //
+
+problem-category:
+  - title: "Tags"
+    children:
+      - title: "Algorithm"
+        use: true
+        url: //
+      - title: "Database"
+        use: true
+        url: //
+      - title: "Pandas"
+        use: true
+        url: //
+      - title: "Shell"
+        use: true
+        url: //
+      - title: "Concurrency"
+        use: true
+        url: //

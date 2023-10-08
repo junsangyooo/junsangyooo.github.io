@@ -202,9 +202,9 @@ markdown_ext: "markdown,mkdown,mkdn,mkd,md"
 # Conversion
 markdown: kramdown
 highlighter: rouge
-lsi: true
+lsi: false
 excerpt_separator: "\n\n"
-incremental: true
+incremental: false
 
 
 # Markdown Processing
@@ -217,6 +217,7 @@ kramdown:
   toc_levels: 1..6
   smart_quotes: lsquo,rsquo,ldquo,rdquo
   enable_coderay: false
+  syntax_highliter: rouge
 
 
 # Sass/SCSS

@@ -68,7 +68,7 @@ algolia:
   application_id         : P7YGPUW972 # YOUR_APPLICATION_ID
   index_name             : junsangyoo # YOUR_INDEX_NAME
   search_only_api_key    : 1bd50feea36f5e2f242b2636718d77e7 # YOUR_SEARCH_ONLY_API_KEY
-  powered_by             : # true (default), false
+  powered_by             : true # true (default), false
 google:
   search_engine_id       : 7304cf2af11ea4c4c # YOUR_SEARCH_ENGINE_ID
   instant_search         : true # false (default), true
@@ -240,6 +240,7 @@ plugins:
   - jekyll-feed
   - jekyll-include-cache
   - jekyll-redirect-from
+  - jekyll-algolia
 
 # mimic GitHub Pages with --safe
 whitelist:
@@ -249,6 +250,7 @@ whitelist:
   - jekyll-feed
   - jekyll-include-cache
   - jekyll-redirect-from
+  - jekyll-algolia
 
 
 # Archives

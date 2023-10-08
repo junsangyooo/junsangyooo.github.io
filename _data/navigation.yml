@@ -1,7 +1,7 @@
 # main links
 main:
   - title: "Home"
-    url: 
+    url: https://junsangyooo.github.io
   - title: "About"
     url: /about/
   - title: "Category"
@@ -17,19 +17,19 @@ docs:
       - title: "Tag"
         url: /tags/
 
-leettags:
-  - title: "Tags"
-    children:
-      - title: "Algorithms"
-        url: //
-      - title: "Database"
-        url: //
-      - title: "Pandas"
-        url: //
-      - title: "Shell"
-        url: //
-      - title: "Concurrency"
-        url: //
+# leettags:
+#   - title: "Tags"
+#     children:
+#       - title: "Algorithms"
+#         url: //
+#       - title: "Database"
+#         url: //
+#       - title: "Pandas"
+#         url: //
+#       - title: "Shell"
+#         url: //
+#       - title: "Concurrency"
+#         url: //
   # - title: "About"
   #   url: https://mmistakes.github.io/minimal-mistakes/about/
   # - title: "Sample Posts"

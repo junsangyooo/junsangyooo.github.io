@@ -30,9 +30,9 @@ masthead_title           : # overrides the website title displayed in the masthe
 breadcrumbs              : true  #false (default)
 words_per_minute         : 200
 comments:
-  provider               : "disqus" # false (default), "disqus", "discourse", "facebook", "staticman", "staticman_v2", "utterances", "giscus", "custom"
+  provider               : # false (default), "disqus", "discourse", "facebook", "staticman", "staticman_v2", "utterances", "giscus", "custom"
   disqus:
-    shortname            : "juns-study-note" # https://help.disqus.com/customer/portal/articles/466208-what-s-a-shortname-
+    shortname            : # "juns-study-note" # https://help.disqus.com/customer/portal/articles/466208-what-s-a-shortname-
   discourse:
     server               : # https://meta.discourse.org/t/embedding-discourse-comments-via-javascript/31963 , e.g.: meta.discourse.org
   facebook:
@@ -64,14 +64,14 @@ search_full_content      : true # true, false (default)
 search_provider          : lunr # lunr (default), algolia, google
 lunr:
   search_within_pages    : true # true, false (default)
-algolia:
-  application_id         : P7YGPUW972 # YOUR_APPLICATION_ID
-  index_name             : junsangyoo # YOUR_INDEX_NAME
-  search_only_api_key    : 1bd50feea36f5e2f242b2636718d77e7 # YOUR_SEARCH_ONLY_API_KEY
-  powered_by             : true # true (default), false
-google:
-  search_engine_id       : 7304cf2af11ea4c4c # YOUR_SEARCH_ENGINE_ID
-  instant_search         : false # false (default), true
+# algolia:
+#   application_id         : P7YGPUW972 # YOUR_APPLICATION_ID
+#   index_name             : junsangyoo # YOUR_INDEX_NAME
+#   search_only_api_key    : 1bd50feea36f5e2f242b2636718d77e7 # YOUR_SEARCH_ONLY_API_KEY
+#   powered_by             : true # true (default), false
+# google:
+#   search_engine_id       : 7304cf2af11ea4c4c # YOUR_SEARCH_ENGINE_ID
+#   instant_search         : false # false (default), true
 # SEO Related
 google_site_verification : google352d130bb6d6cf79
 bing_site_verification   :
@@ -298,7 +298,7 @@ defaults:
       layout: single
       author_profile: false
       read_time: true
-      #comments: # true
+      # comments: true
       share: true
       related: true
       show_date: true

@@ -61,9 +61,9 @@ atom_feed:
   hide                   : # true, false (default)
 search                   : true # true, false (default)
 search_full_content      : true # true, false (default)
-search_provider          : algolia # lunr (default), algolia, google
+search_provider          : lunr # lunr (default), algolia, google
 lunr:
-  search_within_pages    : # true, false (default)
+  search_within_pages    : true # true, false (default)
 algolia:
   application_id         : P7YGPUW972 # YOUR_APPLICATION_ID
   index_name             : junsangyoo # YOUR_INDEX_NAME
@@ -71,7 +71,7 @@ algolia:
   powered_by             : true # true (default), false
 google:
   search_engine_id       : 7304cf2af11ea4c4c # YOUR_SEARCH_ENGINE_ID
-  instant_search         : true # false (default), true
+  instant_search         : false # false (default), true
 # SEO Related
 google_site_verification : google352d130bb6d6cf79
 bing_site_verification   :
@@ -240,7 +240,6 @@ plugins:
   - jekyll-feed
   - jekyll-include-cache
   - jekyll-redirect-from
-  - jekyll-algolia
 
 # mimic GitHub Pages with --safe
 whitelist:
@@ -250,7 +249,6 @@ whitelist:
   - jekyll-feed
   - jekyll-include-cache
   - jekyll-redirect-from
-  - jekyll-algolia
 
 
 # Archives

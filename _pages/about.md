@@ -23,23 +23,26 @@ header:
 #   - /위험카테고리이름/파일이름
 ---
 
-Hello World
-{: .notice--danger}
+<!-- Hello World
+{: .notice--danger} -->
 
 
-# <span style='color: DimGrey;'>Education</span>
+# <span style='color: CornflowerBlue;'>Education</span>
 <!-- <i class="fas fa-school"></i>  -->
-**University of Waterloo**
-Candidate for Bachelor of Math, ***Statistics*** Major and ***Computing*** Minor, Honours, Co-op
+[**University of Waterloo**](https://uwaterloo.ca/) <p float="right">Sep 2021 ~ Aug 2026</p> <br />
+Candidate for Bachelor of Math, ***Statistics*** Major and ***Computing*** Minor, Honours, Co-op <br />
+Sep 2021 ~ Aug 2026
 
-# <span style='color: DimGrey;'>Career</span>
+# <span style='color: CornflowerBlue;'>Career</span>
 
-+ **QA Test Engineer Intern** at [*Netmarble F&C Metaverse World*](https://company.netmarble.com/studio/list/fnc)>
-  +  May 2022 ~ Aug 2022
-+ **Product Manager** at [*Co;Ders Us (Association of Coding Education and Research)*](https://www.codersus.org/en) 
-  + Mar 2021 ~ Aug 2023
++ **QA Test Engineer Intern** at [*Netmarble F&C Metaverse World*](https://company.netmarble.com/studio/list/fnc)> <br />
+May 2022 ~ Aug 2022
+  + 
++ **Product Manager** at [*Co;Ders Us (Association of Coding Education and Research)*](https://www.codersus.org/en) <br />
+Mar 2021 ~ Aug 2023
+  + 
 
-# <span style='color: DimGrey;'>Projects</span>
+# <span style='color: CornflowerBlue;'>Projects</span>
 
 + 
 

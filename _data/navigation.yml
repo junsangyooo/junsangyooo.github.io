@@ -44,33 +44,31 @@ main:
 #             url: //
 
 study-note:
-  - title: "Study Note"
-    children:
-      - title: "Data Structure"
-        use: true
-        url: "https://junsantyooo.github.io/"
-      - title: "Algorighm"
-        use: true
-        url: //
-      - title: "CS"
-        use: true
-        url: //
+  - title: "Categories"
+    # children:
+    #   - title: "Data Structure"
+    #     url: "https://junsantyooo.github.io/"
+    #   - title: "Algorighm"
+    #     url: //
+    #   - title: "CS"
+    #     url: //
 
 problem-category:
   - title: "Tags"
-    children:
-      - title: "Algorithm"
-        use: true
-        url: //
-      - title: "Database"
-        use: true
-        url: //
-      - title: "Pandas"
-        use: true
-        url: //
-      - title: "Shell"
-        use: true
-        url: //
-      - title: "Concurrency"
-        use: true
-        url: //
+    # use: true
+    # children:
+    #   - title: "Algorithm"
+    #     # use: true
+    #     url: //
+    #   - title: "Database"
+    #     # use: true
+    #     url: //
+    #   - title: "Pandas"
+    #     # use: true
+    #     url: //
+    #   - title: "Shell"
+    #     # use: true
+    #     url: //
+    #   - title: "Concurrency"
+    #     # use: true
+    #     url: //

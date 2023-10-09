@@ -5,12 +5,13 @@ permalink: /about/
 
 # side bar: profile
 author_profile: true
+classes: wide
 
 # side bar: table of contents
-toc: true
-toc_sticky: true
-toc_label: contents
-toc_icon: "fas fa-utensils"
+# toc: true
+# toc_sticky: true
+# toc_label: contents
+# toc_icon: "fas fa-utensils"
 
 # Splash header image
 excerpt: "This post is a test about page"
@@ -27,8 +28,9 @@ Hello World
 
 
 # <span style='color: DimGrey;'>Education</span>
-
-<i class="fas fa-school"></i> Candidate for Bachelor of Math, ***Statistics*** Major and ***Computing*** Minor, Honours, Co-op
+<!-- <i class="fas fa-school"></i>  -->
+**University of Waterloo**
+Candidate for Bachelor of Math, ***Statistics*** Major and ***Computing*** Minor, Honours, Co-op
 
 # <span style='color: DimGrey;'>Career</span>
 

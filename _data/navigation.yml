@@ -8,10 +8,6 @@ main:
     url: /problem-solving/
   - title: "About"
     url: /about/
-  # - title: "Category"
-  #   url: /categories/
-  # - title: "Tag"
-  #   url: /tags/
 
 # study-note:
 #   - title: "Study Note"

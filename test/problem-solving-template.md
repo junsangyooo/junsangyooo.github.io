@@ -12,7 +12,7 @@ toc_icon: "fas fa-utensils"
 
 # left side bar: other contents
 sidebar:
-    nav: "leetCategory"
+    nav: "problem-category"
 
 # Define tags
 # tag: [난이도, 테마(Algorithm, Pandas, Database 등등)]

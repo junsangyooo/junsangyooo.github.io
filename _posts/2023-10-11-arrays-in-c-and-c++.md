@@ -95,11 +95,11 @@ array_name[index];
 
 ~~~c
 int main(){
-  int arr[] = {3, 6, 10, 15}; // array initialize with declaration without size
+    int arr[] = {3, 6, 10, 15}; // array initialize with declaration without size
                                 // Then our values = {3, 6, 10, 15}
                                 // 			     index = {0, 1,  2,  3}
 	printf("Element at arr[2]: %d\n", arr[2]);	// print the element at index 2 i.e. third element
-  return 0;
+    return 0;
 }
 ~~~
 

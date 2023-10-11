@@ -24,10 +24,8 @@ use_math: true
 #   - /위험카테고리이름/파일이름
 ---
 
-<div class="notice--danger">
-<h3>This question is from the <a href="https://leetcode.com">LeetCode</a>  and you can find the question here <a href="https://leetcode.com/problems/two-sum/">1. Two Sum</a>.</h3>
-<p>If there are some unfamiliar algorithms or data structures in my solution, there is a study note for some popular algorithms and data structures on my blog.</p>
-</div>
+This questions if from the [LeetCode](https://leetcode.com) and you can find the question here, [문제이름](문제링크).
+{: .notice--danger}
 
 # Solution
 <!-- 글로서 답 설명 -->

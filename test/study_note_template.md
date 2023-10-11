@@ -15,13 +15,8 @@ sidebar:
     nav: "study-note"
 
 # Choose categories
-# categories: "분야(Data Structure, Algorithm, etc...)"
+# categories: "분야(Data-Structure, Algorithm, etc...)"
 
 # redirect_from:
 #   - /위험카테고리이름/파일이름
 ---
-
-<div class="notice--info">
-<h3>Title</h3>
-<p> This post briefly review the category of data structures and basic description of them.</p>
-</div>

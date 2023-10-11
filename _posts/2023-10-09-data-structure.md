@@ -23,11 +23,6 @@ use_math: true
 #   - /위험카테고리이름/파일이름
 ---
 
-<!-- <div class="notice--info">
-<h3>Welcome to my first Data Structure study note!!</h3>
-<p> This post briefly review the category of data structures and basic description of them.</p>
-</div> -->
-
 # What is Data Structure
 
 **Data Structure** is a way of storing and organizing data. Data structures are essential and responsible for organizing, accessing, processing, and storing data efficiently. There are many different data structures and each of them has its own characteristic. Thus, we need to choose the most efficient data structure for our situation to reduce the complexity (time and memory) of the code. To choose the proper data structure in any situation, we should know each data structure's characteristic.

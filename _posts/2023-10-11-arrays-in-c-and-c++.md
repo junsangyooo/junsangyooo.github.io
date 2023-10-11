@@ -54,23 +54,20 @@ Initialization in C/C++ is the process to assign some initial value to the varia
 There are three ways to initialize an array:
 
 + With declaration:
-
-  + ~~~C
+  + ~~~c
     data_type array_name[size] = {val_1, val_2, ..., val_size};
     ~~~
   + Then the values are assigned in the array with its declaration.
   + Curly braces, ${}$, means **initializer list** in C/C++. We use it to initialize multiple elements of the array by enclosed the values within ${}$ separated by a comma.
 
 + With declaration without size:
-
-  + ~~~C
+  + ~~~c
     data_type array_name[] = {val_1, val_2, ..., val_size};
     ~~~
   + When we use the **initializer list** with declaration, we can skip declaring the array with size as the compiler can automatically deduce the size of the array.
 
 + After declaration:
-
-  + ~~~C
+  + ~~~c
     for (int i = 0; i < size; i++){
         array_name[i] = value_i;
     }
@@ -139,7 +136,7 @@ Element at arr[2]: 20
 
 **Syntax**
 
-~~~C
+~~~c
 data_type array_name[size_1][size_2]...[size_N] = { { {...}, ..., {...} }, ..., { {...}, ..., {...} } };
 ~~~
 
@@ -156,14 +153,16 @@ You've learned that we can skip declaring the array with size when we initialize
 
 **Wrong example**:
 
-~~~C
+~~~c
 int arr[][][2] = { { {1, 0}, {-1, 3} }, 
                   { {1, 2}, {3, 4} } }; // This array is [2][2][2]. This causes an error
 ~~~
 
+
+
 **Correct example**:
 
-~~~C
+~~~c
 int arr[][2][2] = { { {1, 0}, {-1, 3} },
                    { {1, 2}, {3, 4} } }; // Only the size of the left most dimension can be skipped.
 ~~~
@@ -178,7 +177,7 @@ array_name[index_1][index_2]...[index_n];
 
 **Example**:
 
-~~~C
+~~~c
 int main(){
     int arr[][2] = { {3, 6}, {10, 15}, {1, -1} }; // size: [3][2]
     
@@ -205,7 +204,7 @@ In C, an array is always passed as pointers to a function. Whenever we try to pa
 
 **Example of C**
 
-~~~C
+~~~c
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -244,7 +243,7 @@ int main() {
 
 **Output**
 
-~~~C
+~~~c
 Array size inside main() is 4
 Array size inside helper() is 2
 ~~~

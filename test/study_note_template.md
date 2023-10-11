@@ -17,6 +17,9 @@ sidebar:
 # Choose categories
 # categories: "분야(Data-Structure, Algorithm, etc...)"
 
+# LaTeX available
+use_math: true
+
 # redirect_from:
 #   - /위험카테고리이름/파일이름
 ---

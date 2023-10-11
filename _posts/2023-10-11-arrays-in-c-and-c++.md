@@ -140,14 +140,14 @@ Element at arr[2]: 20
 **Syntax**
 
 ~~~C
-data_type array_name[size_1][size_2]...[size_N] = { {{...}, ..., {...}}, ..., {{...}, ..., {...}} };
+data_type array_name[size_1][size_2]...[size_N] = { { {...}, ..., {...} }, ..., { {...}, ..., {...} } };
 ~~~
 
 **Example**:
 
 ~~~c
-int arr[2][2][2] = { {{1, 0}, {-1, 3}},
-                    {{1, 2}, {3, 4}} };
+int arr[2][2][2] = { { {1, 0}, {-1, 3} },
+                    { {1, 2}, {3, 4} } };
 ~~~
 
 
@@ -157,15 +157,15 @@ You've learned that we can skip declaring the array with size when we initialize
 **Wrong example**:
 
 ~~~C
-int arr[][][2] = { {{1, 0}, {-1, 3}}, 
-                  {{1, 2}, {3, 4}} }; // This array is [2][2][2]. This causes an error
+int arr[][][2] = { { {1, 0}, {-1, 3} }, 
+                  { {1, 2}, {3, 4} } }; // This array is [2][2][2]. This causes an error
 ~~~
 
 **Correct example**:
 
 ~~~C
-int arr[][2][2] = { {{1, 0}, {-1, 3}},
-                   {{1, 2}, {3, 4}} }; // Only the size of the left most dimension can be skipped.
+int arr[][2][2] = { { {1, 0}, {-1, 3} },
+                   { {1, 2}, {3, 4} } }; // Only the size of the left most dimension can be skipped.
 ~~~
 
 ## Access Multi-dimensional Array Elements
@@ -180,7 +180,7 @@ array_name[index_1][index_2]...[index_n];
 
 ~~~C
 int main(){
-    int arr[][2] = {{3, 6}, {10, 15}, {1, -1}}; // size: [3][2]
+    int arr[][2] = { {3, 6}, {10, 15}, {1, -1} }; // size: [3][2]
     
     // element in index of 2 (third element) in the first dimension: {1, -1}
     // and element in index of 1 (second element) in the second dimension: -1

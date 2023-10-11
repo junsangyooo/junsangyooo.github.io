@@ -80,7 +80,7 @@ There are three ways to initialize an array:
 
 To access an array element, refer to its **index** which starts from 0.
 
-e can access any element of an array in C using the array subscript operator **[ ]** and the index value $i$ of the element.
+We can access any element of an array in C using the array subscript operator **[ ]** and the index value $i$ of the element.
 
 **Syntax**
 
@@ -195,6 +195,30 @@ int main(){
 ~~~c
 Element at arr[2][1]: -1
 ~~~
+
+## Pointer and Array
+
+<!-- To understand below, you should know about ***pointer***. If you don't know much about it, please read the post [Pointer in C/C++](/Pointer in C/C++). -->
+
+~~~c
+int arr[2] = {1, 2};
+int *ptr = arr;
+~~~
+
+In the above code, the pointer *ptr* points to the $0^{th}$ element of the array, arr.
+
+Similarly, we can also declare a pointer that points to whole array.
+
+**Syntax**
+
+~~~c
+data_type (*var_name)[size];
+
+// Example:
+int (*ptr)[5];
+~~~
+
+The *ptr* above points to an array of 5 integers. You **must** enclose the indirection operator and pointer name inside parentheses.
 
 ## Passing an Array to a Function
 

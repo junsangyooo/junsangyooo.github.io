@@ -220,6 +220,19 @@ int (*ptr)[5];
 
 The *ptr* above points to an array of 5 integers. You **must** enclose the indirection operator and pointer name inside parentheses.
 
+**The pointer of an array and the pointer of the $0^{th}$ element of an array are different!**
+
+~~~c
+int *p;
+int (*ptr)[3];
+int arr[3];
+
+p = arr;
+ptr = &arr;
+~~~
+
+In the code above, the base type of ***p*** is **int** while the base type of ***ptr*** is an array of 3 integers.
+
 ## Passing an Array to a Function
 
 A whole array cannot be passed as an argument to a function in C++, but you can pass a pointer to an array without an index by specifying the array's name.
@@ -289,5 +302,11 @@ int main() {
 
 ~~~
 
+## Conclusion
 
-
++ The array in C/C++ is a fixed-size collection of elements.
++ Only elements of the same data type can be stored in one array.
++ The index of an array starts from $0$ and end to $N-1$.
++ All the elements in the array are stored continuously one after another in the memory.
++ We can access any random elements in an array with their indexes.
++ There is no index out-of-bounds checking.

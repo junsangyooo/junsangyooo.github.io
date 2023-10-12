@@ -302,7 +302,7 @@ int main() {
 
 ~~~
 
-## Conclusion
+## Properties of Array in C/C++
 
 + The array in C/C++ is a fixed-size collection of elements.
 + Only elements of the same data type can be stored in one array.

@@ -77,7 +77,7 @@ The list above shows worse performance as go down.
 
 ### Big O Analysis
 
-Steps to find Big-O runtime analysis:
+**Steps to find Big-O runtime analysis**:
 
 1. Figure out the input and what n represents.
 2. Express the maximum number of operations.
@@ -104,27 +104,67 @@ The **time complexity** is the amount of time taken by a program as a function t
 **Example:**
 
 ~~~c
-// There are the examples of the "constant time" statement.
+// These are the examples of the "constant time" statement.
 int n = 10;
 if (n == 10) return n;
 int n = 1000 ? n == 10 : 0;
+
+int main() {
+    int x = 1000;	// O(1)
+    x++;	// O(1)
+    x -= 1;	// O(1)
+    return 0;
+}	// the time complexity of main() is O(1)
+
+void g() {
+    for (int i = 0; i < 5; i++) {	// each traverse is O(1). 
+        cout << n << endl;
+    }	// O(1*5) = O(5) = O(1)
+}	// the time complexity of g() is O(1)
+
+//Assuming that n is the size of the input, 
+void f(int n) {
+    for (int i = 0; i < n; i++) {
+        cout << n << endl;
+    }	// O(1*n) = O(n)
+    return;
+}	// the time complexity of f() is O(n)
+
+void h(int n) {
+    int sum = 0;
+    for (int i = 0; i < n; i++) {	// total O(n)
+        for (int j = 0; j < n; j++) {	// total O(n)
+            sum += 1;
+        }
+    }// O(n)*O(n) = O(n^2)
+    cout << sum << endl;
+    return;
+}	// the time complexity of h() is O(n^2)
 ~~~
 
-The 
+Big-O notation is not limited in the number of inputs.
 
 ~~~c++
-int main() {
-    int x = 1000;	// $O(1)$
-    x++;
-    if (x == 1000) {
-        cout << "Wrong"<< endl;
+int twoInputs(int n, int m) {
+    int sum = 0;
+    for (int i = 0; i < n; i++) {	// total O(n)
+        for (int j = 0; j < m; j++) {	// total O(m)
+            sum++;
+        }	// O(n)*O(m) = O(n*m)
     }
-    if (x == 1001) {
-        cout << "Correct" << endl;
-    }
-    return 0;
-}
+    return sum;
+}	// the time complexity of twoInputs() is O(n*m)
 ~~~
 
+### Space Complexity
 
+The **space complexity** is the amount of memory required to run a program. Space complexity includes both Auxiliary space and space used by input. the 
+
+**Example:**
+
+~~~c++
+// These are the examples of the "constant space" statement.
+int x = 0;	// Auxiliary space
+
+~~~
 

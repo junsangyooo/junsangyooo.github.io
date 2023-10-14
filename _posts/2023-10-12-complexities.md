@@ -158,13 +158,32 @@ int twoInputs(int n, int m) {
 
 ### Space Complexity
 
-The **space complexity** is the amount of memory required to run a program. Space complexity includes both Auxiliary space and space used by input. the 
+The **space complexity** is the amount of memory required to run a program. Space complexity includes both Auxiliary space and space used by input.
 
 **Example:**
 
 ~~~c++
 // These are the examples of the "constant space" statement.
 int x = 0;	// Auxiliary space
+float y = 0.0;
+int x[10];
 
+int f(int n) {
+    std::vector<int> vec;
+    int x = 0;	// O(1)
+    for (int i = 0; i < n; i++) {
+        vec.push_back(i);
+    }// O(1)*O(n) = O(n)
+    // Total: O(1) + O(n) = O(n)
+}// Since we created an array of size n, the space complextiy of f() is O(n)
 ~~~
 
+## Optimize Complexities
+
+Optimization is done to derive the best possible solution to solve the problem so that it will take less time and space complexity. 
+
+To optimize a program,
+
++ reduce the time taken to run the program and increase space occupied,
++ reduce the memory usage of the program and increase its total run time, or
++ reduce both time and space complexity by deploying relevant algorithms.

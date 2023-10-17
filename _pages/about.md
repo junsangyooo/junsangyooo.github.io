@@ -28,13 +28,13 @@ header:
 
 
 
-# <span style='color: CornflowerBlue;'>Education</span>
+# <span style='color: #3c72d3;'>Education</span>
 [**University of Waterloo**](https://uwaterloo.ca/) 
 
 Candidate for Bachelor of Math, ***Statistics*** Major and ***Computing*** Minor, Honours, Co-op <br />
 Sep 2021 ~ Aug 2026
 
-# <span style='color: CornflowerBlue;'>Career</span>
+# <span style='color: #3c72d3;'>Career</span>
 
 + **QA Test Engineer Intern** at [*Netmarble F&C Metaverse World*](https://company.netmarble.com/studio/list/fnc)> <br />
 May 2022 ~ Aug 2022
@@ -43,7 +43,7 @@ May 2022 ~ Aug 2022
 Mar 2021 ~ Aug 2023
   + 
 
-# <span style='color: CornflowerBlue;'>Projects</span>
+# <span style='color: #3c72d3;'>Projects</span>
 
 + 
 

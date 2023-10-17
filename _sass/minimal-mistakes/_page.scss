@@ -13,7 +13,6 @@
   max-width: 100%;
   -webkit-animation-delay: 0.15s;
   animation-delay: 0.15s;
-
   @include breakpoint($x-large) {
     max-width: $max-width;
   }
@@ -71,7 +70,7 @@ body {
 .page__title {
   margin-top: 0;
   line-height: 1;
-
+  color: #003F60;
   a {
     color: $text-color;
     text-decoration: none;
@@ -381,7 +380,8 @@ body {
 }
 
 .taxonomy__count {
-  color: $muted-text-color;
+  //color: $muted-text-color;
+  color: black;
 }
 
 .taxonomy__index {

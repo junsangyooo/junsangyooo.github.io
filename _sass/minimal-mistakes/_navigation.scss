@@ -90,11 +90,11 @@
       &.current,
       &.current.disabled {
         color: #fff;
-        background: $primary-color;
+        background: $link-color-visited;
       }
 
       &.disabled {
-        color: rgba($muted-text-color, 0.5);
+        color: rgba($text-color, 0.5);
         pointer-events: none;
         cursor: not-allowed;
       }
@@ -128,12 +128,12 @@
     font-weight: bold;
     text-align: center;
     text-decoration: none;
-    color: $muted-text-color;
+    color: $text-color;
     border: 1px solid mix(#000, $border-color, 25%);
     border-radius: $border-radius;
 
     &:hover {
-      @include yiq-contrasted($muted-text-color);
+      @include yiq-contrasted($link-color-hover);
     }
 
     &:first-child {
@@ -148,7 +148,7 @@
     }
 
     &.disabled {
-      color: rgba($muted-text-color, 0.5);
+      color: rgba($text-color, 0.5);
       pointer-events: none;
       cursor: not-allowed;
     }
@@ -486,6 +486,7 @@
   font-family: $sans-serif-narrow;
   font-size: $type-size-5;
   font-weight: bold;
+  background-color: #713A3A;
 }
 
 .nav__sub-title {
@@ -516,6 +517,7 @@
     color: #fff;
     font-size: $type-size-6;
     background: $primary-color;
+    background-color: #003F60;
     border-top-left-radius: $border-radius;
     border-top-right-radius: $border-radius;
   }
@@ -546,7 +548,7 @@
     border-bottom: 1px solid $border-color;
 
     &:hover {
-      color: $text-color;
+      color: #003F60;
     }
   }
 

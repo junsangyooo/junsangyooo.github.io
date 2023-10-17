@@ -27,9 +27,10 @@ header:
 {: .notice--danger} -->
 
 
+
 # <span style='color: CornflowerBlue;'>Education</span>
-<!-- <i class="fas fa-school"></i>  -->
-[**University of Waterloo**](https://uwaterloo.ca/) <p float="right">Sep 2021 ~ Aug 2026</p> <br />
+[**University of Waterloo**](https://uwaterloo.ca/) 
+
 Candidate for Bachelor of Math, ***Statistics*** Major and ***Computing*** Minor, Honours, Co-op <br />
 Sep 2021 ~ Aug 2026
 

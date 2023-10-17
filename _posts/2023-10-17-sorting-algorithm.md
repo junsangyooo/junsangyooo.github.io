@@ -23,3 +23,17 @@ use_math: true
 # redirect_from:
 #   - /위험카테고리이름/파일이름
 ---
+
+There are so many different ways to sort an array and I will introduce some popular ***sorting algorithms*** in this study note.
+
+This is the table of complexities:
+
+| Sort Algorithm | Best Case     | Average Case  | Worst Case    | Memory   |
+| -------------- | ------------- | ------------- | ------------- | -------- |
+| Selection Sort | $O(n^{2})$    | $O(n^{2})$    | $O(n^{2})$    | $1$      |
+| Bubble Sort    | $O(n)$        | $O(n^{2})$    | $O(n^{2})$    | $1$      |
+| Insertion Sort | $O(n)$        | $O(n^{2})$    | $O(n^{2})$    | $1$      |
+| Merge Sort     | $O(n*log(n))$ | $O(n*log(n))$ | $O(n*log(n))$ | $n$      |
+| Quick Sort     | $O(n*log(n))$ | $O(n*log(n))$ | $O(n^{2})$    | $log(n)$ |
+| Heap Sort      | $O(n*log(n))$ | $O(n*log(n))$ | $O(n*log(n))$ | $1$      |
+

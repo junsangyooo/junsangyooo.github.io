@@ -37,3 +37,8 @@ This is the table of complexities:
 | Quick Sort     | $O(n*log(n))$ | $O(n*log(n))$ | $O(n^{2})$    | $log(n)$ |
 | Heap Sort      | $O(n*log(n))$ | $O(n*log(n))$ | $O(n*log(n))$ | $1$      |
 
+# Selection Sort
+
+***Selection Sort*** repeatedly finds the smallest element from the unsorted part of the array ans swaps it with the first element of the unsorted part until the entire array is sorted.
+
+Let's

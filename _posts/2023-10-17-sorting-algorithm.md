@@ -646,13 +646,13 @@ For $i^{th}$ node, i.e., `arr[i]`
 
   + ~~~c++
     // `arr = [9, 5, 6, 2, 10, 1, 7, 3, 4, 0, 8]`
-    //			  9
-    //		   /     \
-    //	      5	      6
-    //	    /  \     /  \
-    //     2    10  1    7
-    //    / \   / \
-    //   3   4 0   8
+    //            9
+    //         /     \
+    //        5        6
+    //      /   \     /  \
+    //     2     10  1    7
+    //    / \   /  \
+    //   3   4 0    8
     ~~~
 
 + Now we try to convert this into ***max heap*** (the parent node should always be greater than or equal to the child nodes).
@@ -665,11 +665,11 @@ For $i^{th}$ node, i.e., `arr[i]`
 
     ~~~c++
     // arr = [9, 10, 7, 4, 5, 1, 6, 3, 2, 0, 8]
-    //			  9
-    //		   /     \
-    //	     10	      7
-    //	    /  \     /  \
-    //     4     5  1    6
+    //            9
+    //         /     \
+    //       10        7
+    //      /   \     /  \
+    //     4     5   1    6
     //    / \   / \
     //   3   2 0   8
     ~~~
@@ -678,11 +678,11 @@ For $i^{th}$ node, i.e., `arr[i]`
 
     ~~~c++
     // arr = [10, 9, 7, 4, 8, 1, 6, 3, 2, 0, 5]
-    //			 10
-    //		   /     \
-    //	      9       7
-    //	    /  \     /  \
-    //     4     8  1    6
+    //           10
+    //         /     \
+    //        9        7
+    //      /   \     /  \
+    //     4     8   1    6
     //    / \   / \
     //   3   2 0   5
     ~~~
@@ -692,23 +692,23 @@ For $i^{th}$ node, i.e., `arr[i]`
 + Since we got the largest number at the root, we swap the root and the last element, delete the last node, and heapify the remained part.
 
   + ~~~c++
-    // arr = [5, 9, 7, 4, 8, 1, 6, 3, 2, 0, 10]
-    //			  5
-    //		   /     \
-    //	      9       7
-    //	    /  \     /  \
-    //     4     8  1    6
+    // arr = [5, 9, 7, 4, 8, 1, 6, 3, 2, 0, 10], remained = n - 1
+    //            5
+    //         /     \
+    //        9        7
+    //      /   \     /  \
+    //     4     8   1    6
     //    / \   /
     //   3   2 0
     ~~~
 
   + ~~~c++
-    // arr = [9, 8, 7, 4, 5, 1, 6, 3, 2, 0, 10]
-    //			  9
-    //		   /     \
-    //	      8       7
-    //	    /  \     /  \
-    //     4     5  1    6
+    // arr = [9, 8, 7, 4, 5, 1, 6, 3, 2, 0, 10], remained = n - 1
+    //            9
+    //         /     \
+    //        8        7
+    //      /   \     /  \
+    //     4     5   1    6
     //    / \   /
     //   3   2 0
     ~~~
@@ -716,8 +716,8 @@ For $i^{th}$ node, i.e., `arr[i]`
 + Now we repeat the step above until the remained part has length of 1:
 
   ~~~c++
-  // arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-  //			  0
+  // arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], remained = 1
+  //            0
   ~~~
 
 ## Implementation

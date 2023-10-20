@@ -632,9 +632,93 @@ The basic process of ***Heap Sort*** is:
    + *Heapify* the remaining elements of the heap.
 3. The sorted array is obtained by reversing order of the elements in the input array.
 
+This is some basic rules in the ***Binary Heap*** you should know before look into the codes:
+
+For $i^{th}$ node, i.e., `arr[i]`
+
+| Parent node      | Left child node | Right child node |
+| ---------------- | --------------- | ---------------- |
+| `arr[i / 2 - 1]` | `arr[2*i + 1]`  | `arr[2*i + 2]`   |
+
 **Example**: `arr = [9, 5, 6, 2, 10, 1, 7, 3, 4, 0, 8]`.
 
++ At the beginning, we convert the arr into the binary heap:
 
+  + ~~~c++
+    // `arr = [9, 5, 6, 2, 10, 1, 7, 3, 4, 0, 8]`
+    //			  9
+    //		   /     \
+    //	      5	      6
+    //	    /  \     /  \
+    //     2    10  1    7
+    //    / \   / \
+    //   3   4 0   8
+    ~~~
+
++ Now we try to convert this into ***max heap*** (the parent node should always be greater than or equal to the child nodes).
+
+  + Let `n` be the length of the array, then `(n / 2 - 1) * 2 + 1 = n - 2  +1 = n - 1`. Hence, we can guarantee that the nodes of indexes `[0, ..., n / 2 - 1]` have at least one child node.
+
+  + Thus, we check nodes of indexes `[0, ..., n / 2 - 1]` whether the value of each of them is greater than or equal to its corresponding child nodes. And if the child node is greater than the parent node, we swap them.
+
+  + For our array, `arr`, we should swap {4, 2}, {6, 7} and {5, 10} first:
+
+    ~~~c++
+    // arr = [9, 10, 7, 4, 5, 1, 6, 3, 2, 0, 8]
+    //			  9
+    //		   /     \
+    //	     10	      7
+    //	    /  \     /  \
+    //     4     5  1    6
+    //    / \   / \
+    //   3   2 0   8
+    ~~~
+
+  + Now we swap {5, 8} and {9, 10}:
+
+    ~~~c++
+    // arr = [10, 9, 7, 4, 8, 1, 6, 3, 2, 0, 5]
+    //			 10
+    //		   /     \
+    //	      9       7
+    //	    /  \     /  \
+    //     4     8  1    6
+    //    / \   / \
+    //   3   2 0   5
+    ~~~
+
+  + Now we got the ***max heap*** of the given array.
+
++ Since we got the largest number at the root, we swap the root and the last element, delete the last node, and heapify the remained part.
+
+  + ~~~c++
+    // arr = [5, 9, 7, 4, 8, 1, 6, 3, 2, 0, 10]
+    //			  5
+    //		   /     \
+    //	      9       7
+    //	    /  \     /  \
+    //     4     8  1    6
+    //    / \   /
+    //   3   2 0
+    ~~~
+
+  + ~~~c++
+    // arr = [9, 8, 7, 4, 5, 1, 6, 3, 2, 0, 10]
+    //			  9
+    //		   /     \
+    //	      8       7
+    //	    /  \     /  \
+    //     4     5  1    6
+    //    / \   /
+    //   3   2 0
+    ~~~
+
++ Now we repeat the step above until the remained part has length of 1:
+
+  ~~~c++
+  // arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  //			  0
+  ~~~
 
 ## Implementation
 

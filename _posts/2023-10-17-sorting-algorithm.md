@@ -110,17 +110,6 @@ print(a)
 # [1, 2, 4, 5, 6, 7]
 ~~~
 
-**Time Complexity: $O(n^{2})$**:
-
-There are two nested loops:
-
-+ One loop to select the first element of unsorted part ($O(n)$).
-+ Another loop to compare the first element and every other elements in unsorted part ($O(n)$).
-
-**Space Complexity: $O(1)$**:
-
-We only use constant extra space.
-
 ## Advantages
 
 + It works well on sorting an array of small size.
@@ -201,14 +190,6 @@ print(a)
 # Output:
 # [1, 2, 4, 5, 6, 7]
 ~~~
-
-**Time Complexity: $O(n^{2})$**:
-
-$O(n) \times O(2n) = O(2n^{2}) = O(n^{2})$
-
-**Space Complexity: $O(1)$**:
-
-Same as **normal selection sort**.
 
 
 
@@ -294,14 +275,6 @@ print(a)
 # [1, 2, 4, 5, 6, 7]
 ~~~
 
-**Time Complexity: $O(n^{2})$**:
-
-There are two nested loops of $O(n)$.
-
-**Space Complexity: $O(1)$**:
-
-Only constant extra space is used.
-
 ## Advantages
 
 + It requires no additional memory space.
@@ -386,62 +359,384 @@ print(a)
 # [1, 2, 4, 5, 6, 7]
 ~~~
 
-**Time Complexity: $O(n^{2})$**:
-
-There are two nested loops of $O(n)$.
-
-**Space Complexity: $O(1)$**:
-
-Only constant extra space is used.
-
 
 
 # Merge Sort
 
 ***Merge sort*** is a *divide-and-conquer* algorithm based on the idea of breaking down a list into several sub-lists until each sublist consists of a single element and merging those sublists in a manner that results into a sorted list.
 
-**Example**: `arr = [4, 2, 5, 1, 6, 3]`
+**Example**: `arr = [4, 2, 5, 1]`
 
-1. Initially divide the array into two equal halves: `arr1 = [4, 2, 5], arr2 = [1, 6, 3]`.
-2. 
+1. Initially divide the array into two equal halves: `arr1 = [4, 2], arr2 = [5, 1]`.
+
+2. Divide the subarrays until that can no longer be divided: `arr1 = [4], arr2 = [2], arr3 = [5], arr4 = [1]`.
+
+3. These subarrays are repeatedly merged together and the merged subarrays are sorted:
+
+   `arr1 = [2, 4], arr2 = [1, 5]`.
+
+4. This merging process is continued until the sorted array is built from the smaller subarrays: `arr = [1, 2, 4, 5]`.
 
 ## Implementation
 
 **C++**:
 
 ~~~c++
+#include <iostream>
+using namespace std;
 
+void merge(int array[], int const left, int const mid, int const right){
+    int const subArrayOne = mid - left + 1;
+    int const subArrayTwo = right - mid;
+    auto *leftArray = new int[subArrayOne];
+    auto *rightArray = new int[subArrayTwo];
+    
+    for (auto i = 0; i < subArrayOne; i++) {
+        leftArray[i] = array[left + i];
+    }
+    for (auto j = 0; j < subArrayTwo; j++) {
+        rightArray[i] = array[mid + 1 + j];
+    }
+    
+    auto indexOfSubArrayOne = 0, indexOfSubArrayTwo = 0;
+    int indexOfMergedArray = left;
+    
+    while (indexOfSubArrayOne < subArrayOne && indexOfSubArrayTwo < subArrayTwo) {
+        if (leftArray[indexOfSubArrayOne] <= rightArray[indexOfSubArrayTwo]) {
+            array[indexOfMergedArray] = leftArray[indexOfSubArrayOne];
+            indexOfSubArrayOne++;
+        } else {
+            array[indexOfMergedArray] = rightArray[indexOfSubArrayTwo];
+            indexOfSubArrayTwo++;
+        }
+        indexOfMergedArray++;
+    }
+    
+    while (indexOfSubArrayOne < subArrayOne) {
+        array[indexOfMergedArray] = leftArray[indexOfSubArrayOne];
+        indexOfSubArrayOne++;
+        indexOfMergedArray++;
+    }
+    
+    while (indexOfSubArrayTwo < subArrayTwo) {
+        array[indexOfMergedArray] = rightArray[indexOfSubArrayTwo];
+        indexOfSubArrayTwo++;
+        indexOfMergedArray++;
+    }
+    delete[] leftArray;
+    delete[] rightArray;
+}
+void mergeSort(int arr[], int startIndex, int endIndex) {
+    if (startIndex >= endIndex)
+        return;
+ 
+    int midIndex = startIndex + (endIndex - startIndex) / 2;
+    mergeSort(array, startIndex, midIndex);
+    mergeSort(array, midIndex + 1, endIndex);
+    merge(array, startIndex, midIndex, endIndex);
+}
+void printArr(int arr[], int size) { 
+  std::cout << "[ ";
+  int i; 
+  for (i=0; i < size; i++) std::cout << arr[i] <<  " ";
+  std::cout << "]" << std::endl;
+}  
+int main() {
+    int arr[] = {5, 6, 2, 4, 1, 7, 3, 10, 11};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    
+    printArr(arr, n);
+    mergeSort(arr, 0, n-1);
+    printArr(arr, n);
+    return 0;
+}
+// Output:
+// [ 5 6 2 4 1 7 3 10 11 ]
+// [ 1 2 3 4 5 6 7 10 11 ]
 ~~~
 
 **Python**:
 
 ~~~python
+def mergeSort(A):
+    if len(A) <= 1: return
 
+    mid = len(A) // 2
+    leftArray = A[:mid]
+    rightArray = A[mid:]
+
+    mergeSort(leftArray)
+    mergeSort(rightArray)
+
+    indexOfLeftArray, indexOfRightArray, indexOfMergedArray = 0, 0, 0
+
+    while (indexOfLeftArray < len(leftArray) and indexOfRightArray < len(rightArray)):
+        if (leftArray[indexOfLeftArray] <= rightArray[indexOfRightArray]):
+            A[indexOfMergedArray] = leftArray[indexOfLeftArray]
+            indexOfLeftArray += 1
+        else:
+            A[indexOfMergedArray] = rightArray[indexOfRightArray]
+            indexOfRightArray += 1
+        indexOfMergedArray += 1
+    
+    while (indexOfLeftArray < len(leftArray)):
+        A[indexOfMergedArray] = leftArray[indexOfLeftArray]
+        indexOfLeftArray += 1
+        indexOfMergedArray += 1
+    
+    while (indexOfRightArray < len(rightArray)):
+        A[indexOfMergedArray] = rightArray[indexOfRightArray]
+        indexOfRightArray += 1
+        indexOfMergedArray += 1
+    
+a = [5, 6, 2, 4, 1, 7, 3, 10, 11];
+print(a)
+mergeSort(a)
+print(a)
+
+# Output:
+# [5, 6, 2, 4, 1, 7, 3, 10, 11]
+# [1, 2, 3, 4, 5, 6, 7, 10, 11]
 ~~~
 
-**Time Complexity: $O(n^{2})$**:
+## Advantages
 
-**Space Complexity: $O(1)$**:
++ Merge sort is a ***stable sorting algorithm***.
++ Merge sort always has a  $O(n log(n))$ time-complexity even in the worst case.
++ Because merge sort is an algorithm that can be parallelized easily to take use of many processors or threads, it is naturally parallelizable.
+
+## Disadvantages
+
++ Merge sort requires additional $O(n)$ extra memory to store the subarrays.
++ For small datasets, there are some other sorting algorithms such as insertion sort which has a lower time complexity than merge sort.
 
 
 
+# Quick Sort
 
+Like the ***merge sort*** algorithm, the ***Quick Sort*** is a algorithm based on the *divide-and-conquer* algorithm that choses an element as a pivot and partitions the given array around the chosen pivot by placing the pivot in its correct position in the sorted array.
 
-<!-- ## Implementation
+The basic process of the ***quick sort*** is:
+
+1. Chose an element, *pivot*
+2. Traverse the array by comparing each element with the pivot
+   + If the element is smaller than the pivot, put the element to the left side of the array
+   + Otherwise, put the element to the right side of the array
+   + We should remember the index of the left-most element which is bigger than the pivot.
+   + After traverse the whole array, put the `pivot` element to the index of the left-most element which is bigger than the pivot. (this makes `arr = [elements smaller than pivot, pivot, elements larget than pivot]`)
+3. Than we repeat the step 1 and 2 for the divided subarrays: `arr1 = [elements < pivot], arr2 = [elements > pivot]`.
+
+## Implementation
 
 **C++**:
 
 ~~~c++
+#include <iostream>
+using namespace std;
 
+int partition(int arr[], int left, int right) {
+    int pivot = arr[right];
+    
+    int index = left - 1;
+    for (int i = left; i < right; i++) {
+        if (arr[i] < pivot) {
+            index++;
+            swap(arr[i], arr[index]);
+        }
+    }
+    index++;
+    swap(arr[index], arr[right]);
+    return index;
+}
+void quickSort(int arr[], int left, int right) {
+    if (left >= right) return;
+    int pivot = partition(arr,left,right);
+    quickSort(arr,left,pivot-1);
+    quickSort(arr,pivot+1,right);
+}
+void printArr(int arr[], int size) { 
+  std::cout << "[ ";
+  int i; 
+  for (i=0; i < size; i++) std::cout << arr[i] <<  " ";
+  std::cout << "]" << std::endl;
+}  
+int main() {
+    int arr[] = {9, 5, 6, 2, 10, 1, 7, 3, 4, 0, 8};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    
+    printArr(arr, n);
+    quickSort(arr, 0, n - 1);
+    printArr(arr, n);
+    return 0;
+}
+// Output:
+// [ 9 5 6 2 10 1 7 3 4 0 8 ]
+// [ 0 1 2 3 4 5 6 7 8 9 10 ]
 ~~~
 
 **Python**:
 
 ~~~python
+def partition(A, left, right):
+    pivot = A[right]
+    index = left - 1
 
+    for i in range(left, right):
+        if A[i] < pivot:
+            index += 1
+            A[index], A[i] = A[i], A[index]
+    index += 1
+    A[index], A[right] = A[right], A[index]
+    return index
+
+def quickSort(A, left, right):
+    if (left >= right): return
+    pivot = partition(A, left, right)
+
+    quickSort(A, left, pivot - 1)
+    quickSort(A, pivot + 1, right)
+    
+a = [9, 5, 6, 2, 10, 1, 7, 3, 4, 0, 8];
+print(a)
+quickSort(a, 0, len(a) - 1)
+print(a)
+
+# Output:
+# [9, 5, 6, 2, 10, 1, 7, 3, 4, 0, 8]
+# [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 ~~~
 
-**Time Complexity: $O(n^{2})$**:
+## Advantages
 
-**Space Complexity: $O(1)$**:
- -->
++ Quick Sort is efficient on large data sets.
++ If we don't consider the recursive stack space, it only requires a small amount of memory to function.
+
+## Disadvantages
+
++ Quick Sort has a $O(n^{2})$ time complexity in the worst case.
++ Quick Sort is not efficient for small data sets.
++ It is not a ***stable sorting algorithm***.
+
+
+
+# Heap Sort
+
+***Heap Sort*** is similar to the [Selection Sort](#Selection Sort) where we first find the minimum element and place the minimum element at the beginning. This algorithm based on the ***Binary Heap*** data structures, so if you are not familiar with this, please read [Binary Heap]().
+
+The basic process of ***Heap Sort*** is:
+
+1. Convert the array into heap data structures using *heapify*.
+2. Repeat the following steps until the heap contains only one element:
+   + Swap the root element of the heap (which is the largest element) with the last element of the heap.
+   + Remove the last element of the heap (which is now in the correct position).
+   + *Heapify* the remaining elements of the heap.
+3. The sorted array is obtained by reversing order of the elements in the input array.
+
+**Example**: `arr = [9, 5, 6, 2, 10, 1, 7, 3, 4, 0, 8]`.
+
+
+
+## Implementation
+
+**C++**:
+
+~~~c++
+#include <iostream>
+using namespace std;
+
+void heapify(int arr[], int n, int i) {
+    int largest = i;	// Initialize largest as root
+    
+    int left = 2 * i + 1;
+    int right = 2 * i + 2;
+    
+    // Checks if left and right childs of root exists and any of them is greater than root
+    if (left < n && arr[left] > arr[largest]) largest = left;
+    if (right < n && arr[right] > arr[largest]) largest = right;
+    
+    if (largest != i) {
+        // Change root
+        swap(arr[i], arr[largest]);
+        
+        // Recursively heapify the affected sub-tree
+        heapify(arr, n, largest);
+    }
+}
+void heapSort(int arr[], int n) {
+    // Build heap (rearrange array)
+    for (int i = n / 2 - 1; i >= 0; i--) heapify(arr, n, i);
+    
+    // One by one extract an element from heap
+    for (int i = n - 1; i > 0; i--) {
+        // Move current root to end
+        swap(arr[0], arr[i]);
+        // call max heapify on the reduced heap
+        heapify(arr, i, 0);
+    }
+}
+void printArr(int arr[], int size) { 
+  std::cout << "[ ";
+  int i; 
+  for (i=0; i < size; i++) std::cout << arr[i] <<  " ";
+  std::cout << "]" << std::endl;
+}  
+int main() {
+    int arr[] = {9, 5, 6, 2, 10, 1, 7, 3, 4, 0, 8};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    
+    printArr(arr, n);
+    heapSort(arr, n);
+    printArr(arr, n);
+    return 0;
+}
+// Output:
+// [ 9 5 6 2 10 1 7 3 4 0 8 ]
+// [ 0 1 2 3 4 5 6 7 8 9 10 ]
+~~~
+
+**Python**:
+
+~~~python
+def heapify(A, n, i):
+    largest = i
+
+    left = 2 * i + 1
+    right = 2 * i + 2
+
+    if left < n and A[left] > A[largest]:
+        largest = left
+    if right < n and A[right] > A[largest]:
+        largest = right
+
+    if largest != i:
+        A[i], A[largest] = A[largest], A[i]
+        heapify(A, n, largest)
+
+def heapSort(A):
+    n = len(A)
+    for i in range(n // 2 - 1, -1, -1):
+        heapify(A, n, i)
+    
+    for i in range(n - 1, 0, -1):
+        A[0], A[i] = A[i], A[0]
+        heapify(A, i, 0)
+    
+a = [9, 5, 6, 2, 10, 1, 7, 3, 4, 0, 8];
+print(a)
+heapSort(a)
+print(a)
+# Output:
+# [9, 5, 6, 2, 10, 1, 7, 3, 4, 0, 8]
+# [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+~~~
+
+## Advantages
+
++ Heap Sort has a time complexity of $O(n log(n))$ in all cases.
++ It is efficient in memory usage
+
+## Disadvantages
+
++ Heap sort is costly
++ Heap sort is not a ***stable sorting algorithm***.
++ Heap Sort is not very efficient when working with highly complex data. 

@@ -621,7 +621,7 @@ print(a)
 
 # Heap Sort
 
-***Heap Sort*** is similar to the [Selection Sort](#Selection Sort) where we first find the minimum element and place the minimum element at the beginning. This algorithm based on the ***Binary Heap*** data structures, so if you are not familiar with this, please read [Binary Heap]().
+***Heap Sort*** is similar to the [***Selection Sort***](#selection-sort) where we first find the minimum element and place the minimum element at the beginning. This algorithm based on the ***Binary Heap*** data structures, so if you are not familiar with this, please read [**Binary Heap**]().
 
 The basic process of ***Heap Sort*** is:
 
@@ -805,7 +805,7 @@ def heapSort(A):
         A[0], A[i] = A[i], A[0]
         heapify(A, i, 0)
     
-a = [9, 5, 6, 2, 10, 1, 7, 3, 4, 0, 8];
+a = [9, 5, 6, 2, 10, 1, 7, 3, 4, 0, 8]
 print(a)
 heapSort(a)
 print(a)
@@ -824,3 +824,149 @@ print(a)
 + Heap sort is costly
 + Heap sort is not a ***stable sorting algorithm***.
 + Heap Sort is not very efficient when working with highly complex data. 
+
+
+
+# Bonus: Dutch National Flag Problem
+
+***Dutch National Flag Problem*** is as follows:
+
+<div class="notice--primary">
+    Given N balls of colour red, white or blue arranged in a line in random order. You have to arrange all the balls such that the balls with the same colours are adjacent with the order of the balls, with the order of the colours being red, white and blue (i.e., all red coloured balls come first then the white coloured balls and then the blue coloured balls). 
+</div>
+
+The process of solving this problem is:
+
+1. Create three variables, `low, mid, high` to divide the array into four sections: `[0, low), [low, mid), [mid, high), [high, length)`.
+2. We will traverse the array by increasing `mid` from 0 to the size of the array
+   + if `arr[mid] == 0`, swap it with an element to the `low` range.
+   + if `arr[mid] == 1`, keep it as it is.
+   + if `arr[mid] == 2`, swap it with an element in `high` range.
+
+**Example**: `arr = [0, 2, 0, 1]`
+
+~~~c++
+// Step 1: low = 0, mid = 0, high = 3
+// arr[mid] = 0
+// + swap(arr[low], arr[mid])
+// + low += 1
+// + mid += 1
+//
+// Step 2: low = 1, mid = 1, high = 3
+// arr = [0, 2, 0, 1], arr[mid] = 2
+// + swap(arr[mid], arr[high])
+// + high -= 1
+//
+// Step 3: low = 1, mid = 1, high = 2 
+// arr = [0, 1, 0, 2], arr[mid] = 1
+// + mid += 1
+//
+// Step 4: low = 1, mid = 2, high = 2 
+// arr = [0, 1, 0, 2], arr[mid] = 0
+// + swap(arr[low], arr[mid])
+// + low += 1
+// + mid += 1
+//
+// Step 5: low = 1, mid = 3, high = 2
+// Since mid > high, we stop the loop and return the arr
+// arr = [0, 0, 1, 2]
+~~~
+
+
+
+## Implementation
+
+**C++**:
+
+~~~c++
+#include <iostream>
+using namespace std;
+
+void dutchSort(int arr[], int n) {
+    int low = 0;
+    int high = n - 1;
+    // Original Approach as explained
+    // int mid = 0;
+    // while (mid <= high) {
+    //     switch (arr[mid]) {
+    //     case 0:
+    //         swap(arr[low++], arr[mid++]);
+    //         break;
+    //     case 1:
+    //         mid++;
+    //         break;
+    //     case 2:
+    //         swap(arr[mid], arr[high--]);
+    //         break;
+    //     }
+    // }
+
+    
+    // Approach of two pointers: low and high
+    for (int i = 0; i < n && i <= high;) {
+        if (arr[i] == 0) {
+            swap(arr[low], arr[i]);
+            low++;
+            i++;
+        } else if (arr[i] == 1) {
+            i++;
+        } else if (arr[i] == 2) {
+            swap(arr[i], arr[high]);
+            high--;
+        }
+    }
+}
+void printArr(int arr[], int size) { 
+  std::cout << "[ ";
+  int i; 
+  for (i=0; i < size; i++) std::cout << arr[i] <<  " ";
+  std::cout << "]" << std::endl;
+}  
+int main() {
+    int arr[] = {2, 1, 0, 1, 0, 2, 0, 0, 2, 1, 0};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    
+    printArr(arr, n);
+    dutchSort(arr, n);
+    printArr(arr, n);
+    return 0;
+}
+// Output:
+// [ 2 1 0 1 0 2 0 0 2 1 0 ]
+// [ 0 0 0 0 0 1 1 1 2 2 2 ]
+~~~
+
+**Python**:
+
+~~~python
+def dutchSort(A):
+    low, mid, high = 0, 0, len(A) - 1
+
+    while mid <= high:
+        if arr[mid] == 0:
+            arr[low], arr[mid] = arr[mid], arr[low]
+            low += 1
+            mid += 1
+        elif arr[mid] == 1:
+            mid += 1
+        elif arr[mid] == 2:
+            arr[mid], arr[high] = arr[high], arr[mid]
+            mid += 1
+            high -= 1
+    
+a = [2, 1, 0, 1, 0, 2, 0, 0, 2, 1, 0]
+print(a)
+heapSort(a)
+print(a)
+# Output:
+# [2, 1, 0, 1, 0, 2, 0, 0, 2, 1, 0]
+# [0, 0, 0, 0, 0, 1, 1, 1, 2, 2, 2]
+~~~
+
+## **Time Complexity:** **$O(n)$**
+
+Traverse the given array once.
+
+## **Space Complexity:** **$O(1)$**
+
+We only needs a constant extra space.

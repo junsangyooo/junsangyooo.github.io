@@ -245,3 +245,8 @@ print("a >> 1 = %d, b >> 1 = %d" %(a >> 1, b >> 1))
 # a >> 1 = 3, b >> 1 = 5
 ~~~
 
+
+
+If you want to see some practice problems for ***bit manipulation***, check belows:
+
++ [29. Divide Two Integers](../29/)

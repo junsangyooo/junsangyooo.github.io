@@ -133,7 +133,7 @@ The general syntax for the right shift is `shift-expression >> k`. The right-shi
 
 # Bitwise Operators in Different Languages
 
-### C
+## C
 
 ~~~c
 #include <stdio.h>
@@ -171,7 +171,7 @@ int main()
 // a >> 1 = 3, b >> 1 = 5
 ~~~
 
-### C++
+## C++
 
 ~~~c++
 #include <iostream>
@@ -212,7 +212,7 @@ int main() {
 // a >> 1 = 3, b >> 1 = 5
 ~~~
 
-### Python
+## Python
 
 ~~~python
 a = 7
@@ -245,8 +245,225 @@ print("a >> 1 = %d, b >> 1 = %d" %(a >> 1, b >> 1))
 # a >> 1 = 3, b >> 1 = 5
 ~~~
 
+# Bit Manipulation Examples
+
+You can find the detail of the problems below from [GeeksforGeeks](https://www.geeksforgeeks.org/bits-manipulation-important-tactics/?ref=lbp).
+{: .notice--danger}
 
 
-If you want to see some practice problems for ***bit manipulation***, check belows:
+## Calculate XOR from 1 to n.
 
-+ [29. Divide Two Integers](../29/)
+**Example**:
+
+~~~markdown
+Number Binary-Repr  XOR-from-1-to-n
+1         1           [0001]
+2        10           [0011]
+3        11           [0000]  We get a 0
+4       100           [0100]  Equals to n
+5       101           [0001]
+6       110           [0111]
+7       111           [0000]  We get 0
+8      1000           [1000]  Equals to n
+9      1001           [0001]
+10     1010           [1011]
+11     1011           [0000]  We get 0
+12     1100           [1100]  Equals to n
+~~~
+
+We can find the rules using the example above that:
+
++ If `n % 4 == 0`, the XOR from 1 to `n` is `n`.
++ If `n % 4 == 1`, the XOR from 1 to `n` is 1.
++ If `n % 4 == 2`, the XOR from 1 to `n` is `n + 1`.
++ Otherwise, the XOR from 1 to `n` is 0.
+
+**C++**:
+
+~~~c++
+#include <iostream>
+using namespace std;
+int computeXOR(int n) 
+{
+  if (n % 4 == 0) return n; 
+  else if (n % 4 == 1) return 1; 
+  else if (n % 4 == 2) return n + 1; 
+  else return 0; 
+}
+
+int main() {
+    int n = 7;
+    cout << computeXOR(n);
+}
+
+// Output:
+// 0
+~~~
+
+**Python**:
+
+~~~python
+def computeXOR(n) : 
+    if n % 4 == 0 : 
+        return n 
+    elif n % 4 == 1 : 
+        return 1
+    elif n % 4 == 2 : 
+        return n + 1
+    else: return 0
+
+n = 7
+print(computeXOR(n))
+
+# Output:
+# 0
+~~~
+
+**Time Complexity: *$O(1)$***
+
+**Space Complexity: *$O(1)$***
+
+## Equal Sum and XOR
+
+Given a positive integer `n`, find count of positive integers `i` such that `0 <= i <= n` and `n+i = n^i`.
+
+**Example**:
+
+~~~markdown
+Input: n = 7 (0111)
+i     Binary-Repr     n + i        n ^ i
+0         0000         0111        0111    <--- n + i = n ^ i
+1         0001         1000        0110
+2         0010         1001        0101
+3         0011         1010        0100
+4         0100         1011        0011
+5         0101         1100        0010
+6         0110         1101        0001
+7         0111         1110        0000
+Output: i = 1
+
+Input: n = 10 (1010)
+i     Binary-Repr     n + i        n ^ i
+0         0000         1010        1010    <--- n + i = n ^ i
+1         0001         1011        1011    <--- n + i = n ^ i
+2         0010         1100        1000
+3         0011         1101        1001
+4         0100         1110        1110    <--- n + i = n ^ i
+5         0101         1111        1111    <--- n + i = n ^ i
+6         0110         10000       1100
+7         0111         10001       1101
+8         1000         10010       0010
+9         1001         10011       0011
+10        1010         10100       0000
+Output: i = 4
+~~~
+
+We know that `n + i = (n ^ i) + 2*(n & i)`.
+
+Thus `2*(n & i)` must be zero to make `n + i = n ^ i`.
+
+Since we only need to check each bit of `n`. For example, if `n = 10`, (1010), only possible `i` that `2*(n & i) = 0` is: (0 0/1 0 0/1).
+
+Hence we will count the number of bits of 0 in the given `n`. Then the count of `i`s will be $2^{countOfBits}$. We can express this in bit manipulation by `1 << count_of_bits`
+
+**C++**:
+
+~~~c++
+#include <iostream>
+using namespace std;
+
+int countValues(int n) {
+    int bits = 0;
+    while(n) {
+        if ((n & 1) == 0) bits++;
+        n = n >> 1;
+    }
+    return 1 << bits;
+}
+
+int main (){
+    int n = 10;
+    cout << countValues(n);
+}
+// Output:
+// 4
+~~~
+
+~~~python
+def countValues(n):
+    bits = 0
+    while(n):
+        if n&1 == 0: bits += 1
+        n = n >> 1
+    return 1 << bits
+
+n = 10
+print(countValues(n))
+# Output:
+# 4
+~~~
+
+**Time Complexity: *$O(log(n))$***
+
+**Space Complexity: *$O(1)$***
+
+## Check if a number is power of 2
+
+If a number, `n`, is power of 2 , it will have a form of `1 0*` where the number of `0` can be from 0 to infinite.
+
+**Example**:
+
+~~~markdown
+Input: n = 10
+n = (1010) then there is one more 1 after the first 1. Hence it is not a power of 2
+Output: False
+
+Input: n = 16
+n = (10000) then there is no other 1 after the first 1. Hence it is a power of 2
+~~~
+
+We can simply check this by `(n & (n - 1)) == 0`.
+
+**C++**:
+
+~~~c++
+#include <iostream>
+using namespace std;
+bool isPowerOfTwo(int n) {
+    return n && (!(n & (n - 1)));
+}
+int main() {
+    int n1 = 10;
+    int n2 = 4;
+    cout << isPowerOfTwo(n1) << endl;
+    cout << isPowerOfTwo(n2);
+}
+// Output:
+// 0
+// 1
+~~~
+
+**Python**:
+
+~~~python
+def isPowerOfTwo(n):
+    return n and not (n & (n - 1))
+
+n1 = 10
+n2 = 4
+print(isPowerOfTwo(n1))
+print(isPowerOfTwo(n2))
+# Output:
+# False
+# True
+~~~
+
+**Time Complexity: *$O(1)$***
+
+**Space Complexity: *$O(1)$***
+
+
+
+If you want to see more practice problems for ***bit manipulation***, check belows:
+
++ [29. Divide Two Integers](../../29/)

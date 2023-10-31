@@ -464,6 +464,147 @@ print(isPowerOfTwo(n2))
 
 
 
+## [Add two binary strings](https://www.geeksforgeeks.org/program-to-add-two-binary-strings/)
+
+We will assume that the length of `a` is longer or equal to the length of `b` (otherwise, we recall the function by swapping the parameters.) For the shorter string, `b`, we will add `"0"` at the front of `b` until its length to be equal to the length of `a`. Since the binary strings is based of 2, if the sum of `a[i] and b[i] >= 2` , we remember it and add 1 in the next position and put `a[i] + b[i] % 2` at current position instead. So we are going to create a new variable, `remained`, to remember the previous left-over number.
+
+Now we iterate the both strings from the back to the front with the index variable, `i`.
+
++ First we add `a[i], b[i], and remained`
++ Then we add `sum % 2` at the front of the answer string and set remained = `sum / 2`.
+
+At the end, we check whether `remained` and if so, we add "1" at the front of the answer string.
+
+Then we return the answer.
+
+**C++**:
+
+~~~c++
+#include <iostream>
+#include <string>
+using namespace std;
+
+string addBinary(string a, string b) {
+    if (a.size() < b.size()) return addBinary(b, a);
+   	string output = "";
+   	for (int i = 0; i < a.size() - b.size(); i++) {
+        b = "0" + b;
+    }
+    int remained = 0;
+    for (int i = a.size() - 1; i >= 0; i--) {
+        if (!remained) 
+        {
+            if (a[i] == '1' && b[i] == '1') 
+            {
+                output = "0" + output;
+                remained = 1;
+            } 
+            else if (a[i] == '1' || b[i] == '1') output = "1" + output;
+            else output = "0" + output;
+        }
+        else
+        {
+            if (a[i] == '1' && b[i] == '1') output = "1" + output;
+            else if (a[i] == '1' || b[i] == '1') output = "0" + output; 
+            else
+            {
+                remained = 0;
+                output = "1" + output;
+            }
+        }
+    }
+    if (remained) output = "1" + output;
+    return output;
+    
+}
+int main() {
+    string a = "110";
+    string b = "11";
+    cout << a << " + " << b << " = " << addBinary(a, b) << endl;
+}
+// Output:
+// 110 + 11 = 1001
+~~~
+
+**Python**:
+
+~~~python
+def addBinary(a, b):
+    if len(a) < len(b): return addBinary(b, a)
+    output = ""
+
+    for i in range(0, len(a) - len(b)):
+        b = "0" + b
+    
+    remained = False
+    for i in range(len(a) - 1, -1, -1):
+        if remained:
+            if a[i] == '1' and b[i] == '1':
+                output = "1" + output
+            elif a[i] == '1' or b[i] == '1':
+                output = "0" + output
+            else:
+                remained = False
+                output = "1" + output
+        else:
+            if a[i] == '1' and b[i] == '1':
+                output = "0" + output
+                remained = True
+            elif a[i] == '1' or b[i] == '1':
+                output = "1" + output
+            else:
+                output = "0" + output
+    if remained:
+        output = "1" + output
+    return output
+
+n1 = "110"
+n2 = "11"
+print(addBinary(n1, n2))
+# Output:
+# 1001
+~~~
+
+**Time Complexity: *$O(max(n, m))$***
+
+**Space Complexity: *$O(max(n, m))$***
+
+
+
+## [Generate all the binary number from 0 to n](https://www.geeksforgeeks.org/generate-binary-number-0-n/)
+
+**Example**:
+
+~~~markdown
+Input: 3
+Output: 0 1 10 11
+~~~
+
+In 
+
+**C++**:
+
+~~~c++
+#include <iostream>
+
+// Output:
+// 0
+// 1
+~~~
+
+**Python**:
+
+~~~python
+
+# Output:
+# False
+# True
+~~~
+
+**Time Complexity: *$O(n^{2})$***
+
+**Space Complexity: *$O(1)$***
+
 If you want to see more practice problems for ***bit manipulation***, check belows:
 
 + [29. Divide Two Integers](../../29/)

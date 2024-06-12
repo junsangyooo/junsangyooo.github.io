@@ -1,11 +1,11 @@
 ---
-title: "Study Note"
+title: "Category"
 layout: categories
-permalink: /study-note/
+permalink: /categories/
 author_profile: true
 
 # redirect_from:
-#   - /studyNote/
+#   - /categories/
 #   - /study-notes/
 
 # side bar: other contents

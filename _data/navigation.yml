@@ -2,13 +2,20 @@
 main:
   - title: "Home"
     url: https://junsangyooo.github.io
-  - title: "Study Note"
-    url: /study-note/
+  - title: "Category"
+    url: /categories/
   - title: "Problem Solving"
     url: /problem-solving/
   - title: "About"
     url: /about/
 
+    # children:
+    #   - title: "Data Structure"
+    #     url: "https://junsantyooo.github.io/"
+    #   - title: "Algorighm"
+    #     url: //
+    #   - title: "CS"
+    #     url: //
 # study-note:
 #   - title: "Study Note"
 #     children:
@@ -39,8 +46,8 @@ main:
 #           - title: "Bitwise"
 #             url: //
 
-study-note:
-  - title: "Categories"
+category:
+  - title: "Category"
     # children:
     #   - title: "Data Structure"
     #     url: "https://junsantyooo.github.io/"
@@ -49,7 +56,7 @@ study-note:
     #   - title: "CS"
     #     url: //
 
-problem-category:
+problem-solving:
   - title: "Tags"
     # use: true
     # children:

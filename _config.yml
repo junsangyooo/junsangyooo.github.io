@@ -16,7 +16,7 @@ minimal_mistakes_skin    : "default" # "air", "aqua", "contrast", "dark", "dirt"
 
 # Site Settings
 locale                   : "en-US"
-title                    : "Jun's Study Note"
+title                    : "Jun's Tech Cache"
 title_separator          : "|"
 subtitle                 : "small positive action"
 name                     : "Junsang Yoo"

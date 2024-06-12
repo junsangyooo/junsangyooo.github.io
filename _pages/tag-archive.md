@@ -1,7 +1,7 @@
 ---
-title: "Problem Solving"
+title: "Tag"
 layout: tags
-permalink: /problem-solving/
+permalink: /tags/
 author_profile: true
 
 # redirect_from:

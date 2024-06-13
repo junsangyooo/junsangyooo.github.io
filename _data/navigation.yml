@@ -13,13 +13,13 @@ leetcode:
   - title: LeetCode
     children:
       - title: "Easy"
-        url: /tags/#easy/
+        url: /tags/#easy
       - title: "Medium"
-        url: /tags/#medium/
+        url: /tags/#medium
       - title: "Hard"
-        url: /tags/#hard/
+        url: /tags/#hard
       - title: "Algorithm"
-        url: /tags/#algorithm/
+        url: /tags/#algorithm
 
 category:
   - title: "Category"

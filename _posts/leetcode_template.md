@@ -18,7 +18,7 @@ sidebar:
 categories: "LeetCode"
 
 # Define tags
-tag: [난이도, 테마(Algorithm, Pandas, Database 등등)]
+tag: [Easy/Medium/Hard, C++, Python]
 
 # LaTeX available
 use_math: true

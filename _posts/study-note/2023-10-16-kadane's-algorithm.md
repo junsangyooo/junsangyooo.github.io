@@ -12,10 +12,13 @@ toc_icon: "fas fa-utensils"
 
 # left side bar: other contents
 sidebar:
-    nav: "study-note"
+    nav: "counts"
 
-# Choose categories
-categories: "Algorithm"
+#Choose categories
+categories: [Study Note]
+
+# Define tags
+tag: [Algorithm, C++, Python]
 
 # LaTeX available
 use_math: true

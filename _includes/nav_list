@@ -103,7 +103,7 @@
   <ul class="nav__items">
     <span class="nav__sub-title">{{ navigation[0].title }}</span>
     <li>
-      {% if {{navigation[0].title}} == "Categories" %}
+      {% if {{navigation[0].title}} == "Category" %}
         {% for i in (1..categories_max) reversed %}
           {% for category in site.categories %}
             {% if category[1].size == i %}
@@ -117,7 +117,7 @@
         {% endfor %}
       {% endif %}
 
-      {% if {{navigation[0].title}} == "Tags" %}
+      {% if {{navigation[0].title}} == "Tag" %}
         {% for i in (1..tags_max) reversed %}
           {% for tag in site.tags %}
             {% if tag[1].size == i %}

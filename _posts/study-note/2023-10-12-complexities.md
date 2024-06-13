@@ -12,10 +12,13 @@ toc_icon: "fas fa-utensils"
 
 # left side bar: other contents
 sidebar:
-    nav: "study-note"
+    nav: "counts"
 
-# Choose categories
-categories: "Algorithm"
+#Choose categories
+categories: [Study Note]
+
+# Define tags
+tag: [Algorithm]
 
 # LaTeX available
 use_math: true
@@ -24,9 +27,7 @@ use_math: true
 #   - /위험카테고리이름/파일이름
 ---
 
-# Complexity
-
-## What is Complexity
+# What is Complexity
 
 The ***complexity*** of an algorithm is the amount of resources required to run it. 
 
@@ -35,7 +36,7 @@ Particular focus is given to:
 + Time complexity (the number of needed elementary operations)
 + Space complexity (memory storage)
 
-## What is Complexity Analysis
+# What is Complexity Analysis
 
 ***Complexity analysis*** is defined as a technique to figure out complexities taken by an ***algorithm*** with respect to input size.
 
@@ -47,7 +48,7 @@ If we are familiar with the *complexity analysis* we can:
 + compare different algorithms on different input sizes, and
 + determine the difficulty of a problem.
 
-## Big O Notation
+# Big O Notation
 
 There are several ways to denote the complexities:
 
@@ -75,7 +76,7 @@ The list above shows worse performance as go down.
 
 
 
-### Big O Analysis
+## Big O Analysis
 
 **Steps to find Big-O runtime analysis**:
 
@@ -97,7 +98,7 @@ Like above examples, Big O notation only focus on the highest order terms withou
 
 Now, let's see how to analyze **time** and **space** complexities with this technique.
 
-### Time Complexity
+## Time Complexity
 
 The **time complexity** is the amount of time taken by a program as a function to run of the length of the input. The **time** doesn't mean the actually execution time. The **time to run** refers to how much the program costs each fundamental instruction and the number of times the instruction is executed based on the input size.
 
@@ -156,7 +157,7 @@ int twoInputs(int n, int m) {
 }	// the time complexity of twoInputs() is O(n*m)
 ~~~
 
-### Space Complexity
+## Space Complexity
 
 The **space complexity** is the amount of memory required to run a program. Space complexity includes both Auxiliary space and space used by input.
 
@@ -178,7 +179,7 @@ int f(int n) {
 }// Since we created an array of size n, the space complextiy of f() is O(n)
 ~~~
 
-## Optimize Complexities
+# Optimize Complexities
 
 Optimization is done to derive the best possible solution to solve the problem so that it will take less time and space complexity. 
 

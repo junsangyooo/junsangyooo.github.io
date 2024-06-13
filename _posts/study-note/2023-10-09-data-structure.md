@@ -12,10 +12,13 @@ toc_icon: "fas fa-utensils"
 
 # left side bar: other contents
 sidebar:
-    nav: "study-note"
+    nav: "counts"
 
 #Choose categories
-categories: "Data-Structure"
+categories: [Study Note]
+
+# Define tags
+tag: [Data Structure]
 
 use_math: true
 

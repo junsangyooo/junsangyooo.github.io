@@ -9,36 +9,6 @@ main:
   - title: "About"
     url: /about/
 
-# study-note:
-#   - title: "Study Note"
-#     children:
-#       - title: "Data Structure"
-#         url: //
-#         children:
-#           - title: "Array & String"
-#             url: //
-#           - title: "Linked List"
-#             url: //
-#           - title: "Stack & Queue"
-#             url: //
-#           - title: "Tree"
-#             url: //
-#           - title: "Graph"
-#             url: //
-#       - title: "Algorighms"
-#         url: //
-#         children:
-#           - title: "Searching"
-#             url: //
-#           - title: "Sorting"
-#             url: //
-#           - title: "Backtracking"
-#             url: //
-#           - title: "Dynamic"
-#             url: //
-#           - title: "Bitwise"
-#             url: //
-
 leetcode:
   - title: LeetCode
     children:
@@ -50,35 +20,21 @@ leetcode:
         url: /tags/#hard/
       - title: "Algorithm"
         url: /tags/#algorithm/
-      - title: "Data-Base"
-        url: /tags/#Data-Base/
 
 category:
   - title: "Category"
-    children:
-      - title: "Data Structure"
-        url: "https://junsantyooo.github.io/"
-      - title: "Algorighm"
-        url: //
-      - title: "CS"
-        url: //
+    use: true
+  - title: "Tag"
+    use: false
 
 tag:
+  - title: "Category"
+    use: false
   - title: "Tag"
-    # use: true
-    # children:
-    #   - title: "Algorithm"
-    #     # use: true
-    #     url: //
-    #   - title: "Database"
-    #     # use: true
-    #     url: //
-    #   - title: "Pandas"
-    #     # use: true
-    #     url: //
-    #   - title: "Shell"
-    #     # use: true
-    #     url: //
-    #   - title: "Concurrency"
-    #     # use: true
-    #     url: //
+    use: true
+
+counts:
+  - title: "Category"
+    use: true
+  - title: "Tag"
+    use: true

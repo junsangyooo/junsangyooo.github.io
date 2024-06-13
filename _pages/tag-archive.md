@@ -5,10 +5,9 @@ permalink: /tags/
 author_profile: true
 
 # redirect_from:
-#   - /problemSolving/
-#   - /problem-solvings/
+#   - /tag/
 
 # side bar: other contents
 # sidebar:
-#     nav: "problem-category"
+#     nav: "tag"
 ---

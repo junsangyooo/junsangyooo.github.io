@@ -9,13 +9,6 @@ main:
   - title: "About"
     url: /about/
 
-    # children:
-    #   - title: "Data Structure"
-    #     url: "https://junsantyooo.github.io/"
-    #   - title: "Algorighm"
-    #     url: //
-    #   - title: "CS"
-    #     url: //
 # study-note:
 #   - title: "Study Note"
 #     children:
@@ -46,15 +39,29 @@ main:
 #           - title: "Bitwise"
 #             url: //
 
+leetcode:
+  - title: LeetCode
+    children:
+      - title: "Easy"
+        url: /tags/#easy/
+      - title: "Medium"
+        url: /tags/#medium/
+      - title: "Hard"
+        url: /tags/#hard/
+      - title: "Algorithm"
+        url: /tags/#algorithm/
+      - title: "Data-Base"
+        url: /tags/#Data-Base/
+
 category:
   - title: "Category"
-    # children:
-    #   - title: "Data Structure"
-    #     url: "https://junsantyooo.github.io/"
-    #   - title: "Algorighm"
-    #     url: //
-    #   - title: "CS"
-    #     url: //
+    children:
+      - title: "Data Structure"
+        url: "https://junsantyooo.github.io/"
+      - title: "Algorighm"
+        url: //
+      - title: "CS"
+        url: //
 
 tag:
   - title: "Tag"

@@ -16,14 +16,14 @@ header:
 # <span style='color: #418CB3;'>Education</span>
 [**University of Waterloo**](https://uwaterloo.ca/)  
 Candidate for Bachelor of Math, ***Statistics*** Major and ***Computing*** Minor, Honours, Co-op <br />
-Expected Graduation: Aug 2028  
+Expected Graduation: Apr 2028  
 
 ---
 
 # <span style='color: #418CB3;'>Tech Stack</span>
 
 + **Languages:** Python, C/C++, R, Dart (Flutter), JavaScript, SQL  
-+ **Frameworks/Libraries:** Flutter, Node.js, Pandas, Numpy, scikit-learn  
++ **Frameworks/Libraries:** Flutter, Node.js, Pandas, NumPy, scikit-learn  
 + **Platforms/Tools:** AWS, Linux, GitHub, Jira  
 
 ---
@@ -31,45 +31,35 @@ Expected Graduation: Aug 2028
 # <span style='color: #418CB3;'>Experience</span>
 
 + **Aircraft Armament Systems Specialist** at *Republic of Korea Air Force* <br />
-Dec 2023 – Aug 2025, South Korea  
+Dec 2023 – Aug 2025, Gyungido, South Korea  
   + Prepared 5,000+ sorties by performing weapon replacement, inspection, and launch support (avg. 8/day).  
-  + Led and mentored 80+ soldiers for 5 months, achieving a 90% reduction in safety incidents.  
   + Created structured training materials that cut onboarding time from 6 to 4 months.  
 
 + **QA Test Engineer Intern** at [*Netmarble F&C Metaverse World*](https://company.netmarble.com/studio/list/fnc) <br />
-May 2022 – Aug 2022, Seoul, Korea  
-  + Designed and ran 500+ cross-platform test cases (Web/iOS/Android/PC), uncovering 50+ critical bugs.  
-  + Led a focused testing initiative for three games during a major platform update.  
+May 2022 – Aug 2022, Seoul, South Korea  
+  + Designed and ran 500+ cross-platform test cases, uncovering critical bugs that prevented launch delays.  
+  + Led a focused testing initiative for three games during a major platform update, coordinating QA across multiple teams.  
   + Proposed launcher UX revisions that reduced crash rate by 17% in user testing.  
-
-+ **Product Manager** at [*Co;Ders Us*](https://www.codersus.org/en) <br />
-Mar 2021 – Apr 2022, Seoul, Korea  
-  + Created 50+ Java/Scratch lessons adopted by 300+ students across 5 schools.  
-  + Collaborated with educators to align curriculum with learning objectives.  
 
 ---
 
 # <span style='color: #418CB3;'>Projects</span>
 
-+ **Nyom Project** | *Flutter, Figma, JavaScript, Node.js* (May 2025 – Present)  
-  + Conducted surveys with 200+ participants and 30+ in-person interviews in Yongsan to validate product-market fit.  
-  + Built MVP restaurant-matching app (JavaScript/Node.js) with swipe-based UX; onboarded 50+ beta testers.  
++ **Nyom Project** | *Flutter, Figma, JavaScript, Node.js, AWS* (May 2025 – Present)  
+  + Initiated the Nyom project, a restaurant-search SaaS platform, by validating market fit through online surveys and in-person interviews.  
+  + Constructed the cross-functional team for building MVP restaurant-matching app (JavaScript/Node.js) with swipe-based UX; onboarded 50+ beta testers.  
   + Transitioning from Node.js prototype to scalable, multi-platform Flutter architecture.  
 
-+ **Quantitative Investment Program** | *Python, Pandas* (Mar 2024 – Aug 2024)  
-  + Engineered pipeline to scrape and clean 20+ years of U.S. stock data (~2M rows) for quant research.  
++ **Quantitative Investment Program** | *Python, Pandas, NumPy, scikit-learn* (Mar 2024 – Aug 2024)  
+  + Engineered pipeline to scrape each historical data of all U.S. stocks in history for quant research.  
+  + Implemented preprocessing and training functions using Pandas, NumPy, and scikit-learn.  
   + Automated daily trading data ingestion, reducing manual update time by 95%.  
-  + Integrated KIS OpenAPI for live trading execution and testing.  
+  + Integrated KIS (Korea Investment & Securities) OpenAPI (WebSocket, REST API) to enable live trading execution and testing.  
 
 + **Dragon Slayer** | *Unity, C#, Game Design* (Jan 2023 – Apr 2023)  
   + Developed a 2D roguelite game in Unity using C#, featuring procedurally generated levels and enemies.  
-  + Implemented combat mechanics, player progression, and random loot generation.  
-  + Gained hands-on experience in OOP, game loop optimization, and Unity’s component-based architecture.  
-
-+ **Chess Game** | *C++, Bash* (Sep 2022 – Dec 2022)  
-  + Built a terminal-based chess game with full rule implementation, including move validation and check/checkmate detection.  
-  + Developed Bash scripts to automate compilation, testing, and execution workflows.  
-  + Strengthened understanding of OOP, algorithms, and modular programming.  
+  + Implemented core gameplay systems including combat mechanics and random loot generation.  
+  + Gained hands-on experience in object-oriented programming, game loop optimization, and Unity’s component-based architecture.  
 
 ---
 
@@ -79,12 +69,11 @@ Mar 2021 – Apr 2022, Seoul, Korea
   + National test evaluating applied economics and business reasoning skills.  
 
 + **TESAT (Test of Economic Sense And Thinking)** – *Level 1* (Feb 2025)  
-  + Nationally accredited exam assessing economic literacy, current affairs, and applied problem-solving.  
+  + Nationally accredited test assessing economic literacy, current affairs, and applied problem-solving.  
 
 ---
 
-# <span style='color: #418CB3;'>Contact</span>
+# <span style='color: #418CB3;'>Transcript</span>
 
-+ 📧 [Email](mailto:jun.yoo@uwaterloo.ca)  
-+ 💼 [LinkedIn](https://www.linkedin.com/in/junsang-yoo-305288227/?locale=en_US)  
-+ 💻 [GitHub](https://github.com/junsangyooo)  
+<iframe src="/assets/docs/Transcript.pdf" width="100%" height="600px">
+</iframe>

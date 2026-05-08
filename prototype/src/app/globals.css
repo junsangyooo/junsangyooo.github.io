@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+:root {
+  /*
+    Active palette: Bone Gray (Japanese minimalism, near-neutral).
+    Other approved palette kept on file: Gallery Bone — see src/lib/palettes.ts.
+    To swap, copy values from PALETTES[id="gallery-bone"] into these variables.
+  */
+  --paper: #e5e0d2;
+  --paper-deep: #d8d3c5;
+  --ink: #1a1a1a;
+  --ink-soft: #4a4a47;
+  --accent: #2f4f46;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper-deep: var(--paper-deep);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-accent: var(--accent);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-display);
+}
+
+html,
+body {
+  background: var(--paper);
+  color: var(--ink);
+  overscroll-behavior: none;
+}
+
+body {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  position: relative;
+}
+
+/*
+  Single-layer paper speckle.
+  We dropped the large-stain fiber layer because at 1400px tile size its big features
+  bled across viewport edges and read as a vertical seam. The speckle alone is enough
+  to sell paper on a plain ivory ground — the reference image is essentially this.
+
+  Tile is 2200px so on most desktops it lays once with no visible repeat.
+  3 octaves → sizes vary (small grit + occasional larger fleck), like real paper.
+
+  Alpha matrix: A_out = -5(R+G+B) + 6.0 → only the darker tail of the noise distribution
+  survives, giving the sparse specks rather than a uniform film.
+*/
+.grain::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.95;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='2200' height='2200'><filter id='s'><feTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' seed='17' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.16 0 0 0 0 0.13 0 0 0 0 0.09 -5 -5 -5 0 6.0'/></filter><rect width='100%25' height='100%25' filter='url(%23s)'/></svg>");
+  background-size: 2200px 2200px;
+  background-position: center;
+}
+
+.serif {
+  font-family: var(--font-display), "Cormorant Garamond", "EB Garamond", Georgia, serif;
+  font-weight: 500;
+  letter-spacing: -0.012em;
+}
+
+.mono {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  letter-spacing: 0.04em;
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.pulse-soft {
+  animation: pulse-soft 2.4s ease-in-out infinite;
+}

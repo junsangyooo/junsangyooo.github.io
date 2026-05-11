@@ -3,20 +3,29 @@
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import * as THREE from "three";
-import { generate, type ShapeName } from "@/lib/shapes";
+import {
+  generate,
+  loadPortrait3D,
+  type PortraitData,
+  type ShapeName,
+} from "@/lib/shapes";
 
 const PARTICLE_COUNT = 5200;
-const SHAPE_ORDER: ShapeName[] = ["silhouette", "sphere", "text", "wave"];
-const CYCLE_MS = 5400;
+// Portrait sits at index 0 — it is the default landing form. The remaining
+// frames are placeholders until the rest of the design is decided. Forms
+// advance only on explicit user input (click, drag, or keyboard).
+const SHAPE_ORDER: ShapeName[] = ["portrait", "silhouette", "sphere", "text"];
 
 function Particles({
   shape,
   scrollPower,
   inkColor,
+  portraitData,
 }: {
   shape: ShapeName;
   scrollPower: number;
   inkColor: string;
+  portraitData: PortraitData | null;
 }) {
   const ref = useRef<THREE.Points>(null);
   const { viewport } = useThree();
@@ -30,7 +39,10 @@ function Particles({
     return arr;
   }, []);
 
-  const sizes = useMemo(() => {
+  // Default per-particle sizes used by every non-portrait shape. The portrait
+  // shape overrides these from portraitData.sizes so dark facial regions read
+  // as denser stipple.
+  const defaultSizes = useMemo(() => {
     const arr = new Float32Array(PARTICLE_COUNT);
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       arr[i] = 0.6 + Math.random() * 1.6;
@@ -38,13 +50,41 @@ function Particles({
     return arr;
   }, []);
 
-  const targets = useRef<Float32Array>(generate(shape, PARTICLE_COUNT));
+  const initialTargets = useMemo(() => {
+    if (shape === "portrait" && portraitData) return portraitData.positions;
+    return generate(shape, PARTICLE_COUNT);
+    // initialTargets is a first-render seed only; subsequent changes are
+    // handled by the effect below, so the eslint exhaustive-deps complaint
+    // about portraitData is intentional.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const targets = useRef<Float32Array>(initialTargets);
 
   useEffect(() => {
-    targets.current = generate(shape, PARTICLE_COUNT);
-  }, [shape]);
+    if (shape === "portrait") {
+      // Wait for the async portrait load to complete; once available, the
+      // morph happens through the usual lerp toward the new targets.
+      if (portraitData) targets.current = portraitData.positions;
+      else targets.current = generate("sphere", PARTICLE_COUNT);
+    } else {
+      targets.current = generate(shape, PARTICLE_COUNT);
+    }
 
-  // Re-used vector to avoid per-frame allocations.
+    // Swap the per-particle size attribute so portrait darkness shows up only
+    // while we're displaying the portrait shape.
+    if (!ref.current) return;
+    const sizeAttr = ref.current.geometry.attributes.size as
+      | THREE.BufferAttribute
+      | undefined;
+    if (!sizeAttr) return;
+    const target =
+      shape === "portrait" && portraitData
+        ? portraitData.sizes
+        : defaultSizes;
+    (sizeAttr.array as Float32Array).set(target);
+    sizeAttr.needsUpdate = true;
+  }, [shape, portraitData, defaultSizes]);
+
   const tmp = useMemo(() => new THREE.Vector2(), []);
 
   useFrame((state, delta) => {
@@ -80,8 +120,10 @@ function Particles({
     }
 
     ref.current.geometry.attributes.position.needsUpdate = true;
-    // Slow ambient rotation; scroll dial accelerates it.
-    ref.current.rotation.y += delta * (0.06 + scrollPower * 1.2);
+    // Slow ambient rotation keeps the portrait alive even when idle.
+    // Scroll dials the rotation up; portrait is intentionally a bit slower.
+    const idleRate = shape === "portrait" ? 0.045 : 0.06;
+    ref.current.rotation.y += delta * (idleRate + scrollPower * 1.2);
     ref.current.rotation.x = scrollPower * 0.3;
   });
 
@@ -92,7 +134,7 @@ function Particles({
           attach="attributes-position"
           args={[positions, 3]}
         />
-        <bufferAttribute attach="attributes-size" args={[sizes, 1]} />
+        <bufferAttribute attach="attributes-size" args={[defaultSizes, 1]} />
       </bufferGeometry>
       <shaderMaterial
         transparent
@@ -145,6 +187,7 @@ export default function ParticleField({
 }) {
   const [shapeIdx, setShapeIdx] = useState(0);
   const [scrollPower, setScrollPower] = useState(0);
+  const [portraitData, setPortraitData] = useState<PortraitData | null>(null);
   const shape = SHAPE_ORDER[shapeIdx];
 
   const advance = useCallback(() => {
@@ -155,11 +198,23 @@ export default function ParticleField({
     });
   }, [onCycle]);
 
+  // Load the multi-view 3D portrait once on mount.
   useEffect(() => {
-    const id = setInterval(advance, CYCLE_MS);
-    return () => clearInterval(id);
-  }, [advance]);
+    let cancelled = false;
+    loadPortrait3D(PARTICLE_COUNT)
+      .then((data) => {
+        if (!cancelled) setPortraitData(data);
+      })
+      .catch((err) => {
+        // Non-fatal: portrait simply falls back to a sphere.
+        console.warn("[ParticleField] portrait load failed", err);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
+  // Scroll dial.
   useEffect(() => {
     const onScroll = () => {
       const max = Math.max(1, document.body.scrollHeight - window.innerHeight);
@@ -170,26 +225,72 @@ export default function ParticleField({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const interactiveProps = interactive
-    ? {
-        onClick: advance,
-        role: "button" as const,
-        tabIndex: 0,
-        onKeyDown: (e: React.KeyboardEvent) => {
-          if (e.key === "Enter" || e.key === " ") advance();
-        },
-        "aria-label": "Click to morph the figure",
-      }
-    : { "aria-hidden": true };
+  // Window-level pointer interaction: click or swipe advances the shape.
+  // Listening on window means users can interact from anywhere on the page,
+  // not just from inside this component's box. Interactive page elements
+  // (links, buttons, form fields) are skipped so they keep working normally.
+  useEffect(() => {
+    if (!interactive) return;
+    let startX = 0;
+    let startY = 0;
+    let isDragging = false;
+    let moved = false;
+
+    const isFormTarget = (el: EventTarget | null) => {
+      if (!(el instanceof HTMLElement)) return false;
+      return !!el.closest(
+        "a, button, input, textarea, select, [data-no-particle]",
+      );
+    };
+
+    const onDown = (e: PointerEvent) => {
+      if (isFormTarget(e.target)) return;
+      startX = e.clientX;
+      startY = e.clientY;
+      isDragging = true;
+      moved = false;
+    };
+    const onMove = (e: PointerEvent) => {
+      if (!isDragging) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      if (Math.abs(dx) > 6 || Math.abs(dy) > 6) moved = true;
+    };
+    const onUp = (e: PointerEvent) => {
+      if (!isDragging) return;
+      isDragging = false;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      const dist = Math.hypot(dx, dy);
+      // Pure click counts; a swipe past the threshold counts.
+      if (!moved || dist > 50) advance();
+    };
+
+    window.addEventListener("pointerdown", onDown);
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
+    return () => {
+      window.removeEventListener("pointerdown", onDown);
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
+    };
+  }, [interactive, advance]);
 
   return (
-    <div className={className} {...interactiveProps}>
+    <div className={className} aria-hidden={!interactive}>
       <Canvas
         camera={{ position: [0, 0, 2.4], fov: 50 }}
         gl={{ antialias: true, alpha: true }}
         dpr={[1, 2]}
       >
-        <Particles shape={shape} scrollPower={scrollPower} inkColor={inkColor} />
+        <Particles
+          shape={shape}
+          scrollPower={scrollPower}
+          inkColor={inkColor}
+          portraitData={portraitData}
+        />
       </Canvas>
     </div>
   );

@@ -246,14 +246,83 @@ function sampleDarkness(img: ImageSamples, u: number, v: number): number {
   return Math.max(0, Math.min(1, t));
 }
 
-// Multi-view 3D head built from two reference photos. Points sit on the
-// surface of a head-shaped ellipsoid and each one borrows darkness from
-// whichever photo "looks at" it: front photo for forward-facing points,
-// side photo for sideways points (mirrored for the left hemisphere), and a
-// hair-only fill from the front photo's crown region for back-facing points.
-// As the cloud rotates, the view a particle was sampled from naturally
-// rotates into camera — so the back of the head, sides, and front each show
-// the appropriate texture.
+// Build a cumulative-weight table over the dark pixels of an image so we can
+// draw weighted samples cheaply. Each entry is (x, y, weight^3) where weight
+// is darkness in [0, 1]; cubing emphasizes the truly dark regions (hair,
+// brows, eyes, lips, shirt seams) and demotes mid-tones (skin) so the cloud
+// reads as stipple rather than a flat density wash.
+type WeightedPool = {
+  xs: number[];
+  ys: number[];
+  cum: number[];
+  total: number;
+  W: number;
+  H: number;
+};
+
+function buildWeightedPool(
+  img: ImageSamples,
+  region?: { u0: number; u1: number; v0: number; v1: number },
+  emphasis = 3,
+): WeightedPool {
+  const xs: number[] = [];
+  const ys: number[] = [];
+  const cum: number[] = [];
+  let total = 0;
+  const stride = 2;
+
+  const x0 = Math.floor((region?.u0 ?? 0) * img.W);
+  const x1 = Math.ceil((region?.u1 ?? 1) * img.W);
+  const y0 = Math.floor((region?.v0 ?? 0) * img.H);
+  const y1 = Math.ceil((region?.v1 ?? 1) * img.H);
+
+  for (let y = y0; y < y1; y += stride) {
+    for (let x = x0; x < x1; x += stride) {
+      const i = (y * img.W + x) * 4;
+      if (img.hasAlpha && img.data[i + 3] < 16) continue;
+      const lum = (img.data[i] + img.data[i + 1] + img.data[i + 2]) / 3;
+      if (!img.hasAlpha && lum > 235) continue;
+      const t = 1 - lum / 255;
+      if (t < 0.05) continue;
+      let w = t;
+      for (let k = 1; k < emphasis; k++) w *= t;
+      if (w < 0.001) continue;
+      total += w;
+      xs.push(x);
+      ys.push(y);
+      cum.push(total);
+    }
+  }
+  return { xs, ys, cum, total, W: img.W, H: img.H };
+}
+
+function drawSample(pool: WeightedPool, rand: () => number) {
+  const target = rand() * pool.total;
+  let lo = 0;
+  let hi = pool.cum.length - 1;
+  while (lo < hi) {
+    const mid = (lo + hi) >> 1;
+    if (pool.cum[mid] < target) lo = mid + 1;
+    else hi = mid;
+  }
+  return { x: pool.xs[lo], y: pool.ys[lo] };
+}
+
+// Multi-view 3D head built from two reference photos.
+//
+// Unlike a uniformly-distributed ellipsoid (which reads as a smooth egg), this
+// version draws points wherever the source photos are DARK — hair, brows,
+// eyes, lips, shirt seams — and wraps those (u, v) coordinates onto the front
+// / side / back of a head-shaped ellipsoid. Light-skin regions and the
+// background contribute essentially no points, so the cloud is empty there
+// and the dark ink stipple reads as a real face whose density carries the
+// likeness instead of a uniform shell with size-varying dots.
+//
+// Point budget:
+//   front  55%  — front photo dark pixels projected onto the front hemisphere
+//   right  18%  — side photo dark pixels projected onto the right hemisphere
+//   left   18%  — same side photo mirrored onto the left hemisphere
+//   back    9%  — front photo's crown region wrapped onto the back hemisphere
 export async function loadPortrait3D(
   n: number,
   frontSrc = "/portrait.jpg",
@@ -264,94 +333,151 @@ export async function loadPortrait3D(
     loadImageSamples(sideSrc),
   ]);
 
-  // Head-shaped ellipsoid radii. rX is half-width (ear to ear), rY is
-  // half-height (crown to upper chest in the front shot), rZ is half-depth
-  // (nose tip to back of head).
+  // Head ellipsoid half-axes (in scene units).
+  // rX: ear-to-ear width, rY: crown-to-chest height, rZ: nose-to-back depth.
   const rX = 0.42;
-  const rY = 0.55;
+  const rY = 0.6;
   const rZ = 0.42;
+
+  // Image-to-ellipsoid framing. "Spread" controls how much of the photo
+  // maps inside the unit sphere — values > 1 zoom in. "FaceCenter" lets us
+  // shift the photo so the model's face center lands on the ellipsoid
+  // equator instead of the literal pixel center (which would put the
+  // forehead at the equator and the chin off-frame).
+  const frontSpread = 1.05;
+  const frontFaceCenterU = 0.5; // horizontal face center in front photo
+  const frontFaceCenterV = 0.45; // slightly above the literal photo center
+  const sideSpread = 1.15;
+  const sideFaceCenterU = 0.7; // model faces toward the right of the side photo
+  const sideFaceCenterV = 0.35; // and his eyes sit in the upper third
+
+  const nFront = Math.round(n * 0.55);
+  const nSide = Math.round(n * 0.18);
+  const nBack = n - nFront - nSide * 2;
 
   const positions = new Float32Array(n * 3);
   const sizes = new Float32Array(n);
-  const phi = Math.PI * (Math.sqrt(5) - 1);
+
+  const frontPool = buildWeightedPool(front);
+  const sidePool = buildWeightedPool(side);
+  const hairPool = buildWeightedPool(front, {
+    u0: 0.15,
+    u1: 0.85,
+    v0: 0.0,
+    v1: 0.35,
+  });
+
   const rand = RNG(101);
+  let idx = 0;
 
-  for (let i = 0; i < n; i++) {
-    // Fibonacci sphere — even angular distribution.
-    const sy = 1 - (i / (n - 1)) * 2;
-    const ringR = Math.sqrt(Math.max(0, 1 - sy * sy));
-    const theta = phi * i;
-    const sx = Math.cos(theta) * ringR;
-    const sz = Math.sin(theta) * ringR;
+  const writePoint = (
+    px: number,
+    py: number,
+    pz: number,
+    dark: number,
+  ) => {
+    // Tiny radial jitter — keeps the stipple from looking computer-rendered.
+    const j = 0.01;
+    positions[idx * 3] = px + (rand() - 0.5) * j;
+    positions[idx * 3 + 1] = py + (rand() - 0.5) * j;
+    positions[idx * 3 + 2] = pz + (rand() - 0.5) * j;
+    sizes[idx] = 0.6 + dark * 1.6;
+    idx++;
+  };
 
-    // Stretch the unit sphere into the head ellipsoid.
-    let px = sx * rX;
-    let py = sy * rY;
-    let pz = sz * rZ;
+  // --- Front hemisphere ---
+  // (u, v) ∈ [0, 1] from the front photo, normalized to (sx, sy) ∈ [-1, 1]
+  // after applying spread. Points whose (sx, sy) falls inside the unit disk
+  // get projected onto the front of a unit sphere then stretched to the head
+  // ellipsoid; points outside the disk fall back to a flat plane near the
+  // equator so torso pixels (shirt collar) stay visible without inflating
+  // the ellipsoid.
+  for (let i = 0; i < nFront; i++) {
+    const { x, y } = drawSample(frontPool, rand);
+    const u = x / front.W;
+    const v = y / front.H;
+    const sx = (u - frontFaceCenterU) * 2 * frontSpread;
+    const sy = -(v - frontFaceCenterV) * 2 * frontSpread;
+    const r2 = sx * sx + sy * sy;
 
-    // View weights — additive, smoothly engaged. Sums to ~1 across the sphere
-    // so transitions between views are continuous.
-    const wFront = Math.max(0, sz);
-    const wBack = Math.max(0, -sz - 0.2);
-    const wSide = Math.max(0, Math.abs(sx) - 0.25);
-    const wSum = wFront + wBack + wSide + 1e-6;
+    const dark = sampleDarkness(front, u, v);
 
-    let dark = 0;
-
-    if (wFront > 0) {
-      // Front photo: orthographic-ish projection of (sx, sy) onto the image.
-      const u = (sx + 1) * 0.5;
-      const v = (1 - sy) * 0.5;
-      dark += wFront * sampleDarkness(front, u, v);
+    if (r2 < 0.98) {
+      const sz = Math.sqrt(1 - r2);
+      writePoint(sx * rX, sy * rY, sz * rZ, dark);
+    } else {
+      // Outside the head ellipsoid → flatten onto the equator (z=0). Shirt
+      // and shoulders typically live here.
+      const inv = 1 / Math.sqrt(r2);
+      writePoint(sx * rX * inv * 1.05, sy * rY * inv * 1.05, 0, dark);
     }
+  }
 
-    if (wSide > 0) {
-      // Side photo: the subject faces roughly +z, so a point at the head's
-      // right edge (sx>0, sz~0) lives somewhere mid-photo, and the more
-      // forward it points (sz>0) the closer it sits to the photo's face
-      // region. Left hemisphere mirrors horizontally so both sides reuse the
-      // single side photo.
-      const sideX = sx > 0 ? sz : -sz;
-      const u = (sideX + 1) * 0.5;
-      const v = (1 - sy) * 0.5;
-      dark += wSide * sampleDarkness(side, u, v);
+  // --- Right hemisphere ---
+  // Side photo's u-axis maps to the model's z (depth, +z = front of face),
+  // and v-axis maps to model's y (height). Pixels project onto the right
+  // hemisphere of the head ellipsoid; left hemisphere reuses the same pool.
+  for (let i = 0; i < nSide; i++) {
+    const { x, y } = drawSample(sidePool, rand);
+    const u = x / side.W;
+    const v = y / side.H;
+    const sz = (u - sideFaceCenterU) * 2 * sideSpread;
+    const sy = -(v - sideFaceCenterV) * 2 * sideSpread;
+    const r2 = sz * sz + sy * sy;
+    const dark = sampleDarkness(side, u, v);
+
+    if (r2 < 0.98) {
+      const sx = Math.sqrt(1 - r2);
+      writePoint(sx * rX, sy * rY, sz * rZ, dark);
+    } else {
+      const inv = 1 / Math.sqrt(r2);
+      writePoint(0, sy * rY * inv * 1.05, sz * rZ * inv * 1.05, dark);
     }
+  }
 
-    if (wBack > 0 && sy > -0.1) {
-      // No real back-of-head photo. Re-use the top ~40% of the front photo as
-      // a hair fill, and square the darkness so only the truly dark hair
-      // pixels carry over — skin would look wrong on the back of the skull.
-      const u = (sx + 1) * 0.5;
-      const v = (1 - sy) * 0.5 * 0.4;
-      const d = sampleDarkness(front, u, v);
-      dark += wBack * d * d;
+  // --- Left hemisphere (mirror of right) ---
+  for (let i = 0; i < nSide; i++) {
+    const { x, y } = drawSample(sidePool, rand);
+    const u = x / side.W;
+    const v = y / side.H;
+    const sz = (u - sideFaceCenterU) * 2 * sideSpread;
+    const sy = -(v - sideFaceCenterV) * 2 * sideSpread;
+    const r2 = sz * sz + sy * sy;
+    const dark = sampleDarkness(side, u, v);
+
+    if (r2 < 0.98) {
+      const sx = -Math.sqrt(1 - r2);
+      writePoint(sx * rX, sy * rY, sz * rZ, dark);
+    } else {
+      const inv = 1 / Math.sqrt(r2);
+      writePoint(0, sy * rY * inv * 1.05, sz * rZ * inv * 1.05, dark);
     }
+  }
 
-    dark /= wSum;
+  // --- Back of head (hair fill) ---
+  // Sample the crown of the front photo and wrap it onto the back hemisphere.
+  // The hair pool was built from v ∈ [0, 0.35], so v inside the pool maps
+  // back to the upper portion of the head model.
+  for (let i = 0; i < nBack; i++) {
+    const { x, y } = drawSample(hairPool, rand);
+    const u = x / front.W;
+    const v = y / front.H;
+    // Re-stretch the cropped v ∈ [0, 0.35] back into [0, 1] so hair pixels
+    // span the full upper hemisphere of the head, not just a thin band.
+    const vStretched = v / 0.35;
+    const sx = (u - frontFaceCenterU) * 2 * frontSpread;
+    const sy = -(vStretched - 0.5) * 2 * frontSpread * 0.85;
+    const r2 = sx * sx + sy * sy;
+    const dark = sampleDarkness(front, u, v);
 
-    // Push very dark points outward a touch so hair reads as volumetric, not
-    // a decal stuck to the skull.
-    if (dark > 0.5) {
-      const bump = (dark - 0.5) * 0.08;
-      px += sx * bump;
-      py += sy * bump;
-      pz += sz * bump;
+    if (r2 < 0.95) {
+      const sz = -Math.sqrt(1 - r2); // negative z → behind the head
+      writePoint(sx * rX, sy * rY, sz * rZ, dark);
+    } else {
+      // Edge of crown → push to ellipsoid rim with slight negative z.
+      const inv = 1 / Math.sqrt(r2);
+      writePoint(sx * rX * inv * 0.95, sy * rY * inv * 0.95, -0.05, dark);
     }
-
-    // Small radial jitter breaks the perfectly-spheroidal silhouette and
-    // gives the stipple a hand-drawn feel rather than a CAD surface.
-    const jitter = 0.012;
-    px += (rand() - 0.5) * jitter;
-    py += (rand() - 0.5) * jitter;
-    pz += (rand() - 0.5) * jitter;
-
-    positions[i * 3] = px;
-    positions[i * 3 + 1] = py;
-    positions[i * 3 + 2] = pz;
-
-    // Base size keeps the head silhouette legible even on flat-skin points;
-    // dark regions then build up dense ink stipple on top.
-    sizes[i] = 0.35 + dark * 2.4;
   }
 
   return { positions, sizes };

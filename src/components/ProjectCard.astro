@@ -1,0 +1,18 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+}
+const { project } = Astro.props;
+const d = project.data;
+const ratioMap = { portrait: '4 / 5', landscape: '4 / 3', square: '1 / 1' } as const;
+---
+
+<a class="project reveal" href={`/${project.id}`} data-category={d.category} data-cursor="explore">
+  <div class="project__media" style={`aspect-ratio:${ratioMap[d.ratio]}`}>
+    <img src={d.thumbnail} alt={d.title} loading="lazy" />
+  </div>
+  <p class="project__caption"><strong>{d.title}</strong> – {d.tagline}</p>
+  <p class="project__meta">{d.category} · {d.year}</p>
+</a>

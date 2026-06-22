@@ -1,0 +1,39 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+
+const projects = (await getCollection('projects')).sort(
+  (a, b) => a.data.order - b.data.order
+);
+
+// Filter tabs are derived from the categories actually present in content.
+const CATEGORY_ORDER = ['Websites', 'Applications', 'Branding'];
+const categories = CATEGORY_ORDER.filter((c) =>
+  projects.some((p) => p.data.category === c)
+);
+
+// Split into two columns; the right column is staggered down (zigzag).
+const left = projects.filter((_, i) => i % 2 === 0);
+const right = projects.filter((_, i) => i % 2 === 1);
+---
+
+<Base title="Junsang Yoo — Projects" description="Selected GitHub projects — what, why, and how.">
+  <header class="intro wrap">
+    <h1>My Projects</h1>
+    <p>Things I've built — what, why, and how.</p>
+    <nav class="filters">
+      <button class="active" data-filter="all">All Projects</button>
+      {categories.map((c) => <button data-filter={c}>{c}</button>)}
+    </nav>
+  </header>
+
+  <section class="list wrap">
+    <div class="list__col">
+      {left.map((p) => <ProjectCard project={p} />)}
+    </div>
+    <div class="list__col list__col--right">
+      {right.map((p) => <ProjectCard project={p} />)}
+    </div>
+  </section>
+</Base>

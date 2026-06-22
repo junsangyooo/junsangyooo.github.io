@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Reference Gallery — Showcase / Agency / Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;background:#0a0b0d;color:#e9eaec;font-family:Inter,sans-serif;-webkit-font-smoothing:antialiased;}
+  a{color:inherit;}
+  .top{position:sticky;top:0;z-index:30;background:rgba(10,11,13,.82);backdrop-filter:blur(14px);border-bottom:1px solid #1c1f25;padding:16px 28px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+  .top h1{font:900 14px/1 Archivo;letter-spacing:.22em;text-transform:uppercase;margin:0;color:#fff;}
+  .top .links{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto;}
+  .top .links a{font:500 11px/1 "JetBrains Mono",monospace;color:#9aa0aa;text-decoration:none;border:1px solid #20242b;border-radius:999px;padding:9px 13px;}
+  .top .links a:hover{color:#fff;border-color:#3a4150;}
+  .wrap{max-width:1320px;margin:0 auto;padding:30px 28px 100px;}
+  .intro{color:#9aa0aa;font-size:14px;line-height:1.7;max-width:720px;margin:6px 0 26px;}
+  .cat{margin:48px 0 16px;display:flex;align-items:baseline;gap:14px;}
+  .cat h2{font:700 22px/1 Archivo;letter-spacing:-.01em;margin:0;color:#fff;}
+  .cat span{font:500 11px/1 "JetBrains Mono",monospace;letter-spacing:.16em;text-transform:uppercase;color:#6b86ff;}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+  @media(max-width:1000px){.grid{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:640px){.grid{grid-template-columns:1fr;}}
+  .card{border:1px solid #1c1f25;border-radius:14px;overflow:hidden;background:#101216;text-decoration:none;display:block;transition:.22s;}
+  .card:hover{transform:translateY(-4px);border-color:#3a4150;box-shadow:0 14px 40px rgba(0,0,0,.4);}
+  .shot{aspect-ratio:16/10;background:#15181d url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40"%3E%3C/svg%3E') center/cover;position:relative;overflow:hidden;}
+  .shot img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block;background:#15181d;}
+  .shot .ld{position:absolute;inset:0;display:grid;place-items:center;font:500 11px/1 "JetBrains Mono",monospace;color:#555;}
+  .meta{padding:14px 16px 16px;}
+  .meta .nm{font:600 15px/1 Inter;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .meta .nm .ar{color:#6b86ff;font-size:13px;}
+  .meta .url{font:500 11px/1 "JetBrains Mono",monospace;color:#6e747e;margin-top:7px;}
+  .meta .why{font-size:12.5px;color:#9aa0aa;line-height:1.5;margin-top:10px;}
+  .tagrow{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
+  .tg{font:500 10px/1 "JetBrains Mono",monospace;letter-spacing:.04em;color:#cfd4dd;background:#191c22;border:1px solid #23262d;border-radius:999px;padding:5px 9px;}
+  .note{margin-top:60px;padding:18px 20px;border:1px dashed #2a2e36;border-radius:12px;color:#9aa0aa;font-size:13px;line-height:1.6;}
+</style>
+</head>
+<body>
+  <div class="top">
+    <h1>Reference Gallery</h1>
+    <div class="links">
+      <a href="index.html">← 내 시안</a>
+      <a href="https://www.awwwards.com/websites/portfolio/" target="_blank">Awwwards ↗</a>
+      <a href="https://dribbble.com/tags/agency-website" target="_blank">Dribbble ↗</a>
+      <a href="https://www.land-book.com/" target="_blank">Land-book ↗</a>
+      <a href="https://godly.website/" target="_blank">Godly ↗</a>
+      <a href="https://www.lapa.ninja/" target="_blank">Lapa Ninja ↗</a>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <p class="intro">남들의 쇼케이스/에이전시/포트폴리오 실사이트 라이브 스크린샷. 카테고리별로 묶었어. 카드를 누르면 실제 사이트로 이동. 마음에 드는 결을 골라주면 그 방향으로 좁혀가자. (썸네일은 실시간 렌더라 처음 로딩에 몇 초 걸릴 수 있음 — 안 뜨면 카드 눌러서 원본 확인.)</p>
+    <div id="app"></div>
+
+    <div class="note">
+      <b>더 깊게 파고 싶으면</b> 상단 바의 Awwwards · Dribbble · Land-book · Godly · Lapa Ninja 링크에서 무한정 둘러볼 수 있어. 거기서 꽂히는 샷 URL을 나한테 던져주면 그 톤으로 목업을 떠줄게.
+    </div>
+  </div>
+
+<script>
+const shot = (url) => `https://image.thum.io/get/width/900/crop/1100/noanimate/${url}`;
+const data = [
+  { cat:"Dark · Cinematic · Immersive", tag:"P2가 끌렸다면 이 줄을 봐", items:[
+    {nm:"Exo Ape", url:"https://exoape.com", why:"큰 실사 영상/이미지 + 묵직한 다크 + 부드러운 모션. 시네마틱 에이전시의 교과서.", tags:["dark","cinematic","video"]},
+    {nm:"Lusion", url:"https://lusion.co", why:"WebGL 3D를 전면에. 인터랙티브 끝판왕. 욕심나면 island로 일부 차용 가능.", tags:["3D","WebGL","awwwards"]},
+    {nm:"Noomo Agency", url:"https://noomoagency.com", why:"3D 스토리텔링 + 대형 타이포. 검색에서 추천된 정상급 스튜디오.", tags:["3D","story","bold"]},
+    {nm:"Active Theory", url:"https://activetheory.net", why:"몰입형 인터랙션의 원조격. 다크+네온+모션.", tags:["immersive","motion"]},
+    {nm:"Obys Agency", url:"https://obys.agency", why:"에디토리얼 감성 + 강한 모션 + 큰 타이포. 절제와 과감의 균형.", tags:["editorial","motion","type"]},
+    {nm:"Dvein", url:"https://dvein.com", why:"영상 스튜디오. 풀블리드 무빙 이미지가 주인공. 히어로 비주얼 참고.", tags:["dark","video","hero"]},
+  ]},
+  { cat:"Bold Typography · Editorial", tag:"social. / 큰 글씨 좋아했다면", items:[
+    {nm:"Studio Feixen", url:"https://studiofeixen.ch", why:"타이포·컬러 실험의 정점. 글자로 화면을 짓는 법.", tags:["type","color","swiss"]},
+    {nm:"&Walsh", url:"https://andwalsh.com", why:"대담한 컬러·폼·타이포. 브랜딩 에이전시 1티어.", tags:["bold","brand","type"]},
+    {nm:"DixonBaxi", url:"https://dixonbaxi.com", why:"강렬한 그리드 + 굵은 그로테스크. 자신감 있는 레이아웃.", tags:["grid","bold","grotesk"]},
+    {nm:"Cuberto", url:"https://cuberto.com", why:"큰 헤드라인 + 매끈한 커서/모션. 깔끔한 임팩트.", tags:["motion","clean","bold"]},
+    {nm:"Locomotive", url:"https://locomotive.ca", why:"스무스 스크롤의 대명사. 에디토리얼+모션 균형.", tags:["scroll","editorial"]},
+    {nm:"Cosmos", url:"https://www.cosmos.so", why:"무드보드형 그리드 UI. 큐레이션·갤러리 레이아웃 참고.", tags:["grid","gallery","ui"]},
+  ]},
+  { cat:"Developer Portfolio · Case Study", tag:"네 실제 용도에 가장 가까움", items:[
+    {nm:"Brittany Chiang", url:"https://brittanychiang.com", why:"개발자 포폴 레전드. 다크+모노 액센트, 프로젝트 리스트 구조가 딱 네 케이스.", tags:["dev","dark","case"]},
+    {nm:"Aristide Benoist", url:"https://aristidebenoist.com", why:"다크 시네마틱 개발자 포폴. 프로젝트 상세로 들어가는 흐름이 좋음.", tags:["dark","cinematic","dev"]},
+    {nm:"Rauno Freiberg", url:"https://rauno.me", why:"극단적 절제 + 디테일. 엔지니어 미감의 정수(B 시안 원형).", tags:["minimal","craft","mono"]},
+    {nm:"Robin Noguier", url:"https://robin-noguier.com", why:"케이스 스터디형 포폴. 프로젝트마다 통일 템플릿. 정확히 네 구조.", tags:["case","template","clean"]},
+    {nm:"Bruno Simon", url:"https://bruno-simon.com", why:"3D 게임형 포폴. 과감함의 극단 — 참고용 자극제.", tags:["3D","playful","wow"]},
+    {nm:"Lee Robinson", url:"https://leerob.com", why:"콘텐츠 중심 개발자 사이트. 글+프로젝트 혼합 구조 레퍼런스.", tags:["content","blog","dev"]},
+  ]},
+  { cat:"Clean · Product · Bento", tag:"B 시안(테크니컬) 계열", items:[
+    {nm:"Vercel", url:"https://vercel.com", why:"근접블랙+헤어라인+벤토. 모던 테크 미감의 기준점.", tags:["bento","mono","tech"]},
+    {nm:"Linear", url:"https://linear.app", why:"글로우+글래스+정밀 타이포. 다크 프리미엄 SaaS의 정석.", tags:["glass","glow","dark"]},
+    {nm:"Family", url:"https://family.co", why:"부드러운 모션 + 절제된 다크. 디테일 좋은 제품 사이트.", tags:["motion","dark","clean"]},
+    {nm:"Igloo Inc", url:"https://igloo.inc", why:"3D + 다크 + 스크롤 시네마틱. awwwards 다수 수상.", tags:["3D","dark","awwwards"]},
+  ]},
+];
+const app = document.getElementById('app');
+app.innerHTML = data.map(sec => `
+  <div class="cat"><h2>${sec.cat}</h2><span>${sec.tag}</span></div>
+  <div class="grid">
+    ${sec.items.map(it => `
+      <a class="card" href="${it.url}" target="_blank" rel="noopener">
+        <div class="shot"><div class="ld">rendering…</div><img loading="lazy" src="${shot(it.url)}" alt="${it.nm}" onload="this.previousElementSibling.style.display='none'" onerror="this.style.display='none';this.previousElementSibling.textContent='⤴ 클릭해서 원본 보기'"></div>
+        <div class="meta">
+          <div class="nm">${it.nm}<span class="ar">↗</span></div>
+          <div class="url">${it.url.replace('https://','')}</div>
+          <div class="why">${it.why}</div>
+          <div class="tagrow">${it.tags.map(t=>`<span class="tg">${t}</span>`).join('')}</div>
+        </div>
+      </a>`).join('')}
+  </div>`).join('');
+</script>
+</body>
+</html>

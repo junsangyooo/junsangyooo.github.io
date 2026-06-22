@@ -3,7 +3,6 @@ title: "Monogram"
 tagline: "A personal identity system — type, marks, and motion."
 category: "Branding"
 thumbnail: "/thumbnails/monogram.svg"
-ratio: "landscape"
 role: "Design"
 team: 1
 year: 2024

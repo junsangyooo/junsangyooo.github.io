@@ -3,7 +3,6 @@ title: "Dragon Slayer"
 tagline: "My first team project — game loops, collisions, and people."
 category: "Applications"
 thumbnail: "/thumbnails/dragon-slayer.svg"
-ratio: "landscape"
 role: "Gameplay · Team of 4"
 team: 4
 year: 2023

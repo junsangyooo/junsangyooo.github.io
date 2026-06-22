@@ -3,7 +3,6 @@ title: "Nyom"
 tagline: "Local restaurants, matched by taste — not stars."
 category: "Websites"
 thumbnail: "/thumbnails/nyom.svg"
-ratio: "landscape"
 role: "Product · Frontend"
 team: 3
 year: 2025

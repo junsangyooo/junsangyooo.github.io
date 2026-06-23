@@ -15,9 +15,10 @@ const projects = defineCollection({
     team: z.number().default(1),
     year: z.number(),
     stack: z.array(z.string()).default([]),
-    // tolerate empty string from the CMS (blank optional field)
+    // tolerate empty string from the console (blank optional field)
     repo: z.union([z.string().url(), z.literal('')]).optional(),
-    demo: z.union([z.string().url(), z.literal('')]).optional(),
+    // extra custom buttons (label + url) shown on the detail page
+    links: z.array(z.object({ label: z.string(), url: z.string().url() })).default([]),
     featured: z.boolean().default(false),
     order: z.number().default(999), // lower = higher in the list
   }),

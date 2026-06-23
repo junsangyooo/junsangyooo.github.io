@@ -60,6 +60,14 @@ export const onRequestPost = async ({ request, env }) => {
         tree.push({ path: `public/thumbnails/${slug}.${ext}`, mode: '100644', type: 'blob', sha });
       }
       if (!thumbnailRef) throw new Error(`"${slug}" has no thumbnail`);
+      // images embedded in the body (uploaded in the editor)
+      if (Array.isArray(u.bodyImages)) {
+        for (const img of u.bodyImages) {
+          if (!img.path || !img.data) continue;
+          const sha = await createBlob(img.data, 'base64');
+          tree.push({ path: `public${img.path}`, mode: '100644', type: 'blob', sha });
+        }
+      }
       const md = buildMarkdown(u, thumbnailRef);
       const mdSha = await createBlob(md, 'utf-8');
       tree.push({ path: `src/content/projects/${slug}.md`, mode: '100644', type: 'blob', sha: mdSha });

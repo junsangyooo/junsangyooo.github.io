@@ -23,7 +23,7 @@ const teamLabel = d.team > 1 ? `Team of ${d.team}` : 'Solo';
 
     <div class="detail__links" data-rise>
       {d.repo && <a class="btn btn--solid" href={d.repo} target="_blank" rel="noopener">View on GitHub ↗</a>}
-      {d.demo && <a class="btn" href={d.demo} target="_blank" rel="noopener">Live demo ↗</a>}
+      {d.links.map((l) => <a class="btn" href={l.url} target="_blank" rel="noopener">{l.label} ↗</a>)}
     </div>
 
     <div class="detail__media" data-rise>
@@ -76,6 +76,7 @@ const teamLabel = d.team > 1 ? `Team of ${d.team}` : 'Solo';
   .detail__facts dd { margin-top: 10px; font: 600 14px/1.4 var(--font); }
   .prose :global(h2) { font-family: var(--font); font-weight: 700; font-size: clamp(22px, 3vw, 30px); margin: 40px 0 14px; letter-spacing: -0.02em; }
   .prose :global(p) { font-size: 18px; color: #222; margin-bottom: 20px; }
+  .prose :global(img) { display: block; width: 100%; border-radius: 14px; margin: 14px 0 26px; }
   .prose :global(em) { color: var(--accent); font-style: italic; }
   .prose :global(pre) { background: #0a0a0a; color: #e6e6e6; border-radius: 12px; padding: 20px; overflow: auto; font: 13px/1.6 var(--mono); margin-bottom: 20px; }
   .prose :global(code) { font-family: var(--mono); }

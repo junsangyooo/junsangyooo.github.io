@@ -40,6 +40,21 @@ export const onRequestPost = async ({ request, env }) => {
     return (await r.json()).sha;
   };
 
+  // hardening: only allow image files into a fixed prefix, and sniff magic bytes
+  const IMG_EXT = /^(png|jpe?g|gif|webp|svg)$/;
+  const SAFE_UPLOAD = /^\/uploads\/[a-z0-9._-]+\.(png|jpe?g|gif|webp|svg)$/i;
+  const looksLikeImage = (b64) => {
+    let bin;
+    try { bin = atob(String(b64).slice(0, 16)); } catch { return false; }
+    const b = (i) => bin.charCodeAt(i);
+    if (b(0) === 0x89 && b(1) === 0x50) return true; // PNG
+    if (b(0) === 0xff && b(1) === 0xd8) return true; // JPEG
+    if (b(0) === 0x47 && b(1) === 0x49 && b(2) === 0x46) return true; // GIF
+    if (b(0) === 0x52 && b(1) === 0x49 && b(2) === 0x46) return true; // RIFF (WEBP)
+    if (bin.trimStart().startsWith('<')) return true; // SVG / XML
+    return false;
+  };
+
   try {
     // 1) base ref / commit / tree
     const ref = await (await api(`/git/ref/heads/${BRANCH}`)).json();
@@ -54,16 +69,20 @@ export const onRequestPost = async ({ request, env }) => {
       if (!slug) throw new Error('empty slug');
       let thumbnailRef = u.thumbnail; // keep existing if no new upload
       if (u.thumbnailData) {
-        const ext = (String(u.thumbnailName).split('.').pop() || 'png').toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (!looksLikeImage(u.thumbnailData)) throw new Error('thumbnail is not a valid image');
+        let ext = (String(u.thumbnailName).split('.').pop() || 'png').toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (!IMG_EXT.test(ext)) ext = 'png';
         const sha = await createBlob(u.thumbnailData, 'base64');
-        thumbnailRef = `/thumbnails/${slug}.${ext}`;
+        thumbnailRef = `/thumbnails/${slug}.${ext}`; // slug is sanitized via slugify
         tree.push({ path: `public/thumbnails/${slug}.${ext}`, mode: '100644', type: 'blob', sha });
       }
       if (!thumbnailRef) throw new Error(`"${slug}" has no thumbnail`);
-      // images embedded in the body (uploaded in the editor)
+      // images embedded in the body (uploaded in the editor) — path strictly validated
       if (Array.isArray(u.bodyImages)) {
         for (const img of u.bodyImages) {
           if (!img.path || !img.data) continue;
+          if (img.path.includes('..') || !SAFE_UPLOAD.test(img.path)) throw new Error(`unsafe image path: ${img.path}`);
+          if (!looksLikeImage(img.data)) throw new Error('body image is not a valid image');
           const sha = await createBlob(img.data, 'base64');
           tree.push({ path: `public${img.path}`, mode: '100644', type: 'blob', sha });
         }

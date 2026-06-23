@@ -70,7 +70,7 @@
 | 폰트 | **Geist / Geist Mono** (Google Fonts) | Cuberto의 Suisse Int'l(유료) 무료 대체 |
 | 스무스 스크롤 | **Lenis** | lerp 0.09, GSAP ticker로 구동 |
 | 모션 | **GSAP 3.13** (ScrollTrigger, SplitText, quickTo) | SplitText는 3.13부터 무료 |
-| 관리 툴 | **Sveltia CMS** (`/console/`, GitHub 백엔드) | Decap 호환, 경량 |
+| 관리 툴 | **커스텀 콘솔** (`/console`, Cloudflare Pages Functions) | 비번 로그인 + GitHub API 커밋 |
 | 배포 | **Cloudflare Pages** | `github.jsyoo.dev`, push → 자동 |
 
 **개발 주의(중요)**: **새 라이브러리 import 경로를 추가/제거하면 dev 서버를 한 번 재시작**해야 한다(Vite 의존성 재최적화). 안 하면 import가 깨져 그 효과들이 통째로 죽는다. CSS·콘텐츠 변경은 HMR로 즉시 반영(재시작 불필요).
@@ -144,16 +144,22 @@ order: 1                            # 정렬: 낮을수록 위
 
 ---
 
-## 8. 관리 툴 `/console/` (Sveltia CMS)
+## 8. 관리 툴 `/console` (커스텀 비번 콘솔)
 
-`public/console/`에 배치. `config.yml`의 필드가 `content.config.ts` 스키마와 1:1. 동작하려면 **GitHub OAuth 중개 워커**가 필요(정적 사이트라 백엔드 없음).
+정적 사이트 + Cloudflare Pages Functions로 만든 자체 CMS. **비번만으로 어느 기기서든 로그인**(GitHub 토큰은 서버 env에만, 사용자는 안 만짐 → 2FA 없음, 포터블).
 
-**남은 셋업(1회성)**:
-1. GitHub OAuth App 생성(Client ID/Secret).
-2. `sveltia-cms-auth` Cloudflare Worker 배포 + 환경변수(`GITHUB_CLIENT_ID/SECRET`, `ALLOWED_DOMAINS=github.jsyoo.dev`).
-3. `config.yml`의 `base_url`을 워커 URL로 교체.
+**플로우**: 로그인 → 리스트(순서 ↑↓ · Edit · Delete · ＋New) → 에디터(폼) → Preview → **Deploy**. 모든 편집은 세션에 모았다가 Deploy 한 번에 **단일 커밋**(Git Data API: blob→tree→commit)으로 반영 → ~1분 후 라이브.
 
-이후 라이브 `/console/`에서 GitHub 로그인 → 폼 작성 → 레포에 md+이미지 자동 커밋 → 자동 재배포.
+- **UI**: `src/pages/console/index.astro` — 단일 HTML SPA(login/list/editor/preview 뷰 토글). 사이트 톤(Geist, convex 버튼). 리스트 썸네일은 `raw.githubusercontent.com`에서 즉시 로드.
+- **백엔드**: `functions/api/*` (Pages Functions, 파일 라우팅 → `/api/*`)
+  - `login.js` 비번 검증(env) → 서명 세션 쿠키 / `me.js` · `logout.js`
+  - `projects.js` (GET) 레포의 md 목록·파싱 / `deploy.js` (POST) 변경셋 원자 커밋
+  - `_lib/auth.js` (HMAC 세션·쿠키), `_lib/md.js` (slugify·frontmatter 파서·md 빌더)
+- **env (Cloudflare Pages → Settings → Variables and secrets, Production)** — *남은 셋업*:
+  - `CONSOLE_PASSWORD` — 로그인 비번
+  - `SESSION_SECRET` — 세션 서명용 랜덤 문자열(길게)
+  - `GITHUB_TOKEN` — fine-grained PAT (이 레포 **Contents: Read and write**)
+- 로컬에선 `astro dev`가 Functions를 안 돌림 → `npx wrangler pages dev dist` 로 빌드 결과 + functions 같이 띄워야 콘솔 동작 테스트 가능. (UI만 보는 건 astro dev로도 됨, 단 /api 호출은 실패)
 
 ---
 

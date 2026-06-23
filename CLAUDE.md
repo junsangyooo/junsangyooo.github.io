@@ -17,12 +17,13 @@
 
 ## 2. 현재 상태 (2026-06 기준)
 
-- **메인 리스트 페이지(`/`)**: 완성에 가까움. 헤더(`GitHub Projects`) + 한 줄 설명 + 필터 탭(All / Websites / Applications / Tools) + 지그재그 2열 카드 리스트. 상단바 없음 대신 최소 sticky 탑바.
-- **상세 템플릿(`/{slug}`)**: 동작함. 헤더(카테고리·연도·팀 / 타이틀 / 태그라인 / 버튼 / 미디어 / facts) + 본문(Problem/Approach/Outcome MDX). 메인과 톤 통일.
-- **인터랙션**: 잉크 커서, Lenis 관성 스크롤, 진입/스크롤 reveal, 롤 텍스트 링크, 볼록 fill 버튼 — 전부 구현.
-- **샘플 데이터 6개**: nyom, quant, dragon-slayer, aurora, pulse, monogram. 썸네일은 **placeholder SVG**(실제 스크린샷으로 교체 예정).
-- **`/console/`**: Sveltia CMS 파일 배치 완료. **GitHub OAuth 워커 셋업만 남음**(§8).
-- **미배포**: Cloudflare Pages 연결은 돼 있으나 이 Astro 버전 push 전.
+- **배포됨 (라이브)**: Cloudflare Pages → `github.jsyoo.dev`. `main` push → 자동 빌드/배포.
+- **메인 리스트(`/`)**: 완성. 헤더 `GitHub Projects` + 한 줄 설명 + 필터(All/Websites/Applications/Tools) + 지그재그 2열 카드. 최소 sticky 탑바. 페이지 전환은 **View Transitions**(부드러운 크로스페이드).
+- **상세(`/{slug}`)**: 동작. 헤더(메타/타이틀/태그라인/버튼/미디어/facts) + 본문(MDX, **이미지 지원**). 헤더 아래→위, 본문 문단 줄단위 등장.
+- **404**: `src/pages/404.astro` (footer 바닥 고정, 스크롤 없는 전체화면).
+- **인터랙션**: 잉크 커서·Lenis 스크롤·reveal·롤 링크·볼록 fill — 전부 구현. 효과는 전환마다 teardown/boot.
+- **콘텐츠**: **비어 있음**(샘플 전부 삭제). `/console`로 실제 레포를 채울 차례.
+- **관리 콘솔(`/console`)**: 커스텀 비번 콘솔 완성(§8). **남은 셋업 = Cloudflare env 2개**(`CONSOLE_PASSWORD`, `GITHUB_TOKEN`) + CF 빌드 설정(`npm run build` / `dist`).
 
 ---
 
@@ -30,32 +31,30 @@
 
 ```
 .
-├── CLAUDE.md                  # 이 파일
-├── astro.config.mjs           # site=github.jsyoo.dev, output: static
+├── CLAUDE.md
+├── astro.config.mjs            # site=github.jsyoo.dev, output: static
+├── .nvmrc                      # Node 22 (Cloudflare Pages 빌드용)
 ├── src/
-│   ├── content.config.ts      # projects 컬렉션 zod 스키마 (= 레포 1개의 필드 계약)
-│   ├── content/projects/*.md  # ← 레포 추가는 여기 파일 하나
-│   ├── layouts/Base.astro     # html/head, Header, Footer, 전역 스크립트, scrollRestoration
+│   ├── content.config.ts       # projects zod 스키마 (레포 1개의 필드 계약)
+│   ├── content/projects/*.md   # ← 레포 = md 1개 (지금 비어있음; 콘솔이 채움)
+│   ├── layouts/Base.astro      # html/head, ClientRouter(View Transitions), Header, Footer, 전역 스크립트
 │   ├── pages/
-│   │   ├── index.astro        # 메인 리스트 (헤더+필터+지그재그 2열)
-│   │   └── [slug].astro       # 상세 통일 템플릿 (scoped style 포함)
-│   ├── components/
-│   │   ├── Header.astro        # 최소 sticky 탑바 (Junsang Yoo / About ↗)
-│   │   ├── Footer.astro        # 검은 푸터 (좌: About+brand+tag / 우: 소셜)
-│   │   ├── ProjectCard.astro   # 카드 1개 템플릿
-│   │   └── Roll.astro          # 롤(주사위) 텍스트 링크 라벨
-│   ├── lib/
-│   │   ├── smoothScroll.ts     # Lenis + GSAP ticker 통합
-│   │   ├── reveal.ts           # initReveal(메인) + initContentReveal(상세, SplitText)
-│   │   ├── cursor.ts           # 잉크 커서 (quickTo + skew)
-│   │   └── filters.ts          # 카테고리 필터
-│   ├── scripts/main.ts         # 부트: scrollRestoration + safe()로 효과 격리 실행
+│   │   ├── index.astro         # 메인 리스트 (헤더+필터+지그재그 2열, 빈 상태 처리)
+│   │   ├── [slug].astro        # 상세 통일 템플릿 (scoped style)
+│   │   ├── 404.astro           # 404 (footer 바닥 고정)
+│   │   └── console/index.astro # 관리 콘솔 SPA (login/list/editor/preview)
+│   ├── components/             # Header, Footer, ProjectCard, Roll
+│   ├── lib/                    # smoothScroll, reveal, cursor, filters
+│   ├── scripts/main.ts         # 부트/teardown (View Transition lifecycle)
 │   └── styles/global.css       # 디자인 토큰 + 전역 스타일
+├── functions/                  # Cloudflare Pages Functions (콘솔 백엔드, /api/*)
+│   ├── api/                    # login, me, logout, projects(GET 목록), deploy(POST 커밋)
+│   └── _lib/                   # auth.js (HMAC/PBKDF2 세션), md.js (yaml frontmatter)
 ├── public/
-│   ├── thumbnails/*.svg        # 카드/히어로 이미지 (placeholder)
-│   └── console/                # Sveltia CMS (index.html + config.yml)
-├── archive-content/           # 옛 Jekyll 콘텐츠 보존 (leetcode/, study-note/)
-└── _design-refs/gallery.html  # 레퍼런스 갤러리 (참고용, 빌드 무관)
+│   ├── thumbnails/             # 카드/히어로 썸네일 (콘솔이 커밋)
+│   └── uploads/                # 본문 이미지 (콘솔이 커밋)
+├── archive-content/            # 옛 Jekyll 콘텐츠 보존 (leetcode/, study-note/)
+└── _design-refs/gallery.html   # 레퍼런스 갤러리 (참고용)
 ```
 
 ---
@@ -69,9 +68,11 @@
 | 스타일 | **순수 CSS** (`global.css` 토큰 + scoped `<style>`) | Tailwind 안 씀 |
 | 폰트 | **Geist / Geist Mono** (Google Fonts) | Cuberto의 Suisse Int'l(유료) 무료 대체 |
 | 스무스 스크롤 | **Lenis** | lerp 0.09, GSAP ticker로 구동 |
-| 모션 | **GSAP 3.13** (ScrollTrigger, SplitText, quickTo) | SplitText는 3.13부터 무료 |
-| 관리 툴 | **커스텀 콘솔** (`/console`, Cloudflare Pages Functions) | 비번 로그인 + GitHub API 커밋 |
-| 배포 | **Cloudflare Pages** | `github.jsyoo.dev`, push → 자동 |
+| 모션 | **GSAP 3.13** (ScrollTrigger, SplitText) | SplitText는 3.13부터 무료. 커서는 GSAP 없이 순수 rAF |
+| 페이지 전환 | **Astro View Transitions** (`ClientRouter`) | SPA식 부드러운 전환 + 효과 lifecycle(teardown/boot) |
+| 관리 툴 | **커스텀 콘솔** (`/console`, Cloudflare Pages Functions) | 비번 로그인 + Git Data API 단일 커밋 |
+| 콘솔 frontmatter | **yaml** (functions에서만) | md 파싱/생성, 구조화 필드(links) 왕복 |
+| 배포 | **Cloudflare Pages** | `github.jsyoo.dev`, push → 자동. 빌드 `npm run build`, 출력 `dist` |
 
 **개발 주의(중요)**: **새 라이브러리 import 경로를 추가/제거하면 dev 서버를 한 번 재시작**해야 한다(Vite 의존성 재최적화). 안 하면 import가 깨져 그 효과들이 통째로 죽는다. CSS·콘텐츠 변경은 HMR로 즉시 반영(재시작 불필요).
 
@@ -86,20 +87,25 @@
 title: "Nyom"                       # 필수
 tagline: "Local restaurants, matched by taste — not stars."  # 필수, 한 줄
 category: "Websites"                # 필수: Websites | Applications | Tools (필터 탭이 이 값에서 자동 생성)
-thumbnail: "/thumbnails/nyom.svg"   # 필수: public/ 하위 경로
+thumbnail: "/thumbnails/nyom.png"   # 필수: public/ 하위 경로 (png/jpg/svg/webp)
 role: "Product · Frontend"          # 선택
 team: 3                             # 기본 1 (1이면 "Solo", 2+면 "Team of N")
 year: 2025                          # 필수
 stack: ["Next.js", "Supabase"]      # 선택
-repo: "https://github.com/..."      # 선택 (빈 값 허용)
-demo: "https://..."                 # 선택
-featured: true                      # 선택
-order: 1                            # 정렬: 낮을수록 위
+repo: "https://github.com/..."      # 선택 — 상세에 "View on GitHub ↗" 버튼
+links:                              # 선택 — 임의 버튼 여러 개 (라벨+URL)
+  - label: "Live demo"
+    url: "https://..."
+featured: false                     # 선택
+order: 0                            # 정렬: 낮을수록 위. 콘솔이 리스트 위치로 관리(새 글이 위)
 ---
-본문 (MDX) — 권장 구조: ## Problem / ## Approach / ## Outcome
+본문 (Markdown) — 권장 구조: ## Problem / ## Approach / ## Outcome
+이미지: ![](/uploads/img-xxx.png)  ← public/uploads/ 에 함께 커밋됨
 ```
 
 → 저장하면 **리스트 카드 + `/{파일명}` 상세 라우트 + 필터** 자동. 파일명이 slug가 된다. 카드는 인덱스 짝/홀로 좌/우 열에 자동 분배(지그재그).
+
+**자산 경로 규칙**: 썸네일 = `public/thumbnails/{slug}.{ext}`, 본문 이미지 = `public/uploads/{name}.{ext}`. 콘솔이 이 규칙대로 커밋한다(§8). 손으로 추가할 때도 동일하게.
 
 ---
 
@@ -133,7 +139,8 @@ order: 1                            # 정렬: 낮을수록 위
 
 핵심 철학: **콘텐츠는 기본 보임, 효과는 그 위에 얹는 progressive enhancement.** 각 효과는 `main.ts`의 `safe()`로 격리 — 하나가 죽어도 나머지와 콘텐츠는 산다. `prefers-reduced-motion`이면 전부 생략.
 
-- **잉크 커서** (`cursor.ts`): 네이티브 커서를 *대체하지 않고 따라다니는* 검은 점. `gsap.quickTo`(duration 0.38)로 부드럽게 추적, 속도 벡터로 skew(물감 번짐). 첫 마우스 위치에서 생성(중앙→이동 없음), 창 벗어나면 사라짐. 카드(`data-cursor="explore"`) 위에선 커지며 **"Explore"**. `.footer`/`[data-cursor-light]` 위에선 흰색.
+- **페이지 전환** (`Base.astro` ClientRouter + `main.ts`): View Transitions로 SPA식 크로스페이드. 효과는 **lifecycle 관리** — `astro:before-swap`에 teardown(Lenis destroy, ScrollTrigger kill, 커서·ticker·리스너 제거), `astro:page-load`에 boot(재초기화). 안 하면 중복 누적으로 jank.
+- **잉크 커서** (`cursor.ts`): 네이티브 커서를 *대체하지 않고 따라다니는* 검은 점. **순수 rAF + 수동 lerp(0.22)** (GSAP 의존 X — 드래그 버그 회피), 속도 벡터로 skew(물감 번짐). 첫 마우스 위치에서 생성, 창 벗어나면 사라짐. 카드(`data-cursor="explore"`) 위에선 커지며 **"Explore"**. `.footer`/`[data-cursor-light]` 위에선 흰색.
 - **스크롤** (`smoothScroll.ts`): Lenis(lerp 0.09, wheelMultiplier 0.9) + GSAP ticker로 동기 구동. 새로고침 시 **항상 맨 위에서 시작**(`scrollRestoration='manual'`, head 인라인).
 - **메인 reveal** (`reveal.ts:initReveal`): 로드 시 헤더(`[data-intro]`)+첫 화면 카드는 **왼쪽→오른쪽 슬라이드**(stagger). 아래 카드는 스크롤 시 **스프링 업**(`back.out`).
 - **상세 reveal** (`reveal.ts:initContentReveal`): 헤더(`[data-rise]`)는 로드 시 **아래→위 등장**. 본문 prose는 **블록 타입별 자동 처리** — `<p>`는 **SplitText로 줄 분리 → 줄 단위 stagger**(위→아래), 그 외(제목·이미지·코드)는 블록 통째 fade-up. 폰트 로드(`document.fonts.ready`) 후 split. **페이지마다 정의 안 함.**
@@ -148,13 +155,14 @@ order: 1                            # 정렬: 낮을수록 위
 
 정적 사이트 + Cloudflare Pages Functions로 만든 자체 CMS. **비번만으로 어느 기기서든 로그인**(GitHub 토큰은 서버 env에만, 사용자는 안 만짐 → 2FA 없음, 포터블).
 
-**플로우**: 로그인 → 리스트(순서 ↑↓ · Edit · Delete · ＋New) → 에디터(폼) → Preview → **Deploy**. 모든 편집은 세션에 모았다가 Deploy 한 번에 **단일 커밋**(Git Data API: blob→tree→commit)으로 반영 → ~1분 후 라이브.
+**플로우**: 로그인 → 리스트(순서 ↑↓ · Edit · Delete · ＋New) → 에디터(폼: 메타 + **커스텀 링크 여러 개** + **본문 이미지 삽입**) → Preview(마크다운 렌더) → **Deploy**. 모든 편집은 세션에 모았다가 Deploy 한 번에 **단일 커밋**(Git Data API: blob→tree→commit)으로 반영 → ~1분 후 라이브. **순서**: 리스트 위치 = `order`(새 글이 맨 위).
 
 - **UI**: `src/pages/console/index.astro` — 단일 HTML SPA(login/list/editor/preview 뷰 토글). 사이트 톤(Geist, convex 버튼). 리스트 썸네일은 `raw.githubusercontent.com`에서 즉시 로드.
 - **백엔드**: `functions/api/*` (Pages Functions, 파일 라우팅 → `/api/*`)
   - `login.js` 비번 검증(env) → 서명 세션 쿠키 / `me.js` · `logout.js`
-  - `projects.js` (GET) 레포의 md 목록·파싱 / `deploy.js` (POST) 변경셋 원자 커밋
-  - `_lib/auth.js` (HMAC 세션·쿠키), `_lib/md.js` (slugify·frontmatter 파서·md 빌더)
+  - `projects.js` (GET) 레포의 md 목록·파싱 / `deploy.js` (POST) 변경셋(upserts/deletes) 원자 커밋 + md·썸네일·본문이미지 동시 반영
+  - `_lib/auth.js` (PBKDF2→HMAC 세션·쿠키), `_lib/md.js` (slugify·**yaml** frontmatter 파서/빌더)
+- **보안**: 세션 서명은 PBKDF2(10만)로 강화(§아래 env). 업로드 경로는 `^/uploads/<safe>.<imgext>$`만 허용(경로 탈출 차단) + 매직바이트로 실제 이미지 검증. 모든 쓰기는 세션 검증 후.
 - **env (Cloudflare Pages → Settings → Variables and secrets, Production)**:
   - `CONSOLE_PASSWORD` — 로그인 비번 (필수)
   - `GITHUB_TOKEN` — fine-grained PAT (이 레포 **Contents: Read and write**) (필수)
@@ -165,7 +173,9 @@ order: 1                            # 정렬: 낮을수록 위
 
 ## 9. 배포
 
-- Cloudflare Pages가 레포(`junsangyooo/junsangyooo.github.io`, `main`)에 연결. 빌드: `astro build`, 출력: `dist/`. 도메인 `github.jsyoo.dev`.
+- Cloudflare Pages ↔ 레포(`junsangyooo/junsangyooo.github.io`, `main`). 도메인 `github.jsyoo.dev`. **라이브.**
+- **CF 빌드 설정(중요)**: Build command `npm run build`, Output dir `dist`, Node는 `.nvmrc`(22). *이전에 이 설정이 비어 있어서 빌드를 안 하고 404가 떴던 적 있음 — 비면 안 됨.*
+- `functions/`는 CF Pages가 자동으로 `/api/*`로 서빙(빌드 설정과 별개).
 - **push는 사용자가 직접** 한다 (Claude는 push 금지).
 
 ---
@@ -182,9 +192,9 @@ order: 1                            # 정렬: 낮을수록 위
 
 ## 11. 다음 마일스톤
 
-- [ ] Sveltia 콘솔 OAuth 워커 셋업 → `/console/` 가동 (§8)
-- [ ] 실제 프로젝트 썸네일·본문 채우기 (placeholder 교체)
+- [ ] **콘솔 가동**: Cloudflare env(`CONSOLE_PASSWORD`, `GITHUB_TOKEN`) 등록 → `/console` 로그인 테스트
+- [ ] **실제 레포 콘텐츠 채우기** (콘솔로 추가 — 지금 리스트 비어있음)
 - [ ] `archive-content/`(LeetCode·노트) → `/blog/archive` 일괄 import 검토
-- [ ] 메타(OG 이미지, sitemap, RSS)
-- [ ] Cloudflare Pages에 이 Astro 버전 배포 + 도메인 확인
+- [ ] 메타(OG 이미지 자동 생성, sitemap, RSS)
+- [ ] (선택) 콘솔에 본문 이미지 정렬/삭제, 드래그 정렬 등 편의 기능
 ```

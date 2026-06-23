@@ -13,7 +13,8 @@ export const onRequestPost = async ({ request, env }) => {
   if (!safeEqual(String(password), env.CONSOLE_PASSWORD)) {
     return json({ error: 'Wrong password.' }, 401);
   }
-  // the password itself signs the session cookie — no separate secret needed
-  const token = await createSession(env.CONSOLE_PASSWORD);
+  // sign with a dedicated SESSION_SECRET if provided (recommended), else fall back to
+  // the password stretched through PBKDF2 (see _lib/auth.js)
+  const token = await createSession(env.SESSION_SECRET || env.CONSOLE_PASSWORD);
   return json({ ok: true }, 200, { 'Set-Cookie': sessionCookie(token) });
 };

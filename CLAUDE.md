@@ -155,9 +155,10 @@ order: 1                            # 정렬: 낮을수록 위
   - `login.js` 비번 검증(env) → 서명 세션 쿠키 / `me.js` · `logout.js`
   - `projects.js` (GET) 레포의 md 목록·파싱 / `deploy.js` (POST) 변경셋 원자 커밋
   - `_lib/auth.js` (HMAC 세션·쿠키), `_lib/md.js` (slugify·frontmatter 파서·md 빌더)
-- **env (Cloudflare Pages → Settings → Variables and secrets, Production)** — *남은 셋업, 2개뿐*:
-  - `CONSOLE_PASSWORD` — 로그인 비번 (세션 쿠키 서명에도 이 값을 사용 → 별도 시크릿 불필요)
-  - `GITHUB_TOKEN` — fine-grained PAT (이 레포 **Contents: Read and write**)
+- **env (Cloudflare Pages → Settings → Variables and secrets, Production)**:
+  - `CONSOLE_PASSWORD` — 로그인 비번 (필수)
+  - `GITHUB_TOKEN` — fine-grained PAT (이 레포 **Contents: Read and write**) (필수)
+  - `SESSION_SECRET` — **선택·권장**. 고엔트로피 랜덤 문자열(`openssl rand -hex 32`). 넣으면 세션 서명을 비번과 완전 분리(보안↑). 없으면 비번을 PBKDF2(10만 회)로 늘려 서명 — 여전히 강함. (`functions/_lib/auth.js`)
 - 로컬에선 `astro dev`가 Functions를 안 돌림 → `npx wrangler pages dev dist` 로 빌드 결과 + functions 같이 띄워야 콘솔 동작 테스트 가능. (UI만 보는 건 astro dev로도 됨, 단 /api 호출은 실패)
 
 ---

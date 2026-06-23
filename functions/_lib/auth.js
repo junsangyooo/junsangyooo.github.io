@@ -1,14 +1,22 @@
 // Shared auth helpers for the console (Cloudflare Pages Functions / Workers runtime).
 const enc = new TextEncoder();
 
-async function hmac(secret, data) {
-  const key = await crypto.subtle.importKey(
-    'raw',
-    enc.encode(secret),
-    { name: 'HMAC', hash: 'SHA-256' },
+// Derive the HMAC signing key from the password via PBKDF2 (slow KDF). This way a
+// leaked session cookie can't be used to brute-force the password offline cheaply —
+// each guess costs a full PBKDF2 run. Keeps a single env var (CONSOLE_PASSWORD).
+async function signingKey(secret) {
+  const base = await crypto.subtle.importKey('raw', enc.encode(secret), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt: enc.encode('jsyoo-console-session-v1'), iterations: 100000, hash: 'SHA-256' },
+    base,
+    { name: 'HMAC', hash: 'SHA-256', length: 256 },
     false,
     ['sign']
   );
+}
+
+async function hmac(secret, data) {
+  const key = await signingKey(secret);
   const sig = await crypto.subtle.sign('HMAC', key, enc.encode(data));
   return btoa(String.fromCharCode(...new Uint8Array(sig)));
 }

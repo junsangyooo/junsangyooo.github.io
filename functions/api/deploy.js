@@ -8,7 +8,7 @@ const GH = 'https://api.github.com';
 // Commit a whole changeset (creates/edits/deletes/reorders) as ONE atomic commit
 // via the Git Data API: blobs → tree → commit → move ref.
 export const onRequestPost = async ({ request, env }) => {
-  if (!(await verifySession(env.CONSOLE_PASSWORD, getCookie(request, 'console_session')))) {
+  if (!(await verifySession(env.SESSION_SECRET || env.CONSOLE_PASSWORD, getCookie(request, 'console_session')))) {
     return json({ error: 'Not authenticated.' }, 401);
   }
   if (!env.GITHUB_TOKEN) return json({ error: 'Missing GITHUB_TOKEN.' }, 500);

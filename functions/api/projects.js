@@ -7,7 +7,7 @@ const GH = 'https://api.github.com';
 
 // List all projects (read + parse the md files from the repo).
 export const onRequestGet = async ({ request, env }) => {
-  if (!(await verifySession(env.SESSION_SECRET, getCookie(request, 'console_session')))) {
+  if (!(await verifySession(env.CONSOLE_PASSWORD, getCookie(request, 'console_session')))) {
     return json({ error: 'Not authenticated.' }, 401);
   }
   if (!env.GITHUB_TOKEN) return json({ error: 'Missing GITHUB_TOKEN.' }, 500);

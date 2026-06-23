@@ -11,7 +11,7 @@
 - **레퍼런스**: **Cuberto**(cuberto.com/projects). 관성 스크롤·잉크 커서·롤 텍스트·볼록 fill 버튼 등 인터랙션의 결을 의도적으로 차용. 단, 콘텐츠 구조는 우리 식(레포 = md 1개)으로 단순화.
 - **핵심 원칙 — 데이터 주도**: 레포를 추가할 때 **코드를 건드리지 않는다.** `src/content/projects/`에 md 파일 하나(+썸네일)만 떨구면 리스트·상세 라우트·필터가 전부 자동 생성된다. 비개발자도 `/console/` 관리 툴로 추가 가능해야 한다.
 
-> 이전 이력: 옛 Jekyll(Minimal Mistakes) → Next.js + R3F 프로토타입(폐기) → **현재 Astro**. 옛 콘텐츠 중 살릴 것은 `archive-content/`(LeetCode 38 + 알고리즘 노트 12)에 보존.
+> 이전 이력: 옛 Jekyll(Minimal Mistakes) → Next.js + R3F 프로토타입(폐기) → **현재 Astro**. 옛 콘텐츠 중 살릴 것은 `docs/archive-content/`(LeetCode 38 + 알고리즘 노트 12)에 보존.
 
 ---
 
@@ -31,6 +31,7 @@
 
 ```
 .
+├── README.md                  # 공개 레포 표지 (센터 히어로 + 뱃지)
 ├── CLAUDE.md
 ├── CONTENT.md                  # 콘텐츠 저작 계약(본문 어휘 + 5 MDX 블록 + 경로) = 정규화 가이드
 ├── astro.config.mjs            # site=github.jsyoo.dev, output: static, integrations:[mdx()]
@@ -58,8 +59,7 @@
 ├── public/
 │   ├── thumbnails/             # 카드/히어로 썸네일 (콘솔이 커밋)
 │   └── uploads/                # 본문 이미지 (콘솔이 커밋)
-├── archive-content/            # 옛 Jekyll 콘텐츠 보존 (leetcode/, study-note/)
-└── _design-refs/gallery.html   # 레퍼런스 갤러리 (참고용)
+└── docs/                       # 레거시 보존 (빌드 무관): archive-content/(LeetCode·노트), design-refs/gallery.html, SESSION-LOG.md
 ```
 
 ---
@@ -193,7 +193,7 @@ order: 0                            # 정렬: 낮을수록 위. 콘솔이 리스
 
 - 새 작업/구조 변경 전 **계획 제시 후 컨펌**. 파일 삭제·이동·`npm install`은 사전 확인.
 - 대화는 **한국어**, 코드·주석은 **영어**, 커밋 메시지 영어.
-- `archive-content/` 와 `_design-refs/` 는 건드리지 말 것(보존).
+- `docs/`(archive-content·design-refs·SESSION-LOG)는 보존 자료 — 손대지 말 것.
 - 디자인 토큰은 CSS 변수 → 하드코딩 hex 금지. 의존성 추가 시 §4 표 갱신.
 - 인터랙션/효과는 §7 패턴을 따르고, 콘텐츠가 효과에 인질로 잡히지 않게(기본 보임) 한다.
 
@@ -204,7 +204,7 @@ order: 0                            # 정렬: 낮을수록 위. 콘솔이 리스
 - [x] **저작 파이프라인**: MDX 5블록 + `CONTENT.md` 계약 + `/showcase` 스킬. 퀵윈(커서 픽스·토큰/버튼 dedup·로그인 throttle·`site.ts`/`config.js` 상수정리) 반영.
 - [ ] **콘솔 가동**: Cloudflare env(`CONSOLE_PASSWORD`, `GITHUB_TOKEN`) 등록 → `/console` 로그인 테스트
 - [ ] **실제 레포 콘텐츠 채우기** (콘솔로 추가 — 지금 리스트 비어있음)
-- [ ] `archive-content/`(LeetCode·노트) → `/blog/archive` 일괄 import 검토
+- [ ] `docs/archive-content/`(LeetCode·노트) → `/blog/archive` 일괄 import 검토
 - [ ] 메타(OG 이미지 자동 생성, sitemap, RSS)
 - [ ] (선택) 콘솔에 본문 이미지 정렬/삭제, 드래그 정렬 등 편의 기능
 ```

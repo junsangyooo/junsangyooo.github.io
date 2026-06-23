@@ -1,34 +1,16 @@
-# Vim
-*~
-*.sw[p_]
+# dependencies
+node_modules/
 
-# Sublime Text
-*.sublime-project
-*.sublime-workspace
-
-# Ruby Gem
-*.gem
-.bundle
-Gemfile.lock
-**/vendor/bundle
-
-# Node.js and NPM
-node_modules
-npm-debug.log*
-codekit-config.json
-
-# Astro
+# build output
 dist/
 .astro/
-.vercel/
 .wrangler/
+.vercel/
 
-# macOS
+# logs
+npm-debug.log*
+
+# os / editor
 .DS_Store
-
-# Jekyll generated files
-.jekyll-cache
-.jekyll-metadata
-.sass-cache
-_asset_bundler_cache
-_site
+*~
+*.sw[p_]

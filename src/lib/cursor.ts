@@ -1,6 +1,15 @@
 // A dot that TRAILS the real (native) cursor — accompanies, never replaces it.
 // Pure requestAnimationFrame + manual lerp (no GSAP), so it updates every frame on
-// plain mouse movement. Returns a cleanup for View Transition swaps.
+// plain pointer movement. Returns a cleanup for View Transition swaps.
+
+// Last known pointer position, kept at MODULE scope so it survives View Transition
+// re-inits. After a page swap the dot spawns already-visible under the pointer instead
+// of going invisible until the next move — that gap was the "it only shows when I
+// click" bug (a click merely happened to carry an incidental move that woke it).
+let lastX = -1;
+let lastY = -1;
+let hasPos = false;
+
 export function initCursor() {
   if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -11,26 +20,40 @@ export function initCursor() {
   document.body.appendChild(root);
   const label = root.querySelector('.cursor__label') as HTMLElement;
 
-  let mx = window.innerWidth / 2;
-  let my = window.innerHeight / 2;
+  let mx = hasPos ? lastX : window.innerWidth / 2;
+  let my = hasPos ? lastY : window.innerHeight / 2;
   let cx = mx, cy = my, px = mx, py = my;
   let primed = false;
   let raf = 0;
 
-  const onMove = (e: MouseEvent) => {
-    mx = e.clientX;
-    my = e.clientY;
+  // Reveal + lock onto a known point. Runs on the first pointer signal, or right away
+  // if we already knew the position from a previous page.
+  const prime = (x: number, y: number) => {
+    mx = x; my = y;
     if (!primed) {
       primed = true;
-      cx = mx; cy = my; px = mx; py = my; // spawn right under the cursor
+      cx = x; cy = y; px = x; py = y; // spawn right under the cursor
       root.classList.remove('is-out');
     }
   };
+
+  const onPoint = (e: PointerEvent | MouseEvent) => {
+    lastX = e.clientX; lastY = e.clientY; hasPos = true;
+    prime(e.clientX, e.clientY);
+  };
+
+  // pointermove wakes it on hover; pointerdown wakes it on a click that didn't move,
+  // so it can never get stuck invisible. Both keep mx/my fresh.
+  window.addEventListener('pointermove', onPoint);
+  window.addEventListener('pointerdown', onPoint);
+
   const onLeave = () => root.classList.add('is-out');
   const onEnter = () => { if (primed) root.classList.remove('is-out'); };
-  window.addEventListener('mousemove', onMove);
   document.addEventListener('mouseleave', onLeave);
   document.addEventListener('mouseenter', onEnter);
+
+  // Returning via a page transition: we already know where the pointer is — show now.
+  if (hasPos) prime(lastX, lastY);
 
   const SKEW = 0.0016;
   const SKEW_MAX = 0.16;
@@ -61,7 +84,8 @@ export function initCursor() {
 
   return () => {
     cancelAnimationFrame(raf);
-    window.removeEventListener('mousemove', onMove);
+    window.removeEventListener('pointermove', onPoint);
+    window.removeEventListener('pointerdown', onPoint);
     document.removeEventListener('mouseleave', onLeave);
     document.removeEventListener('mouseenter', onEnter);
     root.remove();

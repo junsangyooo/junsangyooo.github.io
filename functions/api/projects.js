@@ -1,9 +1,6 @@
 import { verifySession, getCookie, json } from '../_lib/auth.js';
 import { parseFrontmatter } from '../_lib/md.js';
-
-const REPO = 'junsangyooo/junsangyooo.github.io';
-const BRANCH = 'main';
-const GH = 'https://api.github.com';
+import { REPO, BRANCH, GH } from '../_lib/config.js';
 
 // List all projects (read + parse the md files from the repo).
 export const onRequestGet = async ({ request, env }) => {

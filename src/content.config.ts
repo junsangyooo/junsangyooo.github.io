@@ -4,7 +4,8 @@ import { glob } from 'astro/loaders';
 // One markdown file per repo. Add a repo = drop a file in src/content/projects/.
 // The zod schema is the contract — a missing/invalid field fails the build loudly.
 const projects = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/projects' }),
+  // both .md (console / simple) and .mdx (skill / rich blocks) render from one collection
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/projects' }),
   schema: z.object({
     title: z.string(),
     tagline: z.string(),

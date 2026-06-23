@@ -32,11 +32,14 @@
 ```
 .
 ├── CLAUDE.md
-├── astro.config.mjs            # site=github.jsyoo.dev, output: static
+├── CONTENT.md                  # 콘텐츠 저작 계약(본문 어휘 + 5 MDX 블록 + 경로) = 정규화 가이드
+├── astro.config.mjs            # site=github.jsyoo.dev, output: static, integrations:[mdx()]
 ├── .nvmrc                      # Node 22 (Cloudflare Pages 빌드용)
+├── .claude/skills/showcase/    # /showcase 스킬 (프로젝트-aware 저작 두뇌)
 ├── src/
-│   ├── content.config.ts       # projects zod 스키마 (레포 1개의 필드 계약)
-│   ├── content/projects/*.md   # ← 레포 = md 1개 (지금 비어있음; 콘솔이 채움)
+│   ├── content.config.ts       # projects zod 스키마 (glob **/*.{md,mdx})
+│   ├── content/projects/*.{md,mdx} # ← 레포 = 파일 1개 (비어있음; 콘솔=.md / 스킬=.mdx)
+│   ├── config/site.ts          # 사이트 정체성 단일소스(브랜드·소셜·repo·intro)
 │   ├── layouts/Base.astro      # html/head, ClientRouter(View Transitions), Header, Footer, 전역 스크립트
 │   ├── pages/
 │   │   ├── index.astro         # 메인 리스트 (헤더+필터+지그재그 2열, 빈 상태 처리)
@@ -44,12 +47,14 @@
 │   │   ├── 404.astro           # 404 (footer 바닥 고정)
 │   │   └── console/index.astro # 관리 콘솔 SPA (login/list/editor/preview)
 │   ├── components/             # Header, Footer, ProjectCard, Roll
+│   ├── components/content/     # MDX 블록: Callout, Figure, TwoUp, Stat, Video
 │   ├── lib/                    # smoothScroll, reveal, cursor, filters
 │   ├── scripts/main.ts         # 부트/teardown (View Transition lifecycle)
-│   └── styles/global.css       # 디자인 토큰 + 전역 스타일
+│   ├── styles/tokens.css       # 디자인 토큰 단일소스 (site + console 공유)
+│   └── styles/global.css       # 전역 스타일 + 공유 .btn (tokens.css import)
 ├── functions/                  # Cloudflare Pages Functions (콘솔 백엔드, /api/*)
 │   ├── api/                    # login, me, logout, projects(GET 목록), deploy(POST 커밋)
-│   └── _lib/                   # auth.js (HMAC/PBKDF2 세션), md.js (yaml frontmatter)
+│   └── _lib/                   # auth.js (세션), md.js (frontmatter), config.js (REPO/BRANCH)
 ├── public/
 │   ├── thumbnails/             # 카드/히어로 썸네일 (콘솔이 커밋)
 │   └── uploads/                # 본문 이미지 (콘솔이 커밋)
@@ -64,7 +69,9 @@
 | 레이어 | 도구 | 비고 |
 |--------|------|------|
 | 프레임워크 | **Astro 5** (static output) | 정적 export → Cloudflare Pages |
-| 콘텐츠 | **Content Collections** (glob loader + zod) | `content.config.ts`가 필드 계약 |
+| 콘텐츠 | **Content Collections** (glob `{md,mdx}` + zod) | `content.config.ts` 필드계약 + `CONTENT.md` 본문계약 |
+| 리치 본문 | **@astrojs/mdx 4** + `components/content/*` | Callout·Figure·TwoUp·Stat·Video 5블록 |
+| 저작 두뇌 | **/showcase 스킬** (`.claude/skills`) | 스키마·토큰·블록 알고 .mdx 작성·커밋 |
 | 스타일 | **순수 CSS** (`global.css` 토큰 + scoped `<style>`) | Tailwind 안 씀 |
 | 폰트 | **Geist / Geist Mono** (Google Fonts) | Cuberto의 Suisse Int'l(유료) 무료 대체 |
 | 스무스 스크롤 | **Lenis** | lerp 0.09, GSAP ticker로 구동 |
@@ -107,6 +114,8 @@ order: 0                            # 정렬: 낮을수록 위. 콘솔이 리스
 
 **자산 경로 규칙**: 썸네일 = `public/thumbnails/{slug}.{ext}`, 본문 이미지 = `public/uploads/{name}.{ext}`. 콘솔이 이 규칙대로 커밋한다(§8). 손으로 추가할 때도 동일하게.
 
+**본문 어휘·리치 블록**: 본문에서 실제 렌더되는 마크다운 + 5개 MDX 블록(Callout/Figure/TwoUp/Stat/Video)의 사용 계약은 **`CONTENT.md`**에 명문화(지금까지 없던 "정규화 가이드"). `.md`=콘솔(마크다운만), `.mdx`=`/showcase` 스킬(블록 가능). 둘 다 같은 컬렉션에서 렌더된다.
+
 ---
 
 ## 6. 디자인 시스템
@@ -140,7 +149,7 @@ order: 0                            # 정렬: 낮을수록 위. 콘솔이 리스
 핵심 철학: **콘텐츠는 기본 보임, 효과는 그 위에 얹는 progressive enhancement.** 각 효과는 `main.ts`의 `safe()`로 격리 — 하나가 죽어도 나머지와 콘텐츠는 산다. `prefers-reduced-motion`이면 전부 생략.
 
 - **페이지 전환** (`Base.astro` ClientRouter + `main.ts`): View Transitions로 SPA식 크로스페이드. 효과는 **lifecycle 관리** — `astro:before-swap`에 teardown(Lenis destroy, ScrollTrigger kill, 커서·ticker·리스너 제거), `astro:page-load`에 boot(재초기화). 안 하면 중복 누적으로 jank.
-- **잉크 커서** (`cursor.ts`): 네이티브 커서를 *대체하지 않고 따라다니는* 검은 점. **순수 rAF + 수동 lerp(0.22)** (GSAP 의존 X — 드래그 버그 회피), 속도 벡터로 skew(물감 번짐). 첫 마우스 위치에서 생성, 창 벗어나면 사라짐. 카드(`data-cursor="explore"`) 위에선 커지며 **"Explore"**. `.footer`/`[data-cursor-light]` 위에선 흰색.
+- **잉크 커서** (`cursor.ts`): 네이티브 커서를 *대체하지 않고 따라다니는* 검은 점. **순수 rAF + 수동 lerp(0.22)** (GSAP 의존 X — 드래그 버그 회피), 속도 벡터로 skew(물감 번짐). **첫 포인터 신호(이동·클릭=pointermove/pointerdown)에서 즉시 등장**하고, 마지막 좌표를 모듈스코프에 보존해 **페이지 전환 후에도 바로 보임**; 창 벗어나면 사라짐. 카드(`data-cursor="explore"`) 위에선 커지며 **"Explore"**. `.footer`/`[data-cursor-light]` 위에선 흰색.
 - **스크롤** (`smoothScroll.ts`): Lenis(lerp 0.09, wheelMultiplier 0.9) + GSAP ticker로 동기 구동. 새로고침 시 **항상 맨 위에서 시작**(`scrollRestoration='manual'`, head 인라인).
 - **메인 reveal** (`reveal.ts:initReveal`): 로드 시 헤더(`[data-intro]`)+첫 화면 카드는 **왼쪽→오른쪽 슬라이드**(stagger). 아래 카드는 스크롤 시 **스프링 업**(`back.out`).
 - **상세 reveal** (`reveal.ts:initContentReveal`): 헤더(`[data-rise]`)는 로드 시 **아래→위 등장**. 본문 prose는 **블록 타입별 자동 처리** — `<p>`는 **SplitText로 줄 분리 → 줄 단위 stagger**(위→아래), 그 외(제목·이미지·코드)는 블록 통째 fade-up. 폰트 로드(`document.fonts.ready`) 후 split. **페이지마다 정의 안 함.**
@@ -162,7 +171,7 @@ order: 0                            # 정렬: 낮을수록 위. 콘솔이 리스
   - `login.js` 비번 검증(env) → 서명 세션 쿠키 / `me.js` · `logout.js`
   - `projects.js` (GET) 레포의 md 목록·파싱 / `deploy.js` (POST) 변경셋(upserts/deletes) 원자 커밋 + md·썸네일·본문이미지 동시 반영
   - `_lib/auth.js` (PBKDF2→HMAC 세션·쿠키), `_lib/md.js` (slugify·**yaml** frontmatter 파서/빌더)
-- **보안**: 세션 서명은 PBKDF2(10만)로 강화(§아래 env). 업로드 경로는 `^/uploads/<safe>.<imgext>$`만 허용(경로 탈출 차단) + 매직바이트로 실제 이미지 검증. 모든 쓰기는 세션 검증 후.
+- **보안**: 세션 서명은 PBKDF2(10만)로 강화(§아래 env). 업로드 경로는 `^/uploads/<safe>.<imgext>$`만 허용(경로 탈출 차단) + 매직바이트로 실제 이미지 검증. 모든 쓰기는 세션 검증 후. 로그인 실패엔 **800ms 지연**(브루트포스 완화) — 진짜 상한은 CF WAF rate-limit 룰(`/api/login`).
 - **env (Cloudflare Pages → Settings → Variables and secrets, Production)**:
   - `CONSOLE_PASSWORD` — 로그인 비번 (필수)
   - `GITHUB_TOKEN` — fine-grained PAT (이 레포 **Contents: Read and write**) (필수)
@@ -192,6 +201,7 @@ order: 0                            # 정렬: 낮을수록 위. 콘솔이 리스
 
 ## 11. 다음 마일스톤
 
+- [x] **저작 파이프라인**: MDX 5블록 + `CONTENT.md` 계약 + `/showcase` 스킬. 퀵윈(커서 픽스·토큰/버튼 dedup·로그인 throttle·`site.ts`/`config.js` 상수정리) 반영.
 - [ ] **콘솔 가동**: Cloudflare env(`CONSOLE_PASSWORD`, `GITHUB_TOKEN`) 등록 → `/console` 로그인 테스트
 - [ ] **실제 레포 콘텐츠 채우기** (콘솔로 추가 — 지금 리스트 비어있음)
 - [ ] `archive-content/`(LeetCode·노트) → `/blog/archive` 일괄 import 검토

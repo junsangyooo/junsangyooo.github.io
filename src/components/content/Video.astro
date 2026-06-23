@@ -1,0 +1,40 @@
+---
+// Responsive 16:9 video. Accepts a YouTube/Vimeo URL or a direct file (.mp4/.webm/.mov).
+interface Props {
+  src: string;
+  title?: string;
+}
+const { src, title = 'Video' } = Astro.props;
+
+function toEmbed(u: string) {
+  const yt = u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([\w-]{11})/);
+  if (yt) return `https://www.youtube.com/embed/${yt[1]}`;
+  const vm = u.match(/vimeo\.com\/(\d+)/);
+  if (vm) return `https://player.vimeo.com/video/${vm[1]}`;
+  return u;
+}
+const isFile = /\.(mp4|webm|mov)(\?|$)/i.test(src);
+const url = isFile ? src : toEmbed(src);
+---
+
+<div class="video">
+  {isFile ? (
+    <video src={url} controls playsinline></video>
+  ) : (
+    <iframe
+      src={url}
+      title={title}
+      loading="lazy"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen
+    ></iframe>
+  )}
+</div>
+
+<style>
+  .video {
+    position: relative; aspect-ratio: 16 / 9; border-radius: 14px;
+    overflow: hidden; background: #000; margin: 26px 0;
+  }
+  .video iframe, .video video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+</style>

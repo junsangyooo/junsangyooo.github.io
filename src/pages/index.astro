@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import Roll from '../components/Roll.astro';
+import { site } from '../config/site';
 
 const projects = (await getCollection('projects')).sort(
   (a, b) => a.data.order - b.data.order
@@ -22,8 +23,8 @@ const isEmpty = projects.length === 0;
 
 <Base title="Junsang Yoo — Projects" description="Selected GitHub projects — what, why, and how.">
   <header class="intro wrap">
-    <h1 data-intro>GitHub Projects</h1>
-    <p data-intro>Things I've built — a running log, from first commit to now.</p>
+    <h1 data-intro>{site.intro.title}</h1>
+    <p data-intro>{site.intro.subtitle}</p>
     {!isEmpty && (
       <nav class="filters" data-intro>
         <button class="active" data-filter="all"><Roll text="All Projects" /></button>

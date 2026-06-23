@@ -1,9 +1,6 @@
 import { verifySession, getCookie, json } from '../_lib/auth.js';
 import { slugify, buildMarkdown } from '../_lib/md.js';
-
-const REPO = 'junsangyooo/junsangyooo.github.io';
-const BRANCH = 'main';
-const GH = 'https://api.github.com';
+import { REPO, BRANCH, GH } from '../_lib/config.js';
 
 // Commit a whole changeset (creates/edits/deletes/reorders) as ONE atomic commit
 // via the Git Data API: blobs → tree → commit → move ref.

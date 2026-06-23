@@ -1,3 +1,8 @@
+---
+import '../../styles/tokens.css'; // shared design tokens (single source of truth)
+import { site } from '../../config/site';
+---
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -9,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <style>
-      :root { --bg:#fff; --fg:#0a0a0a; --soft:#6b7077; --line:#e6e6e6; --accent:#4f46e5; --font:'Geist',sans-serif; --mono:'Geist Mono',monospace; --ease:cubic-bezier(.22,1,.36,1); }
+      /* design tokens come from the shared tokens.css (imported above) */
       *{box-sizing:border-box;}
       body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);-webkit-font-smoothing:antialiased;line-height:1.5;}
       .wrap{width:min(860px,92vw);margin-inline:auto;}
@@ -127,9 +132,9 @@
       <div class="pv__body" id="pv-body"></div>
     </section>
 
-    <script>
+    <script is:inline define:vars={{ REPO: site.repo }}>
       const $ = (id) => document.getElementById(id);
-      const RAW = 'https://raw.githubusercontent.com/junsangyooo/junsangyooo.github.io/main/public';
+      const RAW = 'https://raw.githubusercontent.com/' + REPO + '/main/public';
       const VIEWS = ['login', 'list', 'editor', 'preview'];
       const view = (v) => VIEWS.forEach((x) => $(x).classList.toggle('hidden', x !== v));
       const slugify = (s) => String(s || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');

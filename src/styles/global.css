@@ -1,17 +1,7 @@
 /* Geist = closest free match to Cuberto's Suisse Int'l (neo-grotesque). Geist Mono for meta. */
 @import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500&display=swap');
-
-:root {
-  --bg: #ffffff;
-  --fg: #0a0a0a;
-  --soft: #6b7077;
-  --line: #e6e6e6;
-  --accent: #4f46e5;
-  --black: #000000;
-  --ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --font: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --mono: 'Geist Mono', ui-monospace, monospace;
-}
+/* Design tokens live in ONE place (shared by the site and the /console). */
+@import './tokens.css';
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -174,6 +164,23 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 640px) {
   .footer__socials { align-items: flex-start; }
 }
+
+/* ---------- shared convex-fill button (used on the detail page; reusable anywhere) ---------- */
+.btn {
+  position: relative; overflow: hidden; isolation: isolate;
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 1px solid var(--fg); border-radius: 999px; padding: 14px 24px;
+  font: 600 14px/1 var(--font); color: var(--fg); transition: color .5s var(--ease);
+}
+.btn::before {
+  content: ''; position: absolute; left: 50%; bottom: 0; z-index: -1;
+  width: 150%; aspect-ratio: 1 / 1; background: var(--fg); border-radius: 50%;
+  transform: translate(-50%, 100%); transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn:hover { color: #fff; }
+.btn:hover::before { transform: translate(-50%, 50%); }
+.btn--solid { color: #fff; background: var(--fg); }
+.btn--solid::before { background: var(--accent); }
 
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1; transform: none; }

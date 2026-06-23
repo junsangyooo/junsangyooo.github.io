@@ -1,5 +1,7 @@
 import { createSession, sessionCookie, safeEqual, json } from '../_lib/auth.js';
 
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
 export const onRequestPost = async ({ request, env }) => {
   if (!env.CONSOLE_PASSWORD) {
     return json({ error: 'Server not configured (missing CONSOLE_PASSWORD).' }, 500);
@@ -11,6 +13,9 @@ export const onRequestPost = async ({ request, env }) => {
     return json({ error: 'Bad request.' }, 400);
   }
   if (!safeEqual(String(password), env.CONSOLE_PASSWORD)) {
+    // Throttle wrong guesses: makes sequential online brute-force slow & expensive.
+    // (The real ceiling is a Cloudflare WAF rate-limit rule on /api/login — see CLAUDE.md.)
+    await sleep(800);
     return json({ error: 'Wrong password.' }, 401);
   }
   // sign with a dedicated SESSION_SECRET if provided (recommended), else fall back to

@@ -1,0 +1,23 @@
+---
+// A captioned image. src = path under /public (e.g. /uploads/img-x.png).
+interface Props {
+  src: string;
+  alt?: string;
+  caption?: string;
+}
+const { src, alt = '', caption } = Astro.props;
+---
+
+<figure class="figure">
+  <img src={src} alt={alt} loading="lazy" />
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>
+
+<style>
+  .figure { margin: 26px 0; }
+  .figure img { display: block; width: 100%; border-radius: 14px; margin: 0; }
+  .figure figcaption {
+    font: 500 12px/1.5 var(--mono); color: var(--soft);
+    margin-top: 10px; letter-spacing: 0.02em;
+  }
+</style>

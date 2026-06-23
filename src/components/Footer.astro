@@ -1,30 +1,26 @@
 ---
 import Roll from './Roll.astro';
-// Black footer. Left = brand + tagline + About button. Right = socials. Edit links here.
-const portfolio = 'https://jsyoo.dev';
-const socials = [
-  { label: 'GitHub', href: 'https://github.com/junsangyooo' },
-  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/junsang-yoo-305288227/' },
-  { label: 'Email', href: 'mailto:jsyoo.dev@gmail.com' },
-];
+import { site } from '../config/site';
+// Black footer. Left = brand + tagline + About button. Right = socials.
+// All identity/links live in src/config/site.ts — edit there.
 const year = new Date().getFullYear();
 ---
 
 <footer class="footer">
   <div class="wrap footer__inner">
     <div class="footer__left">
-      <a class="footer__portfolio" href={portfolio} target="_blank" rel="noopener">About ↗</a>
-      <div class="footer__brand">Junsang Yoo</div>
-      <p class="footer__tag">An open notebook of what I build — repo by repo.</p>
+      <a class="footer__portfolio" href={site.portfolioUrl} target="_blank" rel="noopener">About ↗</a>
+      <div class="footer__brand">{site.brand}</div>
+      <p class="footer__tag">{site.footerTagline}</p>
     </div>
     <nav class="footer__socials">
-      {socials.map((s) => (
+      {site.socials.map((s) => (
         <a href={s.href} target="_blank" rel="noopener"><Roll text={s.label} /></a>
       ))}
     </nav>
     <div class="footer__copy">
-      <span>© {year} Junsang Yoo</span>
-      <span>github.jsyoo.dev</span>
+      <span>© {year} {site.brand}</span>
+      <span>{site.domain}</span>
     </div>
   </div>
 </footer>

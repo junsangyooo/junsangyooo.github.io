@@ -1,0 +1,30 @@
+---
+// Two images side by side (before/after, or two views). Stacks on narrow screens.
+interface Props {
+  a: string;
+  b: string;
+  altA?: string;
+  altB?: string;
+  caption?: string;
+}
+const { a, b, altA = '', altB = '', caption } = Astro.props;
+---
+
+<figure class="twoup">
+  <div class="twoup__grid">
+    <img src={a} alt={altA} loading="lazy" />
+    <img src={b} alt={altB} loading="lazy" />
+  </div>
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>
+
+<style>
+  .twoup { margin: 26px 0; }
+  .twoup__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .twoup img {
+    display: block; width: 100%; border-radius: 14px; margin: 0;
+    aspect-ratio: 4 / 3; object-fit: cover;
+  }
+  .twoup figcaption { font: 500 12px/1.5 var(--mono); color: var(--soft); margin-top: 10px; }
+  @media (max-width: 560px) { .twoup__grid { grid-template-columns: 1fr; } }
+</style>

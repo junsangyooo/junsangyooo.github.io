@@ -9,14 +9,15 @@ const projects = defineCollection({
     title: z.string(),
     tagline: z.string(),
     // Drives the filter tabs. Add a value here and it shows up as a filter automatically.
-    category: z.enum(['Websites', 'Applications', 'Branding']),
+    category: z.enum(['Websites', 'Applications', 'Tools']),
     thumbnail: z.string(), // path under /public, e.g. "/thumbnails/nyom.svg"
     role: z.string().optional(),
     team: z.number().default(1),
     year: z.number(),
     stack: z.array(z.string()).default([]),
-    repo: z.string().url().optional(),
-    demo: z.string().url().optional(),
+    // tolerate empty string from the CMS (blank optional field)
+    repo: z.union([z.string().url(), z.literal('')]).optional(),
+    demo: z.union([z.string().url(), z.literal('')]).optional(),
     featured: z.boolean().default(false),
     order: z.number().default(999), // lower = higher in the list
   }),

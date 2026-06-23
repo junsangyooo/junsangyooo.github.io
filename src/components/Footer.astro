@@ -1,28 +1,27 @@
 ---
-// Taller black footer. Right side = personal portfolio + socials. Edit links here.
+import Roll from './Roll.astro';
+// Black footer. Left = brand + tagline + About button. Right = socials. Edit links here.
 const portfolio = 'https://jsyoo.dev';
 const socials = [
   { label: 'GitHub', href: 'https://github.com/junsangyooo' },
-  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/junsangyooo' },
-  { label: 'Email', href: 'mailto:junsang.yoo@rlwrld.ai' },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/junsang-yoo-305288227/' },
+  { label: 'Email', href: 'mailto:jsyoo.dev@gmail.com' },
 ];
 const year = new Date().getFullYear();
 ---
 
 <footer class="footer">
   <div class="wrap footer__inner">
-    <div class="footer__brandcol">
+    <div class="footer__left">
+      <a class="footer__portfolio" href={portfolio} target="_blank" rel="noopener">About ↗</a>
       <div class="footer__brand">Junsang Yoo</div>
-      <p class="footer__tag">Small, positive, repeated. A field guide to the things I've built.</p>
+      <p class="footer__tag">An open notebook of what I build — repo by repo.</p>
     </div>
-    <div class="footer__right">
-      <a class="footer__portfolio" href={portfolio} target="_blank" rel="noopener">Personal portfolio ↗</a>
-      <div class="footer__socials">
-        {socials.map((s) => (
-          <a href={s.href} target="_blank" rel="noopener">{s.label}</a>
-        ))}
-      </div>
-    </div>
+    <nav class="footer__socials">
+      {socials.map((s) => (
+        <a href={s.href} target="_blank" rel="noopener"><Roll text={s.label} /></a>
+      ))}
+    </nav>
     <div class="footer__copy">
       <span>© {year} Junsang Yoo</span>
       <span>github.jsyoo.dev</span>

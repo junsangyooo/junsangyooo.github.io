@@ -1,0 +1,10 @@
+---
+// Rolling-text link label: on hover the text slides up and out while an identical
+// copy rolls up from below (one notch of a dice). Put inside an <a> or <button>.
+interface Props {
+  text: string;
+}
+const { text } = Astro.props;
+---
+
+<span class="roll" data-text={text}><span class="roll__t">{text}</span></span>

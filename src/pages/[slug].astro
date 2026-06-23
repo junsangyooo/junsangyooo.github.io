@@ -15,22 +15,22 @@ const teamLabel = d.team > 1 ? `Team of ${d.team}` : 'Solo';
 
 <Base title={`${d.title} — Junsang Yoo`} description={d.tagline}>
   <article class="detail wrap">
-    <a class="detail__back" href="/">← All Projects</a>
+    <a class="detail__back" href="/" data-rise>← All Projects</a>
 
-    <div class="detail__kicker mono">{d.category} · {d.year} · {teamLabel}</div>
-    <h1 class="detail__title disp">{d.title}</h1>
-    <p class="detail__tagline">{d.tagline}</p>
+    <div class="detail__kicker mono" data-rise>{d.category} · {d.year} · {teamLabel}</div>
+    <h1 class="detail__title disp" data-rise>{d.title}</h1>
+    <p class="detail__tagline" data-rise>{d.tagline}</p>
 
-    <div class="detail__links">
+    <div class="detail__links" data-rise>
       {d.repo && <a class="btn btn--solid" href={d.repo} target="_blank" rel="noopener">View on GitHub ↗</a>}
       {d.demo && <a class="btn" href={d.demo} target="_blank" rel="noopener">Live demo ↗</a>}
     </div>
 
-    <div class="detail__media">
+    <div class="detail__media" data-rise>
       <img src={d.thumbnail} alt={d.title} />
     </div>
 
-    <dl class="detail__facts">
+    <dl class="detail__facts" data-rise>
       <div><dt>Role</dt><dd>{d.role ?? '—'}</dd></div>
       <div><dt>Team</dt><dd>{teamLabel}</dd></div>
       <div><dt>Year</dt><dd>{d.year}</dd></div>
@@ -48,16 +48,27 @@ const teamLabel = d.team > 1 ? `Team of ${d.team}` : 'Solo';
   .detail__back { font: 500 13px/1 var(--mono); color: var(--soft); }
   .detail__back:hover { color: var(--fg); }
   .detail__kicker { margin-top: 48px; font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--soft); }
-  .detail__title { font-weight: 700; letter-spacing: -0.04em; line-height: 0.9; font-size: clamp(52px, 10vw, 110px); margin-top: 14px; }
+  .detail__title { font-weight: 600; letter-spacing: -0.035em; line-height: 0.95; font-size: clamp(44px, 7vw, 92px); margin-top: 14px; }
   .detail__tagline { font-family: var(--font); font-weight: 500; font-size: clamp(18px, 2.4vw, 26px); margin-top: 16px; max-width: 36ch; letter-spacing: -0.01em; }
-  .detail__links { display: flex; gap: 12px; margin-top: 28px; }
-  .btn { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 999px; padding: 12px 20px; font: 600 13px/1 var(--font); transition: all .25s var(--ease); }
-  .btn:hover { border-color: var(--fg); }
-  .btn--solid { background: var(--fg); color: #fff; border-color: var(--fg); }
-  .btn--solid:hover { background: var(--accent); border-color: var(--accent); }
+  .detail__links { display: flex; gap: 12px; margin-top: 30px; }
+  /* convex-fill buttons (unified with the footer About button) */
+  .btn {
+    position: relative; overflow: hidden; isolation: isolate;
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 1px solid var(--fg); border-radius: 999px; padding: 14px 24px;
+    font: 600 14px/1 var(--font); color: var(--fg); transition: color .5s var(--ease);
+  }
+  .btn::before {
+    content: ''; position: absolute; left: 50%; bottom: 0; z-index: -1;
+    width: 150%; aspect-ratio: 1 / 1; background: var(--fg); border-radius: 50%;
+    transform: translate(-50%, 100%); transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .btn:hover { color: #fff; }
+  .btn:hover::before { transform: translate(-50%, 50%); }
+  .btn--solid { color: #fff; background: var(--fg); }
+  .btn--solid::before { background: var(--accent); }
   .detail__media { position: relative; aspect-ratio: 16 / 9; border-radius: 18px; overflow: hidden; background: var(--line); margin: 44px 0; }
   .detail__media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-  .detail__media canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; z-index: 1; }
   .detail__facts { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; margin-bottom: 50px; }
   .detail__facts > div { padding: 18px; border-right: 1px solid var(--line); }
   .detail__facts > div:last-child { border-right: 0; }

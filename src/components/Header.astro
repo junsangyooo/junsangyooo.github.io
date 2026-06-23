@@ -1,11 +1,14 @@
 ---
+import Roll from './Roll.astro';
 // Minimal sticky top bar: wordmark (home) + link to the main personal portfolio.
 const portfolio = 'https://jsyoo.dev';
 ---
 
 <header class="topbar">
   <div class="wrap topbar__inner">
-    <a class="topbar__brand" href="/">Junsang Yoo</a>
-    <a class="topbar__link" href={portfolio} target="_blank" rel="noopener">Portfolio ↗</a>
+    <a class="topbar__brand" href="/" data-intro><Roll text="Junsang Yoo" /></a>
+    <a class="topbar__link" href={portfolio} target="_blank" rel="noopener" data-intro>
+      <Roll text="About ↗" />
+    </a>
   </div>
 </header>

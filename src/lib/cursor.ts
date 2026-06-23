@@ -1,45 +1,52 @@
-// Black ink-blob cursor. A solid black dot trails the mouse (lerp) and stretches
-// along its direction of motion (squash-stretch) so it reads like a smear of wet
-// paint. Over a card it swells into a disc that says "Explore".
+// A dot that TRAILS the real (native) cursor — accompanies, never replaces it.
+// Pure requestAnimationFrame + manual lerp (no GSAP), so it updates every frame on
+// plain mouse movement. Returns a cleanup for View Transition swaps.
 export function initCursor() {
   if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   const root = document.createElement('div');
-  root.className = 'cursor';
-  root.innerHTML = '<div class="cursor__blob"></div><span class="cursor__label">Explore</span>';
+  root.className = 'cursor is-out'; // hidden until we know the real pointer position
+  root.innerHTML = '<div class="cursor__dot"></div><span class="cursor__label">Explore</span>';
   document.body.appendChild(root);
-  document.body.classList.add('has-cursor');
-
-  const blob = root.querySelector('.cursor__blob') as HTMLElement;
   const label = root.querySelector('.cursor__label') as HTMLElement;
 
   let mx = window.innerWidth / 2;
   let my = window.innerHeight / 2;
-  let cx = mx, cy = my, speed = 0;
+  let cx = mx, cy = my, px = mx, py = my;
+  let primed = false;
+  let raf = 0;
 
-  window.addEventListener('mousemove', (e) => {
+  const onMove = (e: MouseEvent) => {
     mx = e.clientX;
     my = e.clientY;
-  });
+    if (!primed) {
+      primed = true;
+      cx = mx; cy = my; px = mx; py = my; // spawn right under the cursor
+      root.classList.remove('is-out');
+    }
+  };
+  const onLeave = () => root.classList.add('is-out');
+  const onEnter = () => { if (primed) root.classList.remove('is-out'); };
+  window.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseleave', onLeave);
+  document.addEventListener('mouseenter', onEnter);
 
+  const SKEW = 0.0016;
+  const SKEW_MAX = 0.16;
   const loop = () => {
-    const dx = mx - cx;
-    const dy = my - cy;
-    cx += dx * 0.16;
-    cy += dy * 0.16;
-
-    const v = Math.min(Math.hypot(dx, dy), 110);
-    speed += (v - speed) * 0.18; // smoothed velocity
+    raf = requestAnimationFrame(loop);
+    cx += (mx - cx) * 0.22; // follow speed (higher = snappier)
+    cy += (my - cy) * 0.22;
+    const dx = cx - px;
+    const dy = cy - py;
+    px = cx;
+    py = cy;
+    const dist = Math.hypot(dx, dy);
     const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
-    const s = speed / 110; // 0..1
-    const sx = 1 + s * 0.55; // stretch along motion
-    const sy = 1 - s * 0.3; // squash across motion
-
-    blob.style.transform =
-      `translate(${cx}px, ${cy}px) translate(-50%, -50%) rotate(${angle}deg) scale(${sx}, ${sy})`;
-    label.style.transform = `translate(${cx}px, ${cy}px) translate(-50%, -50%)`;
-    requestAnimationFrame(loop);
+    const s = Math.min(dist * SKEW, SKEW_MAX); // wet-paint skew by speed
+    root.style.transform = `translate(${cx}px, ${cy}px) rotate(${angle}deg) scale(${1 + s}, ${1 - s})`;
+    label.style.transform = `translate(-50%, -50%) rotate(${-angle}deg) scale(${1 / (1 + s)}, ${1 / (1 - s)})`;
   };
   loop();
 
@@ -47,4 +54,16 @@ export function initCursor() {
     el.addEventListener('mouseenter', () => root.classList.add('is-hover'));
     el.addEventListener('mouseleave', () => root.classList.remove('is-hover'));
   });
+  document.querySelectorAll<HTMLElement>('.footer, [data-cursor-light]').forEach((el) => {
+    el.addEventListener('mouseenter', () => root.classList.add('is-light'));
+    el.addEventListener('mouseleave', () => root.classList.remove('is-light'));
+  });
+
+  return () => {
+    cancelAnimationFrame(raf);
+    window.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseleave', onLeave);
+    document.removeEventListener('mouseenter', onEnter);
+    root.remove();
+  };
 }

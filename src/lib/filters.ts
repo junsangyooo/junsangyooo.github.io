@@ -1,5 +1,6 @@
-// Client-side category filter for the project list. Data-driven: tabs are rendered
-// from the categories present in content, each carries data-filter.
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+// Client-side category filter. Tabs carry data-filter; cards carry data-category.
 export function initFilters() {
   const buttons = document.querySelectorAll<HTMLButtonElement>('.filters button');
   const items = document.querySelectorAll<HTMLElement>('.project');
@@ -14,6 +15,7 @@ export function initFilters() {
         const show = cat === 'all' || it.dataset.category === cat;
         it.classList.toggle('is-hidden', !show);
       });
+      ScrollTrigger.refresh(); // layout changed → recompute trigger positions
     });
   });
 }

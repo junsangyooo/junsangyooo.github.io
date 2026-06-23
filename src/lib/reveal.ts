@@ -1,29 +1,75 @@
-// Progressive enhancement: content is visible by DEFAULT (see global.css). We only
-// hide + reveal items that start BELOW the fold, via IntersectionObserver. If this
-// script never runs, the whole list still shows — the list is never held hostage.
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { SplitText } from 'gsap/SplitText';
+
+gsap.registerPlugin(ScrollTrigger, SplitText);
+
+// ---- main listing page -------------------------------------------------------
+// LOAD: header + above-the-fold cards slide in from the LEFT (staggered).
+// SCROLL: each lower card springs up. Content is visible by default (CSS), so if
+// this never runs nothing stays hidden.
 export function initReveal() {
-  const els = document.querySelectorAll<HTMLElement>('.reveal');
-  if (!els.length) return;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  const io = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((e) => {
-        if (e.isIntersecting) {
-          e.target.classList.add('is-in');
-          io.unobserve(e.target);
-        }
-      });
-    },
-    { rootMargin: '0px 0px -8% 0px', threshold: 0.05 }
-  );
+  const cards = gsap.utils.toArray<HTMLElement>('.reveal');
+  const fold = window.innerHeight * 0.95;
+  const above = cards.filter((c) => c.getBoundingClientRect().top < fold);
+  const below = cards.filter((c) => !above.includes(c));
 
-  const fold = window.innerHeight * 0.92;
-  els.forEach((el) => {
-    // Above the fold → leave visible (no flash). Below → arm the reveal.
-    if (el.getBoundingClientRect().top > fold) {
-      el.classList.add('will-reveal');
-      io.observe(el);
-    }
+  const loadEls = [...gsap.utils.toArray<HTMLElement>('[data-intro]'), ...above];
+  if (loadEls.length) {
+    gsap.from(loadEls, {
+      autoAlpha: 0, x: -52, duration: 1.15, ease: 'power3.out', stagger: 0.09, delay: 0.15,
+    });
+  }
+
+  below.forEach((el) => {
+    gsap.from(el, {
+      autoAlpha: 0, y: 90, duration: 1.05, ease: 'back.out(1.3)',
+      scrollTrigger: { trigger: el, start: 'top 90%' },
+    });
   });
+
+  ScrollTrigger.refresh();
+}
+
+// ---- detail page -------------------------------------------------------------
+// Normalized, content-type-aware reveal. Header rises up on load; prose blocks
+// reveal on scroll — paragraphs split into LINES (top→bottom stagger), everything
+// else fades up as a whole block. No per-page authoring needed.
+export function initContentReveal() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const rise = gsap.utils.toArray<HTMLElement>('[data-rise]');
+  if (rise.length) {
+    gsap.from(rise, {
+      autoAlpha: 0, y: 44, duration: 0.95, ease: 'power3.out', stagger: 0.08, delay: 0.1,
+    });
+  }
+
+  const prose = document.querySelector<HTMLElement>('.prose');
+  if (!prose) return;
+
+  // split into lines only after fonts load, or line breaks would be wrong
+  const run = () => {
+    Array.from(prose.children).forEach((node) => {
+      const el = node as HTMLElement;
+      if (el.tagName === 'P') {
+        const split = new SplitText(el, { type: 'lines', mask: 'lines', linesClass: 'line' });
+        gsap.from(split.lines, {
+          yPercent: 110, autoAlpha: 0, duration: 0.8, ease: 'power3.out', stagger: 0.1,
+          scrollTrigger: { trigger: el, start: 'top 86%' },
+        });
+      } else {
+        gsap.from(el, {
+          autoAlpha: 0, y: 44, duration: 0.9, ease: 'power3.out',
+          scrollTrigger: { trigger: el, start: 'top 88%' },
+        });
+      }
+    });
+    ScrollTrigger.refresh();
+  };
+
+  if (document.fonts?.ready) document.fonts.ready.then(run);
+  else run();
 }

@@ -15,7 +15,7 @@
 ---
 title: "Nyom"                       # 필수
 tagline: "Local restaurants, matched by taste — not stars."  # 필수 · 한 줄
-category: "Websites"                # 필수: Websites | Applications | Tools (필터 탭이 여기서 자동 생성)
+types: ["Websites", "AI"]           # 필수(≥1): 자유 멀티태그 · Title Case · 필터 탭이 전체 type 합집합에서 동적 생성
 thumbnail: "/thumbnails/nyom.png"   # 필수: public/ 하위 경로 (png/jpg/svg/webp)
 role: "Product · Frontend"          # 선택
 team: 3                             # 기본 1 (1 → "Solo", 2+ → "Team of N")

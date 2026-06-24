@@ -55,6 +55,11 @@ import { site } from '../../config/site';
       .check{display:flex;align-items:center;gap:10px;} .check input{width:18px;height:18px;}
       .drop{border:1px dashed var(--line);border-radius:12px;padding:16px;display:flex;align-items:center;gap:16px;cursor:pointer;} .drop:hover{border-color:var(--fg);}
       .drop img{width:80px;height:80px;object-fit:cover;border-radius:8px;background:var(--line);}
+      .tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;}
+      .tags:empty{margin-bottom:0;}
+      .tag{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--fg);border-radius:999px;padding:5px 6px 5px 12px;font:500 13px/1 var(--font);}
+      .tag__x{border:none;background:none;cursor:pointer;color:var(--soft);font:600 13px/1 var(--font);padding:2px 4px;border-radius:50%;}
+      .tag__x:hover{color:#c0392b;}
       .linkrow{display:grid;grid-template-columns:1fr 1.4fr auto;gap:10px;margin-bottom:10px;}
       .linkrow input{font:400 14px/1.4 var(--font);padding:10px 12px;border:1px solid var(--line);border-radius:9px;outline:none;} .linkrow input:focus{border-color:var(--fg);}
       .actions{display:flex;align-items:center;gap:14px;margin-top:30px;}
@@ -100,7 +105,12 @@ import { site } from '../../config/site';
       </div>
       <div class="field"><label>Tagline * (one line)</label><input id="f-tagline" type="text" /></div>
       <div class="grid2">
-        <div class="field"><label>Category *</label><select id="f-category"><option>Websites</option><option>Applications</option><option>Tools</option></select></div>
+        <div class="field">
+          <label>Types * (Enter or comma to add)</label>
+          <div id="f-types" class="tags"></div>
+          <input id="f-type-input" type="text" placeholder="e.g. Websites, AI…" list="type-suggest" autocomplete="off" />
+          <datalist id="type-suggest"></datalist>
+        </div>
         <div class="field"><label>Year *</label><input id="f-year" type="number" /></div>
       </div>
       <div class="grid2">
@@ -138,10 +148,11 @@ import { site } from '../../config/site';
       const VIEWS = ['login', 'list', 'editor', 'preview'];
       const view = (v) => VIEWS.forEach((x) => $(x).classList.toggle('hidden', x !== v));
       const slugify = (s) => String(s || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+      const titleCase = (s) => String(s || '').trim().replace(/\s+/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
       const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-      const FIELDS = ['title', 'tagline', 'category', 'thumbnail', 'role', 'team', 'year', 'stack', 'repo', 'links', 'featured', 'order', 'body'];
-      const serialize = (p) => JSON.stringify(FIELDS.map((f) => (f === 'stack' ? (p.stack || []).join('|') : f === 'links' ? JSON.stringify(p.links || []) : p[f] ?? '')));
+      const FIELDS = ['title', 'tagline', 'types', 'thumbnail', 'role', 'team', 'year', 'stack', 'repo', 'links', 'featured', 'order', 'body'];
+      const serialize = (p) => JSON.stringify(FIELDS.map((f) => (f === 'stack' ? (p.stack || []).join('|') : f === 'types' ? (p.types || []).join('|') : f === 'links' ? JSON.stringify(p.links || []) : p[f] ?? '')));
 
       let original = new Map();
       let working = [];
@@ -149,6 +160,7 @@ import { site } from '../../config/site';
       let editingSlug = null;
       let pendingThumb = null;
       let currentBodyImages = []; // images inserted into body this editor session
+      let typeTags = []; // multi-tag types for the project being edited
 
       const thumbSrc = (p) => (p._thumb ? p._thumb.dataUrl : p.thumbnail ? RAW + p.thumbnail : '');
       const isDirty = (p, i) => p._new || p._thumb || (p._bodyImages && p._bodyImages.length) || serialize({ ...p, order: i }) !== original.get(p.slug);
@@ -170,7 +182,7 @@ import { site } from '../../config/site';
         const r = await fetch('/api/projects');
         if (!r.ok) { $('deploy-msg').textContent = 'Could not load projects.'; return; }
         const { projects } = await r.json();
-        working = projects.map((p) => ({ ...p, stack: p.stack || [], links: p.links || [] }));
+        working = projects.map((p) => ({ ...p, stack: p.stack || [], links: p.links || [], types: p.types || [] }));
         original = new Map(working.map((p) => [p.slug, serialize(p)]));
         deletes = [];
         renderList();
@@ -179,7 +191,7 @@ import { site } from '../../config/site';
       function renderList() {
         const rows = working.map((p, i) => {
           const ch = isDirty(p, i);
-          return `<div class="row ${ch ? 'pending' : ''}"><img class="row__thumb" src="${esc(thumbSrc(p))}" alt="" onerror="this.style.visibility='hidden'" /><div><div class="row__title">${esc(p.title)}</div><div class="row__meta">${esc(p.category)} · ${esc(p.year)}${ch ? ' · pending' : ''}</div></div><div class="row__acts"><button class="iconbtn" data-act="up" data-i="${i}" ${i === 0 ? 'disabled' : ''}>↑</button><button class="iconbtn" data-act="down" data-i="${i}" ${i === working.length - 1 ? 'disabled' : ''}>↓</button><button class="iconbtn" data-act="edit" data-i="${i}">Edit</button><button class="iconbtn del" data-act="del" data-i="${i}">✕</button></div></div>`;
+          return `<div class="row ${ch ? 'pending' : ''}"><img class="row__thumb" src="${esc(thumbSrc(p))}" alt="" onerror="this.style.visibility='hidden'" /><div><div class="row__title">${esc(p.title)}</div><div class="row__meta">${esc((p.types || []).join(' · ') || '—')} · ${esc(p.year)}${ch ? ' · pending' : ''}</div></div><div class="row__acts"><button class="iconbtn" data-act="up" data-i="${i}" ${i === 0 ? 'disabled' : ''}>↑</button><button class="iconbtn" data-act="down" data-i="${i}" ${i === working.length - 1 ? 'disabled' : ''}>↓</button><button class="iconbtn" data-act="edit" data-i="${i}">Edit</button><button class="iconbtn del" data-act="del" data-i="${i}">✕</button></div></div>`;
         });
         $('list-rows').innerHTML = rows.join('') || '<p class="dim">No projects yet. Add your first one →</p>';
         const n = pendingCount();
@@ -211,6 +223,27 @@ import { site } from '../../config/site';
       }
       const readLinks = () => [...$('f-links').querySelectorAll('.linkrow')].map((r) => ({ label: r.querySelector('.lk-label').value.trim(), url: r.querySelector('.lk-url').value.trim() })).filter((l) => l.label && l.url);
 
+      // ---- type tags (multi, Title Case, deduped) ----
+      function renderTypeTags() {
+        $('f-types').innerHTML = typeTags.map((t, i) => `<span class="tag">${esc(t)}<button type="button" class="tag__x" data-i="${i}">✕</button></span>`).join('');
+      }
+      function addType(raw) {
+        const v = titleCase(raw);
+        if (!v || typeTags.some((t) => t.toLowerCase() === v.toLowerCase())) return;
+        typeTags.push(v); renderTypeTags();
+      }
+      function refreshTypeSuggest() {
+        const all = [...new Set(working.flatMap((p) => p.types || []))].sort();
+        $('type-suggest').innerHTML = all.map((t) => `<option value="${esc(t)}"></option>`).join('');
+      }
+      $('f-types').onclick = (e) => { const b = e.target.closest('.tag__x'); if (!b) return; typeTags.splice(+b.dataset.i, 1); renderTypeTags(); };
+      $('f-type-input').addEventListener('keydown', (e) => {
+        const ti = e.currentTarget;
+        if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addType(ti.value); ti.value = ''; }
+        else if (e.key === 'Backspace' && !ti.value && typeTags.length) { typeTags.pop(); renderTypeTags(); }
+      });
+      $('f-type-input').addEventListener('blur', (e) => { if (e.target.value.trim()) { addType(e.target.value); e.target.value = ''; } });
+
       function openEditor(p) {
         editingSlug = p ? p.slug : null;
         pendingThumb = null; currentBodyImages = [];
@@ -219,7 +252,7 @@ import { site } from '../../config/site';
         $('f-title').value = p?.title || '';
         $('f-slug').value = p?.slug || ''; $('f-slug').disabled = !!p; $('f-slug').dataset.touched = p ? '1' : '';
         $('f-tagline').value = p?.tagline || '';
-        $('f-category').value = p?.category || 'Websites';
+        typeTags = (p?.types || []).slice(); renderTypeTags(); refreshTypeSuggest(); $('f-type-input').value = '';
         $('f-year').value = p?.year || new Date().getFullYear();
         $('f-team').value = p?.team || 1;
         $('f-role').value = p?.role || '';
@@ -259,13 +292,13 @@ import { site } from '../../config/site';
       };
 
       function readForm() {
-        return { title: $('f-title').value.trim(), tagline: $('f-tagline').value.trim(), category: $('f-category').value, year: Number($('f-year').value), team: Number($('f-team').value) || 1, role: $('f-role').value.trim(), stack: $('f-stack').value.split(',').map((s) => s.trim()).filter(Boolean), repo: $('f-repo').value.trim(), links: readLinks(), featured: $('f-featured').checked, body: $('f-body').value };
+        return { title: $('f-title').value.trim(), tagline: $('f-tagline').value.trim(), types: typeTags.slice(), year: Number($('f-year').value), team: Number($('f-team').value) || 1, role: $('f-role').value.trim(), stack: $('f-stack').value.split(',').map((s) => s.trim()).filter(Boolean), repo: $('f-repo').value.trim(), links: readLinks(), featured: $('f-featured').checked, body: $('f-body').value };
       }
 
       $('editor-save').onclick = () => {
         const d = readForm();
         const slug = editingSlug || slugify($('f-slug').value || d.title);
-        if (!d.title || !d.tagline || !d.category || !d.year || !d.body) { $('editor-msg').textContent = 'Fill all required (*) fields.'; return; }
+        if (!d.title || !d.tagline || !d.types.length || !d.year || !d.body) { $('editor-msg').textContent = 'Fill all required (*) fields, including at least one type.'; return; }
         const existingThumb = editingSlug ? working.find((p) => p.slug === editingSlug)?.thumbnail : null;
         if (!pendingThumb && !existingThumb) { $('editor-msg').textContent = 'Add a thumbnail.'; return; }
         if (!editingSlug && working.some((p) => p.slug === slug)) { $('editor-msg').textContent = 'A project with this slug already exists.'; return; }
@@ -296,8 +329,9 @@ import { site } from '../../config/site';
         $('pv-img').src = img || '';
         $('pv-title').textContent = d.title || 'Untitled'; $('pv-tagline').textContent = d.tagline || '';
         const team = d.team > 1 ? `Team of ${d.team}` : 'Solo';
-        $('pv-meta').textContent = `${d.category} · ${d.year}`;
-        $('pv-kicker').textContent = `${d.category} · ${d.year} · ${team}`;
+        const typeStr = d.types.join(' · ') || '—';
+        $('pv-meta').textContent = `${typeStr} · ${d.year}`;
+        $('pv-kicker').textContent = `${typeStr} · ${d.year} · ${team}`;
         $('pv-title2').textContent = d.title || 'Untitled'; $('pv-tagline2').textContent = d.tagline || '';
         $('pv-btns').innerHTML = (d.repo ? `<span class="btn btn--sm">View on GitHub ↗</span>` : '') + d.links.map((l) => `<span class="btn btn--sm btn--ghost">${esc(l.label)} ↗</span>`).join('');
         const imgMap = Object.fromEntries(currentBodyImages.map((i) => [i.path, i.dataUrl]));
@@ -310,7 +344,7 @@ import { site } from '../../config/site';
       $('deploy').onclick = async () => {
         const upserts = [];
         working.forEach((p, i) => {
-          if (isDirty(p, i)) upserts.push({ slug: p.slug, title: p.title, tagline: p.tagline, category: p.category, year: p.year, team: p.team, role: p.role, stack: p.stack, repo: p.repo, links: p.links || [], featured: p.featured, order: i, body: p.body, thumbnail: p.thumbnail, thumbnailName: p._thumb?.name, thumbnailData: p._thumb?.data, bodyImages: p._bodyImages || [] });
+          if (isDirty(p, i)) upserts.push({ slug: p.slug, title: p.title, tagline: p.tagline, types: p.types || [], year: p.year, team: p.team, role: p.role, stack: p.stack, repo: p.repo, links: p.links || [], featured: p.featured, order: i, body: p.body, thumbnail: p.thumbnail, thumbnailName: p._thumb?.name, thumbnailData: p._thumb?.data, bodyImages: p._bodyImages || [] });
         });
         const msg = $('deploy-msg'); msg.classList.remove('ok');
         $('deploy').disabled = true; msg.textContent = 'Deploying…';

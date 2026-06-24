@@ -7,7 +7,7 @@ import Base from '../layouts/Base.astro';
     <div class="nf__kicker mono" data-rise>Error 404</div>
     <h1 class="nf__title" data-rise>Nothing lives<br />at this address.</h1>
     <p class="nf__sub" data-rise>The link is broken, or the repo has moved. Let's get you back.</p>
-    <a class="nf__home" href="/" data-rise>Back to projects ↗</a>
+    <a class="btn nf__home" href="/" data-rise>Back to projects ↗</a>
   </section>
 </Base>
 
@@ -20,19 +20,6 @@ import Base from '../layouts/Base.astro';
     font-size: clamp(40px, 7vw, 100px); margin-top: 18px;
   }
   .nf__sub { color: var(--soft); font-size: clamp(16px, 1.8vw, 20px); margin-top: 22px; max-width: 38ch; }
-  /* convex-fill button, unified with footer About / detail buttons */
-  .nf__home {
-    position: relative; overflow: hidden; isolation: isolate; align-self: flex-start;
-    display: inline-flex; align-items: center; gap: 8px; margin-top: 40px;
-    border: 1px solid var(--fg); border-radius: 999px; padding: 16px 30px;
-    font: 600 clamp(15px, 1.6vw, 17px)/1 var(--font); color: var(--fg);
-    transition: color .5s var(--ease);
-  }
-  .nf__home::before {
-    content: ''; position: absolute; left: 50%; bottom: 0; z-index: -1;
-    width: 150%; aspect-ratio: 1 / 1; background: var(--fg); border-radius: 50%;
-    transform: translate(-50%, 100%); transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .nf__home:hover { color: #fff; }
-  .nf__home:hover::before { transform: translate(-50%, 50%); }
+  /* reuses the shared convex-fill .btn (footer About / detail buttons); only position + size differ */
+  .nf__home { align-self: flex-start; margin-top: 40px; padding: 16px 30px; font-size: clamp(15px, 1.6vw, 17px); }
 </style>

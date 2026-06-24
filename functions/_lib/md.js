@@ -7,6 +7,27 @@ export const slugify = (s) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
 
+// Normalize a free-form type tag to Title Case so "websites"/"Websites" collapse to one.
+export const titleCase = (s) =>
+  String(s || '')
+    .trim()
+    .replace(/\s+/g, ' ')
+    .toLowerCase()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+
+// Title-case, drop blanks, dedupe (case-insensitive) → clean string[] for frontmatter.
+export const normalizeTypes = (arr) => {
+  const out = [];
+  const seen = new Set();
+  for (const t of Array.isArray(arr) ? arr : []) {
+    const v = titleCase(t);
+    if (!v || seen.has(v.toLowerCase())) continue;
+    seen.add(v.toLowerCase());
+    out.push(v);
+  }
+  return out;
+};
+
 // Real YAML parse so structured fields (links: [{label,url}]) round-trip safely.
 export function parseFrontmatter(md) {
   const m = String(md).match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
@@ -21,10 +42,11 @@ export function parseFrontmatter(md) {
 }
 
 export function buildMarkdown(d, thumbnail) {
-  const fm = { title: d.title, tagline: d.tagline, category: d.category, thumbnail };
+  const fm = { title: d.title, tagline: d.tagline, types: normalizeTypes(d.types), thumbnail };
   if (d.role) fm.role = d.role;
   fm.team = Number(d.team) || 1;
-  fm.year = Number(d.year);
+  const year = Number(d.year);
+  fm.year = Number.isFinite(year) ? year : new Date().getFullYear(); // never serialize .nan
   if (Array.isArray(d.stack) && d.stack.length) fm.stack = d.stack;
   if (d.repo) fm.repo = d.repo;
   const links = Array.isArray(d.links) ? d.links.filter((l) => l && l.label && l.url) : [];

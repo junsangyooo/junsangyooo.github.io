@@ -8,10 +8,22 @@ const { project } = Astro.props;
 const d = project.data;
 ---
 
-<a class="project reveal" href={`/${project.id}`} data-category={d.category} data-cursor="explore">
+<a class="project reveal" href={`/${project.id}`} data-types={d.types.join('|')} data-cursor="explore">
   <div class="project__media">
-    <img src={d.thumbnail} alt={d.title} loading="lazy" />
+    <img src={d.thumbnail} alt={d.title} loading="lazy" onerror="this.style.opacity=0" />
   </div>
   <p class="project__caption"><strong>{d.title}</strong> – {d.tagline}</p>
-  <p class="project__meta">{d.category} · {d.year}</p>
+  <p class="project__meta">
+    {d.types.map((t) => <span class="project__tag">{t}</span>)}
+    <span class="project__year">{d.year}</span>
+  </p>
 </a>
+
+<style>
+  /* type chips on the card meta line; wrap gracefully as types grow */
+  .project__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .project__tag {
+    border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; color: var(--fg);
+  }
+  .project__year { color: var(--soft); }
+</style>

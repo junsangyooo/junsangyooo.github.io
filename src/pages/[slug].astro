@@ -11,13 +11,14 @@ const { project } = Astro.props;
 const d = project.data;
 const { Content } = await render(project);
 const teamLabel = d.team > 1 ? `Team of ${d.team}` : 'Solo';
+const kicker = [...d.types, String(d.year), teamLabel].join(' · ');
 ---
 
 <Base title={`${d.title} — Junsang Yoo`} description={d.tagline}>
   <article class="detail wrap">
     <a class="detail__back" href="/" data-rise>← All Projects</a>
 
-    <div class="detail__kicker mono" data-rise>{d.category} · {d.year} · {teamLabel}</div>
+    <div class="detail__kicker mono" data-rise>{kicker}</div>
     <h1 class="detail__title disp" data-rise>{d.title}</h1>
     <p class="detail__tagline" data-rise>{d.tagline}</p>
 
@@ -27,7 +28,7 @@ const teamLabel = d.team > 1 ? `Team of ${d.team}` : 'Solo';
     </div>
 
     <div class="detail__media" data-rise>
-      <img src={d.thumbnail} alt={d.title} />
+      <img src={d.thumbnail} alt={d.title} onerror="this.style.opacity=0" />
     </div>
 
     <dl class="detail__facts" data-rise>

@@ -5,14 +5,21 @@ import ProjectCard from '../components/ProjectCard.astro';
 import Roll from '../components/Roll.astro';
 import { site } from '../config/site';
 
+// order = list position (lower first); ties fall back to newest year, then title,
+// so the zigzag/column split stays deterministic regardless of loader order.
 const projects = (await getCollection('projects')).sort(
-  (a, b) => a.data.order - b.data.order
+  (a, b) =>
+    a.data.order - b.data.order ||
+    b.data.year - a.data.year ||
+    a.data.title.localeCompare(b.data.title)
 );
 
-// Filter tabs are derived from the categories actually present in content.
-const CATEGORY_ORDER = ['Websites', 'Applications', 'Tools'];
-const categories = CATEGORY_ORDER.filter((c) =>
-  projects.some((p) => p.data.category === c)
+// Filter tabs are generated dynamically from the types actually present in content,
+// most-used first. Add a new type to any project and a tab appears — no code change.
+const counts = new Map<string, number>();
+for (const p of projects) for (const t of p.data.types) counts.set(t, (counts.get(t) ?? 0) + 1);
+const types = [...counts.keys()].sort(
+  (a, b) => counts.get(b)! - counts.get(a)! || a.localeCompare(b)
 );
 
 // Split into two columns; the right column is staggered down (zigzag).
@@ -28,7 +35,7 @@ const isEmpty = projects.length === 0;
     {!isEmpty && (
       <nav class="filters" data-intro>
         <button class="active" data-filter="all"><Roll text="All Projects" /></button>
-        {categories.map((c) => <button data-filter={c}><Roll text={c} /></button>)}
+        {types.map((t) => <button data-filter={t}><Roll text={t} /></button>)}
       </nav>
     )}
   </header>

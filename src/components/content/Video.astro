@@ -6,28 +6,35 @@ interface Props {
 }
 const { src, title = 'Video' } = Astro.props;
 
-function toEmbed(u: string) {
+// Only embed providers we recognize; unknown URLs return null so we never inject
+// an arbitrary (or javascript:) URL into an iframe that would render blank/blocked.
+function toEmbed(u: string): string | null {
   const yt = u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([\w-]{11})/);
   if (yt) return `https://www.youtube.com/embed/${yt[1]}`;
   const vm = u.match(/vimeo\.com\/(\d+)/);
   if (vm) return `https://player.vimeo.com/video/${vm[1]}`;
-  return u;
+  return null;
 }
 const isFile = /\.(mp4|webm|mov)(\?|$)/i.test(src);
-const url = isFile ? src : toEmbed(src);
+const embed = isFile ? null : toEmbed(src);
+const isSafeLink = /^https?:\/\//i.test(src);
 ---
 
 <div class="video">
   {isFile ? (
-    <video src={url} controls playsinline></video>
-  ) : (
+    <video src={src} controls playsinline></video>
+  ) : embed ? (
     <iframe
-      src={url}
+      src={embed}
       title={title}
       loading="lazy"
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
       allowfullscreen
     ></iframe>
+  ) : (
+    <a class="video__fallback" href={isSafeLink ? src : '#'} target="_blank" rel="noopener">
+      {isSafeLink ? `Watch: ${title} ↗` : 'Unsupported video source'}
+    </a>
   )}
 </div>
 
@@ -37,4 +44,5 @@ const url = isFile ? src : toEmbed(src);
     overflow: hidden; background: #000; margin: 26px 0;
   }
   .video iframe, .video video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .video__fallback { position: absolute; inset: 0; display: grid; place-items: center; color: var(--white); font: 500 14px/1.4 var(--mono); text-align: center; padding: 16px; }
 </style>

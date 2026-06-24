@@ -1,5 +1,5 @@
 import { verifySession, getCookie, json } from '../_lib/auth.js';
-import { slugify, buildMarkdown } from '../_lib/md.js';
+import { slugify, buildMarkdown, normalizeTypes } from '../_lib/md.js';
 import { REPO, BRANCH, GH } from '../_lib/config.js';
 
 // Commit a whole changeset (creates/edits/deletes/reorders) as ONE atomic commit
@@ -40,6 +40,7 @@ export const onRequestPost = async ({ request, env }) => {
   // hardening: only allow image files into a fixed prefix, and sniff magic bytes
   const IMG_EXT = /^(png|jpe?g|gif|webp|svg)$/;
   const SAFE_UPLOAD = /^\/uploads\/[a-z0-9._-]+\.(png|jpe?g|gif|webp|svg)$/i;
+  const SAFE_THUMB = /^\/thumbnails\/[a-z0-9._-]+\.(png|jpe?g|gif|webp|svg)$/i;
   const looksLikeImage = (b64) => {
     let bin;
     try { bin = atob(String(b64).slice(0, 16)); } catch { return false; }
@@ -53,17 +54,24 @@ export const onRequestPost = async ({ request, env }) => {
   };
 
   try {
-    // 1) base ref / commit / tree
-    const ref = await (await api(`/git/ref/heads/${BRANCH}`)).json();
-    const baseCommitSha = ref.object.sha;
-    const baseCommit = await (await api(`/git/commits/${baseCommitSha}`)).json();
-    const baseTreeSha = baseCommit.tree.sha;
+    // 1) base ref / commit / tree (status-checked so an auth/rate-limit/404 surfaces
+    //    a clear message instead of a cryptic "cannot read properties of undefined")
+    const refRes = await api(`/git/ref/heads/${BRANCH}`);
+    if (!refRes.ok) throw new Error(`base ref ${refRes.status} ${await refRes.text()}`);
+    const baseCommitSha = (await refRes.json()).object.sha;
+    const commitRes = await api(`/git/commits/${baseCommitSha}`);
+    if (!commitRes.ok) throw new Error(`base commit ${commitRes.status} ${await commitRes.text()}`);
+    const baseTreeSha = (await commitRes.json()).tree.sha;
 
     // 2) tree entries
     const tree = [];
     for (const u of upserts) {
       const slug = slugify(u.slug || u.title);
       if (!slug) throw new Error('empty slug');
+      // server-side validation: never commit a file the build will reject
+      if (!u.title || !u.tagline) throw new Error(`"${slug}" is missing title or tagline`);
+      if (!normalizeTypes(u.types).length) throw new Error(`"${slug}" needs at least one type`);
+      if (!Number.isFinite(Number(u.year))) throw new Error(`"${slug}" has an invalid year`);
       let thumbnailRef = u.thumbnail; // keep existing if no new upload
       if (u.thumbnailData) {
         if (!looksLikeImage(u.thumbnailData)) throw new Error('thumbnail is not a valid image');
@@ -91,7 +99,8 @@ export const onRequestPost = async ({ request, env }) => {
     for (const del of deletes) {
       const slug = slugify(del.slug);
       tree.push({ path: `src/content/projects/${slug}.md`, mode: '100644', type: 'blob', sha: null });
-      if (del.thumbnail && del.thumbnail.startsWith('/thumbnails/')) {
+      // same path-traversal guard as uploads — reject '..' and anything off the prefix
+      if (del.thumbnail && !del.thumbnail.includes('..') && SAFE_THUMB.test(del.thumbnail)) {
         tree.push({ path: `public${del.thumbnail}`, mode: '100644', type: 'blob', sha: null });
       }
     }

@@ -1,5 +1,5 @@
 import { verifySession, getCookie, json } from '../_lib/auth.js';
-import { parseFrontmatter } from '../_lib/md.js';
+import { parseFrontmatter, normalizeTypes } from '../_lib/md.js';
 import { REPO, BRANCH, GH } from '../_lib/config.js';
 
 // List all projects (read + parse the md files from the repo).
@@ -24,7 +24,9 @@ export const onRequestGet = async ({ request, env }) => {
     items.map(async (f) => {
       const raw = await (await fetch(f.download_url, { headers })).text();
       const { data, body } = parseFrontmatter(raw);
-      return { ...data, slug: f.name.replace(/\.md$/, ''), body };
+      // fold a legacy single `category` into `types` so old files open pre-filled
+      const types = normalizeTypes(data.types?.length ? data.types : data.category ? [data.category] : []);
+      return { ...data, types, slug: f.name.replace(/\.md$/, ''), body };
     })
   );
   projects.sort((a, b) => (a.order ?? 999) - (b.order ?? 999));

@@ -26,7 +26,7 @@ Everything is data-driven — NEVER hand-edit list/route/filter code; a content 
 ## Workflow
 1. **Gather.** Ask for the repo (URL or name) + rough notes/bullets. If a URL is given, read the
    README to ground the writeup (`gh repo view OWNER/REPO --json ...` or WebFetch the repo page).
-   Infer `category` (Websites|Applications|Tools), `year`, `stack`, `role`, `team`.
+   Infer `types` (free-form multi-tag, Title Case, ≥1 — e.g. `["Websites", "AI"]`), `year`, `stack`, `role`, `team`.
 2. **Draft frontmatter** per the schema. New entry → `order: 0` (newest on top). One-line `tagline`,
    punchy, concrete. Don't invent fields the schema doesn't have.
 3. **Write the body** in the site's editorial voice — calm, concrete, lightly first-person, no fluff,

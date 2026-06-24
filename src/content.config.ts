@@ -9,8 +9,13 @@ const projects = defineCollection({
   schema: z.object({
     title: z.string(),
     tagline: z.string(),
-    // Drives the filter tabs. Add a value here and it shows up as a filter automatically.
-    category: z.enum(['Websites', 'Applications', 'Tools']),
+    // Free-form, multi-tag. Drives the filter tabs, which are generated dynamically
+    // from the union of every project's types — add a new type and a tab appears.
+    // Default [] keeps the build alive for an untyped file (it just shows under "All").
+    types: z.array(z.string()).default([]),
+    // legacy: a single `category` string (pre-multi-tag). Auto-folded into types below,
+    // so an old file drops in and renders without any hand-editing.
+    category: z.string().optional(),
     thumbnail: z.string(), // path under /public, e.g. "/thumbnails/nyom.svg"
     role: z.string().optional(),
     team: z.number().default(1),
@@ -22,6 +27,13 @@ const projects = defineCollection({
     links: z.array(z.object({ label: z.string(), url: z.string().url() })).default([]),
     featured: z.boolean().default(false),
     order: z.number().default(999), // lower = higher in the list
+  }).transform((d) => {
+    // Backward-compat: fold a legacy single `category` into `types` (Title Case)
+    // when no `types` were given. New files use `types` directly and skip this.
+    if (!d.types.length && d.category) {
+      d.types = [d.category.trim().replace(/\s+/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase())];
+    }
+    return d;
   }),
 });
 

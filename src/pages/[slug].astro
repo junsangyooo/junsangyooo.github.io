@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import Base from '../layouts/Base.astro';
+import Roll from '../components/Roll.astro';
 
 export async function getStaticPaths() {
   const projects = await getCollection('projects');
@@ -16,7 +17,7 @@ const kicker = [...d.types, String(d.year), teamLabel].join(' · ');
 
 <Base title={`${d.title} — Junsang Yoo`} description={d.tagline}>
   <article class="detail wrap">
-    <a class="detail__back" href="/" data-rise>← All Projects</a>
+    <a class="detail__back" href="/" data-rise><Roll text="← All Projects" /></a>
 
     <div class="detail__kicker mono" data-rise>{kicker}</div>
     <h1 class="detail__title disp" data-rise>{d.title}</h1>

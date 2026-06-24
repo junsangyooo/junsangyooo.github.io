@@ -180,7 +180,8 @@ a { color: inherit; text-decoration: none; }
 .btn:hover { color: var(--white); }
 .btn:hover::before { transform: translate(-50%, 50%); }
 .btn--solid { color: var(--white); background: var(--fg); }
-.btn--solid::before { background: var(--accent); }
+.btn--solid::before { background: var(--white); }
+.btn--solid:hover { color: var(--fg); }
 
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1; transform: none; }

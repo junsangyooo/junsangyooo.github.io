@@ -206,7 +206,10 @@ import { site } from '../../config/site';
         const r = await fetch('/api/projects');
         if (!r.ok) { $('deploy-msg').textContent = 'Could not load projects.'; return; }
         const { projects } = await r.json();
-        working = projects.map((p) => ({ ...p, stack: p.stack || [], links: p.links || [], types: p.types || [] }));
+        // normalize order to the list index, so a freshly loaded list is never "dirty"
+        // just because a file's stored order value differs from its position (e.g. order:100
+        // sitting at index 0). order is owned by list position; deploy writes index → order.
+        working = projects.map((p, i) => ({ ...p, stack: p.stack || [], links: p.links || [], types: p.types || [], order: i }));
         original = new Map(working.map((p) => [p.slug, serialize(p)]));
         deletes = [];
         renderList();

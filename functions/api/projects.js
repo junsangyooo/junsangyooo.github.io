@@ -19,14 +19,17 @@ export const onRequestGet = async ({ request, env }) => {
   if (dir.status === 404) return json({ projects: [] });
   if (!dir.ok) return json({ error: `List failed (${dir.status}).` }, 502);
 
-  const items = (await dir.json()).filter((f) => f.name.endsWith('.md'));
+  // both .md (console/simple) and .mdx (skill/rich) entries — show all of them
+  const items = (await dir.json()).filter((f) => /\.mdx?$/.test(f.name));
   const projects = await Promise.all(
     items.map(async (f) => {
       const raw = await (await fetch(f.download_url, { headers })).text();
       const { data, body } = parseFrontmatter(raw);
       // fold a legacy single `category` into `types` so old files open pre-filled
       const types = normalizeTypes(data.types?.length ? data.types : data.category ? [data.category] : []);
-      return { ...data, types, slug: f.name.replace(/\.md$/, ''), body };
+      // preserve the original extension so meta edits never rewrite .mdx as .md
+      const ext = f.name.endsWith('.mdx') ? 'mdx' : 'md';
+      return { ...data, types, slug: f.name.replace(/\.mdx?$/, ''), ext, body };
     })
   );
   projects.sort((a, b) => (a.order ?? 999) - (b.order ?? 999));

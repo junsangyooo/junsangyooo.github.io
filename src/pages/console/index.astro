@@ -87,8 +87,9 @@ import { site } from '../../config/site';
     <section id="list" class="wrap hidden">
       <div class="head">
         <h1>Projects</h1>
-        <div class="tools"><button id="logout" class="logout">Log out</button><button id="new" class="btn btn--sm btn--ghost">＋ New project</button></div>
+        <div class="tools"><button id="logout" class="logout">Log out</button></div>
       </div>
+      <p class="dim" style="margin:-8px 0 18px;font-size:13px;">Reorder, edit metadata, or remove entries. New projects are authored as code (the <code>/showcase</code> skill) — the body is never edited here.</p>
       <div id="list-rows" class="rows"></div>
       <div class="deploybar"><span id="deploy-msg" class="msg"></span><button id="deploy" class="btn" disabled>Deploy</button></div>
     </section>
@@ -125,11 +126,7 @@ import { site } from '../../config/site';
         <button type="button" id="add-link" class="btn btn--sm btn--ghost" style="margin-top:4px">＋ Add link</button>
       </div>
       <div class="field check"><input id="f-featured" type="checkbox" /><label for="f-featured">Featured</label></div>
-      <div class="field">
-        <label>Body * (markdown — images supported)</label>
-        <div style="margin-bottom:8px"><button type="button" id="insert-image" class="btn btn--sm btn--ghost">＋ Insert image</button><input id="body-image" type="file" accept="image/*" class="hidden" /></div>
-        <textarea id="f-body" placeholder="## Problem&#10;...&#10;&#10;## Approach&#10;...&#10;&#10;## Outcome&#10;..."></textarea>
-      </div>
+      <p class="dim" style="font-size:13px;margin:4px 0 0;">Body is authored as code (<code>.md</code>/<code>.mdx</code>) and is preserved untouched on save.</p>
       <div class="actions"><button id="editor-save" class="btn">Save</button><button id="editor-preview" class="btn btn--ghost">Preview</button><span id="editor-msg" class="msg"></span></div>
     </section>
 
@@ -139,7 +136,6 @@ import { site } from '../../config/site';
       <div class="pv__hr"></div>
       <div class="pv__kicker" id="pv-kicker"></div><div class="pv__title" id="pv-title2"></div><div class="pv__tag" id="pv-tagline2"></div>
       <div class="pv__btns" id="pv-btns"></div>
-      <div class="pv__body" id="pv-body"></div>
     </section>
 
     <script is:inline define:vars={{ REPO: site.repo }}>
@@ -147,11 +143,11 @@ import { site } from '../../config/site';
       const RAW = 'https://raw.githubusercontent.com/' + REPO + '/main/public';
       const VIEWS = ['login', 'list', 'editor', 'preview'];
       const view = (v) => VIEWS.forEach((x) => $(x).classList.toggle('hidden', x !== v));
-      const slugify = (s) => String(s || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
       const titleCase = (s) => String(s || '').trim().replace(/\s+/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
       const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-      const FIELDS = ['title', 'tagline', 'types', 'thumbnail', 'role', 'team', 'year', 'stack', 'repo', 'links', 'featured', 'order', 'body'];
+      // body is intentionally absent — the console never edits it, so it's not part of dirty comparison
+      const FIELDS = ['title', 'tagline', 'types', 'thumbnail', 'role', 'team', 'year', 'stack', 'repo', 'links', 'featured', 'order'];
       const serialize = (p) => JSON.stringify(FIELDS.map((f) => (f === 'stack' ? (p.stack || []).join('|') : f === 'types' ? (p.types || []).join('|') : f === 'links' ? JSON.stringify(p.links || []) : p[f] ?? '')));
 
       let original = new Map();
@@ -159,11 +155,11 @@ import { site } from '../../config/site';
       let deletes = [];
       let editingSlug = null;
       let pendingThumb = null;
-      let currentBodyImages = []; // images inserted into body this editor session
       let typeTags = []; // multi-tag types for the project being edited
 
       const thumbSrc = (p) => (p._thumb ? p._thumb.dataUrl : p.thumbnail ? RAW + p.thumbnail : '');
-      const isDirty = (p, i) => p._new || p._thumb || (p._bodyImages && p._bodyImages.length) || serialize({ ...p, order: i }) !== original.get(p.slug);
+      // console edits metadata + order only; a new thumbnail or any meta change marks dirty
+      const isDirty = (p, i) => p._thumb || serialize({ ...p, order: i }) !== original.get(p.slug);
 
       async function boot() {
         let authed = false;
@@ -204,11 +200,10 @@ import { site } from '../../config/site';
         if (act === 'up' && i > 0) { [working[i - 1], working[i]] = [working[i], working[i - 1]]; renderList(); }
         else if (act === 'down' && i < working.length - 1) { [working[i + 1], working[i]] = [working[i], working[i + 1]]; renderList(); }
         else if (act === 'edit') openEditor(working[i]);
-        else if (act === 'del') { const p = working[i]; if (!p._new) deletes.push({ slug: p.slug, thumbnail: p.thumbnail }); working.splice(i, 1); renderList(); }
+        else if (act === 'del') { const p = working[i]; deletes.push({ slug: p.slug, thumbnail: p.thumbnail, ext: p.ext }); working.splice(i, 1); renderList(); }
       };
 
-      // ---- editor ----
-      $('new').onclick = () => openEditor(null);
+      // ---- editor (metadata only; always editing an existing entry) ----
       $('editor-cancel').onclick = () => view('list');
       $('add-link').onclick = () => addLinkRow('', '');
 
@@ -245,87 +240,51 @@ import { site } from '../../config/site';
       $('f-type-input').addEventListener('blur', (e) => { if (e.target.value.trim()) { addType(e.target.value); e.target.value = ''; } });
 
       function openEditor(p) {
-        editingSlug = p ? p.slug : null;
-        pendingThumb = null; currentBodyImages = [];
-        $('editor-title').textContent = p ? 'Edit project' : 'New project';
+        editingSlug = p.slug;
+        pendingThumb = null;
         $('editor-msg').textContent = '';
-        $('f-title').value = p?.title || '';
-        $('f-slug').value = p?.slug || ''; $('f-slug').disabled = !!p; $('f-slug').dataset.touched = p ? '1' : '';
-        $('f-tagline').value = p?.tagline || '';
-        typeTags = (p?.types || []).slice(); renderTypeTags(); refreshTypeSuggest(); $('f-type-input').value = '';
-        $('f-year').value = p?.year || new Date().getFullYear();
-        $('f-team').value = p?.team || 1;
-        $('f-role').value = p?.role || '';
-        $('f-stack').value = (p?.stack || []).join(', ');
-        $('f-repo').value = p?.repo || '';
-        $('f-featured').checked = !!p?.featured;
-        $('f-body').value = p?.body || '';
+        $('f-title').value = p.title || '';
+        $('f-slug').value = p.slug || ''; $('f-slug').disabled = true; // slug is fixed (it's the filename)
+        $('f-tagline').value = p.tagline || '';
+        typeTags = (p.types || []).slice(); renderTypeTags(); refreshTypeSuggest(); $('f-type-input').value = '';
+        $('f-year').value = p.year || '';
+        $('f-team').value = p.team || 1;
+        $('f-role').value = p.role || '';
+        $('f-stack').value = (p.stack || []).join(', ');
+        $('f-repo').value = p.repo || '';
+        $('f-featured').checked = !!p.featured;
         $('f-links').innerHTML = '';
-        (p?.links || []).forEach((l) => addLinkRow(l.label, l.url));
-        const src = p ? thumbSrc(p) : '';
-        $('f-thumb-preview').src = src || '';
-        $('f-thumb-label').textContent = p?.thumbnail ? p.thumbnail.split('/').pop() : 'Click to upload an image';
+        (p.links || []).forEach((l) => addLinkRow(l.label, l.url));
+        $('f-thumb-preview').src = thumbSrc(p) || '';
+        $('f-thumb-label').textContent = p.thumbnail ? p.thumbnail.split('/').pop() : 'Click to upload an image';
         view('editor');
       }
 
-      $('f-title').oninput = () => { if (!$('f-slug').disabled && $('f-slug').dataset.touched !== '1') $('f-slug').value = slugify($('f-title').value); };
-      $('f-slug').oninput = () => ($('f-slug').dataset.touched = '1');
       $('f-thumb').onchange = (e) => {
         const file = e.target.files[0]; if (!file) return;
         const reader = new FileReader();
         reader.onload = () => { pendingThumb = { name: file.name, data: String(reader.result).split(',')[1], dataUrl: reader.result }; $('f-thumb-preview').src = reader.result; $('f-thumb-label').textContent = file.name; };
         reader.readAsDataURL(file);
       };
-      $('insert-image').onclick = () => $('body-image').click();
-      $('body-image').onchange = (e) => {
-        const file = e.target.files[0]; if (!file) return;
-        const reader = new FileReader();
-        reader.onload = () => {
-          const ext = (file.name.split('.').pop() || 'png').toLowerCase().replace(/[^a-z0-9]/g, '');
-          const path = `/uploads/img-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}.${ext}`;
-          currentBodyImages.push({ path, data: String(reader.result).split(',')[1], dataUrl: reader.result });
-          const ta = $('f-body'); const pos = ta.selectionStart ?? ta.value.length;
-          const snippet = `\n![](${path})\n`;
-          ta.value = ta.value.slice(0, pos) + snippet + ta.value.slice(pos);
-        };
-        reader.readAsDataURL(file); e.target.value = '';
-      };
 
       function readForm() {
-        return { title: $('f-title').value.trim(), tagline: $('f-tagline').value.trim(), types: typeTags.slice(), year: Number($('f-year').value), team: Number($('f-team').value) || 1, role: $('f-role').value.trim(), stack: $('f-stack').value.split(',').map((s) => s.trim()).filter(Boolean), repo: $('f-repo').value.trim(), links: readLinks(), featured: $('f-featured').checked, body: $('f-body').value };
+        return { title: $('f-title').value.trim(), tagline: $('f-tagline').value.trim(), types: typeTags.slice(), year: Number($('f-year').value), team: Number($('f-team').value) || 1, role: $('f-role').value.trim(), stack: $('f-stack').value.split(',').map((s) => s.trim()).filter(Boolean), repo: $('f-repo').value.trim(), links: readLinks(), featured: $('f-featured').checked };
       }
 
       $('editor-save').onclick = () => {
         const d = readForm();
-        const slug = editingSlug || slugify($('f-slug').value || d.title);
-        if (!d.title || !d.tagline || !d.types.length || !d.year || !d.body) { $('editor-msg').textContent = 'Fill all required (*) fields, including at least one type.'; return; }
-        const existingThumb = editingSlug ? working.find((p) => p.slug === editingSlug)?.thumbnail : null;
-        if (!pendingThumb && !existingThumb) { $('editor-msg').textContent = 'Add a thumbnail.'; return; }
-        if (!editingSlug && working.some((p) => p.slug === slug)) { $('editor-msg').textContent = 'A project with this slug already exists.'; return; }
-
-        if (editingSlug) {
-          const p = working.find((x) => x.slug === editingSlug);
-          Object.assign(p, d);
-          if (pendingThumb) p._thumb = pendingThumb;
-          if (currentBodyImages.length) p._bodyImages = (p._bodyImages || []).concat(currentBodyImages);
-        } else {
-          working.unshift({ ...d, slug, thumbnail: '', order: 0, _new: true, _thumb: pendingThumb, _bodyImages: currentBodyImages.slice() }); // newest on top
-        }
+        if (!d.title || !d.tagline || !d.types.length || !d.year) { $('editor-msg').textContent = 'Fill all required (*) fields, including at least one type.'; return; }
+        const p = working.find((x) => x.slug === editingSlug);
+        if (!p) { $('editor-msg').textContent = 'Entry not found.'; return; }
+        Object.assign(p, d); // metadata only — body & ext stay untouched
+        if (pendingThumb) p._thumb = pendingThumb;
         view('list'); renderList();
       };
 
-      // ---- preview ----
-      function mdToHtml(raw, imgMap) {
-        let h = esc(raw);
-        h = h.replace(/```([\s\S]*?)```/g, (m, c) => `<pre>${c.trim()}</pre>`);
-        h = h.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (m, alt, src) => `<img src="${imgMap[src] || (src.startsWith('/') ? RAW + src : src)}" alt="${alt}">`);
-        h = h.replace(/^### (.*)$/gm, '<h2>$1</h2>').replace(/^## (.*)$/gm, '<h2>$1</h2>').replace(/^# (.*)$/gm, '<h2>$1</h2>');
-        h = h.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/\*([^*\n]+)\*/g, '<em>$1</em>').replace(/`([^`]+)`/g, '<code>$1</code>');
-        return h.split(/\n{2,}/).map((b) => { const t = b.trim(); return !t || /^<(h2|pre|img)/.test(t) ? t : `<p>${t.replace(/\n/g, '<br>')}</p>`; }).join('');
-      }
+      // ---- preview (card + header meta only; body is authored as code, not shown here) ----
       $('editor-preview').onclick = () => {
         const d = readForm();
-        const img = pendingThumb ? pendingThumb.dataUrl : editingSlug ? thumbSrc(working.find((p) => p.slug === editingSlug) || {}) : '';
+        const img = pendingThumb ? pendingThumb.dataUrl : thumbSrc(working.find((p) => p.slug === editingSlug) || {});
         $('pv-img').src = img || '';
         $('pv-title').textContent = d.title || 'Untitled'; $('pv-tagline').textContent = d.tagline || '';
         const team = d.team > 1 ? `Team of ${d.team}` : 'Solo';
@@ -334,8 +293,6 @@ import { site } from '../../config/site';
         $('pv-kicker').textContent = `${typeStr} · ${d.year} · ${team}`;
         $('pv-title2').textContent = d.title || 'Untitled'; $('pv-tagline2').textContent = d.tagline || '';
         $('pv-btns').innerHTML = (d.repo ? `<span class="btn btn--sm">View on GitHub ↗</span>` : '') + d.links.map((l) => `<span class="btn btn--sm btn--ghost">${esc(l.label)} ↗</span>`).join('');
-        const imgMap = Object.fromEntries(currentBodyImages.map((i) => [i.path, i.dataUrl]));
-        $('pv-body').innerHTML = mdToHtml(d.body, imgMap);
         view('preview');
       };
       $('preview-back').onclick = () => view('editor');
@@ -344,7 +301,7 @@ import { site } from '../../config/site';
       $('deploy').onclick = async () => {
         const upserts = [];
         working.forEach((p, i) => {
-          if (isDirty(p, i)) upserts.push({ slug: p.slug, title: p.title, tagline: p.tagline, types: p.types || [], year: p.year, team: p.team, role: p.role, stack: p.stack, repo: p.repo, links: p.links || [], featured: p.featured, order: i, body: p.body, thumbnail: p.thumbnail, thumbnailName: p._thumb?.name, thumbnailData: p._thumb?.data, bodyImages: p._bodyImages || [] });
+          if (isDirty(p, i)) upserts.push({ slug: p.slug, ext: p.ext, title: p.title, tagline: p.tagline, types: p.types || [], year: p.year, team: p.team, role: p.role, stack: p.stack, repo: p.repo, links: p.links || [], featured: p.featured, order: i, body: p.body, thumbnail: p.thumbnail, thumbnailName: p._thumb?.name, thumbnailData: p._thumb?.data });
         });
         const msg = $('deploy-msg'); msg.classList.remove('ok');
         $('deploy').disabled = true; msg.textContent = 'Deploying…';

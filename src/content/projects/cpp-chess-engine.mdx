@@ -22,7 +22,7 @@ A full chess game is deceptively large. It isn't one rule; it's a web of them. A
 
 The trap with a project this size is that everything wants to touch everything. The board knows the rules, the rules want to redraw the screen, the screen reads the board, the AI pokes at all three — and within a week it's a knot no one can change without breaking something three files away. The real assignment wasn't "make chess work." It was *make chess work in a way that stays changeable.*
 
-<Stat items={[{value:"~3.4k", label:"lines of C++"},{value:"25", label:"classes"},{value:"5", label:"AI levels"},{value:"2", label:"simultaneous views"}]} />
+<Stat items={[{value:"~3.7k", label:"lines of C++"},{value:"25", label:"classes"},{value:"5", label:"AI levels"},{value:"2", label:"simultaneous views"}]} />
 
 ## Approach
 
@@ -58,7 +58,7 @@ Squares are a `Position` enum with a base-10 encoding (`a8 = 0`, `b8 = 1`, … `
 
 ## Outcome
 
-The finished engine plays full, rule-accurate chess — all six pieces, check / checkmate / stalemate, castling, en passant, promotion, and undo — across human, human-vs-computer, and computer-vs-computer modes, with a custom board-setup mode and a running scoreboard. The AI climbs from random legal moves to a negamax search with positional evaluation across five levels.
+The finished engine plays full, rule-accurate chess — all six pieces, check / checkmate / stalemate, castling, en passant, promotion, and undo — across human, human-vs-computer, and computer-vs-computer modes, with a custom board-setup mode and a running scoreboard. The AI climbs across five levels — from random legal moves and one-ply heuristics up to an alpha-beta-pruned negamax search with positional evaluation.
 
 More than the feature list, this is the project that taught me what *structure* buys you. Because the model never knew about the screen and the pieces shared one interface, I could keep extending it — another view, another AI level, another special rule — without the codebase fighting back. Carrying it end to end, including the QA, is why it still means the most to me.
 

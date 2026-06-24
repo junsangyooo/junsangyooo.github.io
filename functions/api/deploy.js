@@ -94,11 +94,13 @@ export const onRequestPost = async ({ request, env }) => {
       }
       const md = buildMarkdown(u, thumbnailRef);
       const mdSha = await createBlob(md, 'utf-8');
-      tree.push({ path: `src/content/projects/${slug}.md`, mode: '100644', type: 'blob', sha: mdSha });
+      const ext = u.ext === 'mdx' ? 'mdx' : 'md'; // preserve original extension (.mdx bodies stay .mdx)
+      tree.push({ path: `src/content/projects/${slug}.${ext}`, mode: '100644', type: 'blob', sha: mdSha });
     }
     for (const del of deletes) {
       const slug = slugify(del.slug);
-      tree.push({ path: `src/content/projects/${slug}.md`, mode: '100644', type: 'blob', sha: null });
+      const ext = del.ext === 'mdx' ? 'mdx' : 'md';
+      tree.push({ path: `src/content/projects/${slug}.${ext}`, mode: '100644', type: 'blob', sha: null });
       // same path-traversal guard as uploads — reject '..' and anything off the prefix
       if (del.thumbnail && !del.thumbnail.includes('..') && SAFE_THUMB.test(del.thumbnail)) {
         tree.push({ path: `public${del.thumbnail}`, mode: '100644', type: 'blob', sha: null });

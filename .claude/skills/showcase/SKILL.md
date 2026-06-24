@@ -38,8 +38,27 @@ Everything is data-driven — NEVER hand-edit list/route/filter code; a content 
    - `<Stat items={[{value:"3×", label:"faster"}]} />` — outcome metrics.
    - `<Video src="https://youtu.be/.." />` — a demo.
    Import each block you use at the TOP of the `.mdx` (exact paths are in CONTENT.md §3).
-4. **Images.** Generate or capture the thumbnail + any figures with the `visual-image-create` skill;
-   write them to the paths above. If the user has no image yet, make a clean on-brand placeholder.
+4. **Images.**
+   - **Thumbnail (always generated this one way).** Hand the `visual-image-create` skill the FIXED
+     prompt below, replacing ONLY `[PROJECT TOPIC]`. Never edit any other word of it. Save the single
+     returned PNG to `public/thumbnails/{slug}.png` (1:1). This is the only allowed way to make a
+     thumbnail — do not write SVGs or hand-craft one.
+
+     > Design a sleek editorial-style square project thumbnail for [PROJECT TOPIC], inspired by modern tech/product visuals. Create it in a 1:1 aspect ratio. Use soft 3D elements, floating UI cards, clean geometry, lots of whitespace, pastel-neutral tones, and subtle shadows. Make it feel premium, friendly, refined, and lightweight. No text, no logos, no clutter.
+
+     **Deriving `[PROJECT TOPIC]` (the crux).** The topic is NOT a description, feature list, or tech
+     stack — it's the project's *recognizable visual subject*, the "ah, this is it" point a glance can
+     read. Pick the concrete real-world thing or genre the project is *about*, as a short lowercase
+     noun phrase (≈2–5 words). When in doubt, ask: "if I drew this on a card with no text, what one
+     subject says what it is?" Strip everything else (engine, framework, MVC, full-stack, etc.).
+     - `cpp-chess-engine` (a C++ chess engine) → **a chess game**
+     - `dragon_slayer` (a Unity 2D roguelike) → **a roguelike dungeon adventure game**
+     - `roll_over_kimbap` (a kimbap brand storefront) → **a Korean kimbap food brand store**
+     - `email-blast` (a Next.js email campaign tool) → **an email marketing campaign tool**
+     - `portfolio-dashboard` (a crypto trading bot) → **a crypto trading dashboard**
+   - **Body figures (`/uploads/...`).** These are NOT the fixed prompt — they're real screenshots /
+     captures of the project, or, if none exist yet, clean on-brand SVG placeholders the user can swap
+     later (match the tokens; label them as placeholders).
 5. **Validate.** Run `npm run build`. The zod schema + MDX compile catch mistakes. Fix until green.
 6. **Stage.** `git add` the new/changed files and present a ready commit message. **Do NOT push** —
    the user pushes; Cloudflare auto-deploys on push (~1 min).

@@ -146,8 +146,7 @@ import { site } from '../../config/site';
         <div id="f-links"></div>
         <button type="button" id="add-link" class="btn btn--sm btn--ghost" style="margin-top:4px">＋ Add link</button>
       </div>
-      <div class="field check"><input id="f-featured" type="checkbox" /><label for="f-featured">Featured</label></div>
-      <p class="dim" style="font-size:13px;margin:4px 0 0;">Body is authored as code (<code>.md</code>/<code>.mdx</code>) and is preserved untouched on save.</p>
+      <p class="dim" style="font-size:13px;margin:4px 0 0;">Body is edited in code, not here — it's preserved untouched on save.</p>
       <div class="actions"><button id="editor-save" class="btn">Save</button><button id="editor-preview" class="btn btn--ghost">Preview</button><span id="editor-msg" class="msg"></span></div>
     </section>
 
@@ -165,16 +164,18 @@ import { site } from '../../config/site';
       initCursor();
     </script>
 
-    <script is:inline define:vars={{ REPO: site.repo }}>
+    <script is:inline define:vars={{ REPO: site.repo, SITE: 'https://' + site.domain }}>
       const $ = (id) => document.getElementById(id);
-      const RAW = 'https://raw.githubusercontent.com/' + REPO + '/main/public';
+      // Load committed assets from the LIVE site, not raw.githubusercontent.com:
+      // raw 404s for a private repo, whereas Cloudflare serves the built public/ at the root.
+      const RAW = SITE;
       const VIEWS = ['login', 'list', 'editor', 'preview'];
       const view = (v) => VIEWS.forEach((x) => $(x).classList.toggle('hidden', x !== v));
       const titleCase = (s) => String(s || '').trim().replace(/\s+/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
       const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
       // body is intentionally absent — the console never edits it, so it's not part of dirty comparison
-      const FIELDS = ['title', 'tagline', 'types', 'thumbnail', 'role', 'team', 'year', 'stack', 'repo', 'links', 'featured', 'order'];
+      const FIELDS = ['title', 'tagline', 'types', 'thumbnail', 'role', 'team', 'year', 'stack', 'repo', 'links', 'order'];
       const serialize = (p) => JSON.stringify(FIELDS.map((f) => (f === 'stack' ? (p.stack || []).join('|') : f === 'types' ? (p.types || []).join('|') : f === 'links' ? JSON.stringify(p.links || []) : p[f] ?? '')));
 
       let original = new Map();
@@ -280,7 +281,6 @@ import { site } from '../../config/site';
         $('f-role').value = p.role || '';
         $('f-stack').value = (p.stack || []).join(', ');
         $('f-repo').value = p.repo || '';
-        $('f-featured').checked = !!p.featured;
         $('f-links').innerHTML = '';
         (p.links || []).forEach((l) => addLinkRow(l.label, l.url));
         $('f-thumb-preview').src = thumbSrc(p) || '';
@@ -296,7 +296,7 @@ import { site } from '../../config/site';
       };
 
       function readForm() {
-        return { title: $('f-title').value.trim(), tagline: $('f-tagline').value.trim(), types: typeTags.slice(), year: Number($('f-year').value), team: Number($('f-team').value) || 1, role: $('f-role').value.trim(), stack: $('f-stack').value.split(',').map((s) => s.trim()).filter(Boolean), repo: $('f-repo').value.trim(), links: readLinks(), featured: $('f-featured').checked };
+        return { title: $('f-title').value.trim(), tagline: $('f-tagline').value.trim(), types: typeTags.slice(), year: Number($('f-year').value), team: Number($('f-team').value) || 1, role: $('f-role').value.trim(), stack: $('f-stack').value.split(',').map((s) => s.trim()).filter(Boolean), repo: $('f-repo').value.trim(), links: readLinks() };
       }
 
       $('editor-save').onclick = () => {
@@ -329,8 +329,11 @@ import { site } from '../../config/site';
       $('deploy').onclick = async () => {
         const upserts = [];
         working.forEach((p, i) => {
-          if (isDirty(p, i)) upserts.push({ slug: p.slug, ext: p.ext, title: p.title, tagline: p.tagline, types: p.types || [], year: p.year, team: p.team, role: p.role, stack: p.stack, repo: p.repo, links: p.links || [], featured: p.featured, order: i, body: p.body, thumbnail: p.thumbnail, thumbnailName: p._thumb?.name, thumbnailData: p._thumb?.data });
+          if (isDirty(p, i)) upserts.push({ slug: p.slug, ext: p.ext, title: p.title, tagline: p.tagline, types: p.types || [], year: p.year, team: p.team, role: p.role, stack: p.stack, repo: p.repo, links: p.links || [], order: i, body: p.body, thumbnail: p.thumbnail, thumbnailName: p._thumb?.name, thumbnailData: p._thumb?.data });
         });
+        const n = upserts.length + deletes.length;
+        if (!n) return;
+        if (!confirm(`Deploy ${n} change${n === 1 ? '' : 's'} to the live site?\nThis commits to the repo and rebuilds github.jsyoo.dev (~1 min).`)) return;
         const msg = $('deploy-msg'); msg.classList.remove('ok');
         $('deploy').disabled = true; msg.textContent = 'Deploying…';
         try {

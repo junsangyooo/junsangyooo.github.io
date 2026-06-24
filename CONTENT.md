@@ -25,7 +25,6 @@ repo: "https://github.com/..."      # 선택 → 상세에 "View on GitHub ↗"
 links:                              # 선택 → 임의 버튼 여러 개
   - label: "Live demo"
     url: "https://..."
-featured: false                     # 선택
 order: 0                            # 정렬: 낮을수록 위 (새 글 = 0)
 ---
 ```

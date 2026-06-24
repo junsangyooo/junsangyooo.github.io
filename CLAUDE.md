@@ -103,7 +103,6 @@ repo: "https://github.com/..."      # 선택 — 상세에 "View on GitHub ↗" 
 links:                              # 선택 — 임의 버튼 여러 개 (라벨+URL)
   - label: "Live demo"
     url: "https://..."
-featured: false                     # 선택
 order: 0                            # 정렬용. 콘솔은 입력받지 않고 리스트 ↑↓ 위치로만 관리(새 글이 위). 동률은 year desc로 tiebreak
 ---
 본문 (Markdown) — 권장 구조: ## Problem / ## Approach / ## Outcome

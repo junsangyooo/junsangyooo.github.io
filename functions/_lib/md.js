@@ -51,7 +51,6 @@ export function buildMarkdown(d, thumbnail) {
   if (d.repo) fm.repo = d.repo;
   const links = Array.isArray(d.links) ? d.links.filter((l) => l && l.label && l.url) : [];
   if (links.length) fm.links = links.map((l) => ({ label: l.label, url: l.url }));
-  fm.featured = !!d.featured;
   fm.order = Number(d.order) || 0;
   const yaml = YAML.stringify(fm).trimEnd();
   return `---\n${yaml}\n---\n\n${String(d.body).trim()}\n`;

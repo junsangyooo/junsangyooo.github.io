@@ -65,7 +65,6 @@ stack: ["Next.js", "Supabase"]      # optional
 repo: "https://github.com/..."      # optional → "View on GitHub ↗"
 links:                              # optional → extra buttons
   - { label: "Live demo", url: "https://..." }
-featured: false
 order: 0                            # list position (lower = higher). The console manages this
                                     #   via drag-free ↑/↓ reordering; ties fall back to newest year
 ---

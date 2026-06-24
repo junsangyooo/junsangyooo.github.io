@@ -25,7 +25,6 @@ const projects = defineCollection({
     repo: z.union([z.string().url(), z.literal('')]).optional(),
     // extra custom buttons (label + url) shown on the detail page
     links: z.array(z.object({ label: z.string(), url: z.string().url() })).default([]),
-    featured: z.boolean().default(false),
     order: z.number().default(999), // lower = higher in the list
   }).transform((d) => {
     // Backward-compat: fold a legacy single `category` into `types` (Title Case)

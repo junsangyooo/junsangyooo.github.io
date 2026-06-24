@@ -32,6 +32,12 @@ export const onRequestGet = async ({ request, env }) => {
       return { ...data, types, slug: f.name.replace(/\.mdx?$/, ''), ext, body };
     })
   );
-  projects.sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
+  // same ordering as the main list (src/pages/index.astro): order, then newest year, then title
+  projects.sort(
+    (a, b) =>
+      (a.order ?? 999) - (b.order ?? 999) ||
+      (b.year ?? 0) - (a.year ?? 0) ||
+      String(a.title).localeCompare(String(b.title))
+  );
   return json({ projects });
 };

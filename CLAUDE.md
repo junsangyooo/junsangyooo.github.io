@@ -207,4 +207,29 @@ order: 0                            # 정렬: 낮을수록 위. 콘솔이 리스
 - [ ] `docs/archive-content/`(LeetCode·노트) → `/blog/archive` 일괄 import 검토
 - [ ] 메타(OG 이미지 자동 생성, sitemap, RSS)
 - [ ] (선택) 콘솔에 본문 이미지 정렬/삭제, 드래그 정렬 등 편의 기능
-```
+
+---
+
+## 12. 쇼케이스 대상 레포 — 큐레이션 로드맵 (2026-06, 24개 전수 평가 기준)
+
+최종적으로 **올릴 7개**. 각 레포를 먼저 **완성/정리(+공개 전환)** 한 뒤 §5·`CONTENT.md`대로 항목을 만들어 배포한다. 표시 순서: `chess`가 맨 아래(첫 프로젝트), 나머지는 완성·임팩트 순으로 추후 확정.
+
+| repo | 정체 | 올리기 전 할 일 | 공개 |
+|---|---|---|---|
+| **web-share** | 파일→Claude 웹생성·권한공유 플랫폼 (FastAPI) | 회사 의존성 제거 + 새 이름 + 전면 리팩토링 → public | 🔒→🌐 |
+| **portfolio-dashboard** | AI-in-the-loop Polymarket BTC 트레이딩 봇 (라이브) | 추가 고도화 후 공개 | 🔒→🌐 |
+| **email-blast** | 풀스택 이메일 캠페인 툴 (Next.js) | 회사 의존성 제거 → 독립 툴화 → public | 🔒→🌐 |
+| **roll_over_kimbap** | 김밥 브랜드 스토어프론트 (Next·Supabase) | 완전 새로 제작 → 완성 후 | 🌐 |
+| **dragon_slayer** | 첫 Unity 2D 로그라이크 | 게임플레이 개선 + README·GIF | 🌐 |
+| **dalmuti** | 달무티 카드게임 (룰엔진 + 멀티) | 일단 완성 (SDK 오염 제거·셸 완성) | 🔒→🌐 |
+| **chess** ⤓맨아래 | C++ 체스 CLI (규칙·4단 AI·디자인패턴) | 스크린샷·빌드법·기여 명시 | 🌐 |
+
+- **보류(좋지만 이번 7개엔 미포함, 나중에 추가 가능)**: scouting_bot, quant_investment, signalee, nommapp.github.io, rating-algorithm, slack_duedy_bot.
+- **제외(짜침·인프라·빈 것)**: dotclaude, dot_files, dbonly, websites, junsangyooo(프로필), solva, kmong, auto_trading_bot, LeetCode, kaggle_titanic.
+
+### 12.1 각 레포 → 이 사이트 배포 절차 (반복 가능)
+1. **레포 완성/정리** (위 "할 일"). ⚠️ 비공개→공개 시 **시크릿이 git 히스토리에 남아있으면** 파일만 지워도 노출됨 → 정리된 상태로 **새 public 레포로 시작**하거나 히스토리 스크럽(BFG / `git filter-repo`).
+2. (필요 시) GitHub에서 **public 전환** (+ secret scanning 확인).
+3. 이 레포에서 **`/showcase` 스킬** 실행 → repo URL + 러프 노트 → `src/content/projects/{slug}.mdx` + 썸네일 자동 작성(CONTENT.md 준수). 폰이면 `/console`로 간단 마크다운.
+4. **썸네일(1:1) + 본문 figure/GIF** 추가 — 특히 코드 링크 없는 항목은 비주얼이 핵심. `order`로 위치 조정(chess 맨 아래).
+5. `npm run build` 검증 → **push**(사용자가 직접) → Cloudflare 자동배포(~1분) → `github.jsyoo.dev` 반영.

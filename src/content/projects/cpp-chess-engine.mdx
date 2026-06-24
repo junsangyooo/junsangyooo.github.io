@@ -1,0 +1,65 @@
+---
+title: "Chess"
+tagline: "A chess engine written from scratch in C++ — rules, AI, and memory, end to end."
+types: ["Applications", "Games"]
+thumbnail: "/thumbnails/cpp-chess-engine.png"
+role: "Architecture · Engine · QA"
+team: 2
+year: 2022
+stack: ["C++14", "X11/Xlib", "Make", "OOP"]
+repo: "https://github.com/junsangyooo/cpp-chess-engine"
+order: 100
+---
+import Callout from '../../components/content/Callout.astro';
+import Figure from '../../components/content/Figure.astro';
+import Stat from '../../components/content/Stat.astro';
+
+This was the first project I owned from the empty file to the last QA pass — the CS246 final at the University of Waterloo, built with one teammate. No engine library, no framework: just C++ and the chess rules, written out one class at a time. It is the project where the abstractions I'd only read about in lectures — MVC, the observer pattern, smart-pointer ownership — first had to actually hold up under their own weight.
+
+## Problem
+
+A full chess game is deceptively large. It isn't one rule; it's a web of them. A move is only legal if it doesn't leave your own king in check. Castling depends on whether the king and rook have *ever* moved. En passant is legal for exactly one turn. A pawn reaching the back rank promotes. And on top of the rules, the game has to be *played* — by two humans, by a human against the computer, or by the computer against itself — and shown on screen, in our case on a terminal **and** an X11 window at the same time.
+
+The trap with a project this size is that everything wants to touch everything. The board knows the rules, the rules want to redraw the screen, the screen reads the board, the AI pokes at all three — and within a week it's a knot no one can change without breaking something three files away. The real assignment wasn't "make chess work." It was *make chess work in a way that stays changeable.*
+
+<Stat items={[{value:"~3.4k", label:"lines of C++"},{value:"25", label:"classes"},{value:"5", label:"AI levels"},{value:"2", label:"simultaneous views"}]} />
+
+## Approach
+
+I designed the whole thing around three ideas from the course — high cohesion, low coupling, and resilience to change — and enforced them with structure rather than discipline alone.
+
+### MVC as the backbone
+
+The skeleton is **Model–View–Controller**. The `Chess` model owns the game state and every rule and *knows nothing about the screen*. The views (`Cli`, `Gui`) only draw — they hold no logic. The `Controller` translates user input into model calls. The payoff is concrete: I could replace the entire GUI without touching a single line of game logic, and adding a brand-new view meant writing one class and attaching it.
+
+<Figure src="/uploads/cpp-chess-engine-architecture.svg" alt="MVC architecture: Controller drives the Chess model, which notifies the Cli and Gui views via the observer pattern" caption="The MVC skeleton — the model never reaches up to the screen; views observe it. (placeholder diagram)" />
+
+### Three design patterns, used for real
+
+- ***Observer*** keeps the two screens in sync. `Chess` is a `Subject`; `Cli` and `Gui` are `Observer`s. When a move lands, the model notifies every attached view at once — so the terminal and the X11 window redraw together, and the model never needs to know who's listening.
+- ***Strategy*** makes the AI swappable. A single abstract `Computer` interface (`virtual bool makeMove() = 0`) has one implementation per difficulty. The game only ever talks to the abstract type; which level is actually running is injected at runtime. A new difficulty is just a new subclass.
+- ***Inheritance and polymorphism*** model the pieces. Every piece derives from an abstract `Piece` base — and even empty squares are real `Empty` objects, so every one of the 64 squares answers the same interface. Per-piece quirks (a pawn's first move, a rook's castling rights) live as virtual functions: share the common code, override only the difference.
+
+### The part that was genuinely hard: memory
+
+Instead of hand-managing `new`/`delete`, the whole object graph runs on `std::shared_ptr` and RAII. The board is a grid of *owning pointers* (`shared_ptr<Piece> bd[8][8]`), so moving a piece is moving a pointer, not copying an object.
+
+The design problem I'm proudest of solving is **undo**. To take a move back, the piece you captured has to still exist somewhere in memory — even though it's gone from the board. So each `Move` on the history stack *owns* the piece it captured (and, for promotions, the pawn it replaced). Nothing is leaked, nothing is lost: when you undo, I plug that surviving pointer back into the board and the dead piece returns exactly as it was — with dedicated paths for castling, en passant, and promotion.
+
+<Callout title="Why undo drove the whole memory design">
+A captured piece isn't deleted — it's handed to the `Move` that captured it and held alive by a `shared_ptr` on the history stack. Ownership flows one direction only (Controller → Chess → Board/Moves → Pieces; views observe but never own), so object lifetimes never tangle. Undo then becomes a pointer you saved, not a piece you have to reconstruct.
+</Callout>
+
+### Coordinates that read like a board
+
+Squares are a `Position` enum with a base-10 encoding (`a8 = 0`, `b8 = 1`, … `a7 = 10`), so row/column math stays trivial and the code reads in chess terms instead of raw indices.
+
+<Figure src="/uploads/cpp-chess-engine-views.svg" alt="The same game rendered in a terminal with Unicode pieces and in an X11 window" caption="One model, two views — CLI (Unicode) and X11, redrawn together on every move. (placeholder screenshot)" />
+
+## Outcome
+
+The finished engine plays full, rule-accurate chess — all six pieces, check / checkmate / stalemate, castling, en passant, promotion, and undo — across human, human-vs-computer, and computer-vs-computer modes, with a custom board-setup mode and a running scoreboard. The AI climbs from random legal moves to a negamax search with positional evaluation across five levels.
+
+More than the feature list, this is the project that taught me what *structure* buys you. Because the model never knew about the screen and the pieces shared one interface, I could keep extending it — another view, another AI level, another special rule — without the codebase fighting back. Carrying it end to end, including the QA, is why it still means the most to me.
+
+> Built for CS246 (Object-Oriented Software Development), University of Waterloo, 2022.

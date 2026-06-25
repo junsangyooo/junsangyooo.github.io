@@ -52,6 +52,11 @@ export const onRequestPost = async ({ request, env }) => {
     if (bin.trimStart().startsWith('<')) return true; // SVG / XML
     return false;
   };
+  // mirror the zod `.url()` rule so a scheme-less URL (e.g. "github.com/x") can never
+  // reach the repo and kill the whole build — the console reports success otherwise.
+  const isUrl = (s) => {
+    try { new URL(String(s)); return true; } catch { return false; }
+  };
 
   try {
     // 1) base ref / commit / tree (status-checked so an auth/rate-limit/404 surfaces
@@ -72,6 +77,9 @@ export const onRequestPost = async ({ request, env }) => {
       if (!u.title || !u.tagline) throw new Error(`"${slug}" is missing title or tagline`);
       if (!normalizeTypes(u.types).length) throw new Error(`"${slug}" needs at least one type`);
       if (!Number.isFinite(Number(u.year))) throw new Error(`"${slug}" has an invalid year`);
+      if (u.repo && !isUrl(u.repo)) throw new Error(`"${slug}" has an invalid GitHub URL (needs https://)`);
+      const badLink = (Array.isArray(u.links) ? u.links : []).find((l) => l && l.label && l.url && !isUrl(l.url));
+      if (badLink) throw new Error(`"${slug}" has an invalid link URL "${badLink.url}" (needs https://)`);
       let thumbnailRef = u.thumbnail; // keep existing if no new upload
       if (u.thumbnailData) {
         if (!looksLikeImage(u.thumbnailData)) throw new Error('thumbnail is not a valid image');

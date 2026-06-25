@@ -173,6 +173,8 @@ import { site } from '../../config/site';
       const view = (v) => VIEWS.forEach((x) => $(x).classList.toggle('hidden', x !== v));
       const titleCase = (s) => String(s || '').trim().replace(/\s+/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
       const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+      // same rule the build (zod .url()) and deploy.js enforce — catch a scheme-less URL here too
+      const isUrl = (s) => { try { new URL(String(s)); return true; } catch { return false; } };
 
       // body is intentionally absent — the console never edits it, so it's not part of dirty comparison
       const FIELDS = ['title', 'tagline', 'types', 'thumbnail', 'role', 'team', 'year', 'stack', 'repo', 'links', 'order'];
@@ -305,6 +307,9 @@ import { site } from '../../config/site';
       $('editor-save').onclick = () => {
         const d = readForm();
         if (!d.title || !d.tagline || !d.types.length || !d.year) { $('editor-msg').textContent = 'Fill all required (*) fields, including at least one type.'; return; }
+        if (d.repo && !isUrl(d.repo)) { $('editor-msg').textContent = 'GitHub URL must be a full URL (https://…).'; return; }
+        const badLink = d.links.find((l) => l.url && !isUrl(l.url));
+        if (badLink) { $('editor-msg').textContent = `Link URL "${badLink.url}" must be a full URL (https://…).`; return; }
         const p = working.find((x) => x.slug === editingSlug);
         if (!p) { $('editor-msg').textContent = 'Entry not found.'; return; }
         Object.assign(p, d); // metadata only — body & ext stay untouched

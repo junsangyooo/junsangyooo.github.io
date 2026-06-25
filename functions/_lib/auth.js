@@ -31,7 +31,7 @@ export async function verifySession(secret, token) {
   if (!secret || !token) return false;
   const [payload, sig] = token.split('.');
   if (!payload || !sig) return false;
-  if (sig !== (await hmac(secret, payload))) return false;
+  if (!safeEqual(sig, await hmac(secret, payload))) return false;
   try {
     return Date.now() < JSON.parse(atob(payload)).exp;
   } catch {

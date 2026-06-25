@@ -1,0 +1,60 @@
+---
+title: Dragon Slayer
+tagline: The first real game I ever shipped — a solo Unity roguelike.
+types:
+  - Games
+  - Applications
+thumbnail: /thumbnails/dragon-slayer.png
+role: Design · Gameplay · Systems
+team: 1
+year: 2023
+stack:
+  - Unity
+  - C#
+  - uGUI
+  - TextMeshPro
+repo: https://github.com/junsangyooo/dragon_slayer
+order: 0
+---
+
+import Callout from '../../components/content/Callout.astro';
+import Figure from '../../components/content/Figure.astro';
+import Stat from '../../components/content/Stat.astro';
+
+Chess was the first thing I built end to end in code; *Dragon Slayer* was the first thing I built that was a **game**. At the time I was hooked on mobile hack-&-slash roguelikes — the Vampire-Survivors loop of swarming enemies, level-up cards, and one more run — so I opened Unity for the first time and tried to make one myself, alone, on free assets. The point wasn't to ship a hit. It was to find out whether I could turn a genre I loved playing into something that actually runs.
+
+## Problem
+
+A survivors-like is simple to *play* and deceptively layered to *build*. You don't write one mechanic — you write a loop that has to keep escalating without falling apart. Enemies spawn in waves that get harder on a timer. The player auto-attacks while you dodge. Killing things drops EXP; enough EXP triggers a level-up that **pauses the game and asks you to draft one of three random upgrades**; surviving long enough summons a boss that ends the run in a win or a loss. Then it all has to bank your gold and loop back to a lobby where that gold buys *permanent* upgrades for the next run.
+
+For a first time in an engine, the trap is wiring all of that into scenes by hand — every card, every screen, every enemy dragged into the Inspector — until one missing reference quietly breaks the whole thing. I wanted the systems to build themselves so the game couldn't fall over on a detail.
+
+<Stat items={[{value:"5", label:"weapons"},{value:"14", label:"upgrade cards"},{value:"4+1", label:"enemies + boss"},{value:"0", label:"audio assets"}]} />
+
+## Approach
+
+I leaned on lightweight, self-bootstrapping systems so most of the game assembles itself at runtime instead of living in fragile scene wiring.
+
+**Auto-battler combat.** The player fires automatically at the nearest enemy on an attack-speed timer, so the whole skill expression is positioning and dashing — exactly the feel I was chasing from the games I played.
+
+**Roguelike drafting.** On level-up the game freezes and offers **3 cards pulled from a pool of 14** (5 weapons + 9 stat buffs), each card built in code over a custom frame. That single mechanic is what turns identical runs into different builds — a fan of fireballs, a burning aura, a black hole that swallows the screen.
+
+**One damage path for everything.** Every enemy and the boss implement a single `IDamageable` interface, so all five weapons deal damage through one uniform route regardless of what they hit. Adding a weapon or an enemy never means special-casing the others.
+
+<Callout title="Why so much is built at runtime">
+The level-up cards, the victory/defeat screens, and the lobby shop are all generated in code — `Canvas` + `CanvasScaler` raised on the fly — and every sound effect and the BGM are synthesized procedurally, with zero audio files in the project. The result: almost nothing depends on per-scene setup, so the game can't break from a missing Inspector reference. For a first engine project, that decision saved me from myself.
+</Callout>
+
+**Meta progression.** Gold survives between runs through `PlayerPrefs` and is spent in a lobby shop on permanent Max HP / damage / move-speed upgrades, so a lost run still moves you forward — the hook that makes "one more run" work.
+
+<Figure src="/uploads/dragon-slayer-gameplay.png" alt="In-game view: the warrior surrounded by enemies, twin on-screen joysticks, run timer up top" caption="The core loop in motion — auto-attack the swarm, dodge with the dash, survive the timer." />
+
+<Figure src="/uploads/dragon-slayer-editor.png" alt="The game running in the Unity editor alongside the mobile game view" caption="Built and tuned in Unity, targeting a portrait mobile screen with twin-stick touch controls." />
+
+## Outcome
+
+*Dragon Slayer* is a complete, actually-playable game: a full run resolves in a win or a loss, the difficulty ramps every 45 seconds until the boss, and your banked gold carries into the next run through the lobby shop. Five weapons, fourteen upgrades, four enemy types and a boss, all stitched into one escalating loop — assembled on top of free Unity assets and a lot of first-time trial and error.
+
+What I actually walked away with wasn't the feature list — it was the instinct to build systems that hold themselves up. Generating UI in code and synthesizing audio at runtime meant the game stayed solid while I was still learning where every button in the engine was. It's rough around the edges, and that's the honest charm of a first game: I wanted to know if I could make the thing I loved playing, and the answer turned out to be yes.
+
+> My first game, built solo in Unity, 2023.

@@ -12,7 +12,10 @@ export const site = {
   socials: [
     { label: 'GitHub', href: 'https://github.com/junsangyooo' },
     { label: 'LinkedIn', href: 'https://www.linkedin.com/in/junsang-yoo-305288227/' },
-    { label: 'Email', href: 'mailto:jsyoo.dev@gmail.com' },
+    // Email split into user/domain so the literal address never appears in static HTML
+    // (avoids Cloudflare email obfuscation rewriting it to /cdn-cgi/l/email-protection).
+    // The mailto: href is assembled at runtime in scripts/main.ts.
+    { label: 'Email', mail: ['jsyoo.dev', 'gmail.com'] },
   ],
   intro: {
     title: 'GitHub Projects',

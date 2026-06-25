@@ -15,7 +15,9 @@ const year = new Date().getFullYear();
     </div>
     <nav class="footer__socials">
       {site.socials.map((s) => (
-        <a href={s.href} target="_blank" rel="noopener"><Roll text={s.label} /></a>
+        s.mail
+          ? <a data-mail-user={s.mail[0]} data-mail-domain={s.mail[1]}><Roll text={s.label} /></a>
+          : <a href={s.href} target="_blank" rel="noopener"><Roll text={s.label} /></a>
       ))}
     </nav>
     <div class="footer__copy">

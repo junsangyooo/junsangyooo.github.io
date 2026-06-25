@@ -24,6 +24,12 @@ const { title = 'Junsang Yoo — Projects', description = 'Selected GitHub proje
       history.scrollRestoration = 'manual';
       window.scrollTo(0, 0);
       document.documentElement.classList.remove('no-js');
+      // Failsafe: if the effects bundle never boots, don't leave reveal targets
+      // hidden forever. After load-phase animations would have run, drop the
+      // CSS pre-hide; GSAP-controlled (scroll) elements keep their inline hide.
+      setTimeout(function () {
+        document.documentElement.classList.add('anim-failsafe');
+      }, 4000);
     </script>
   </head>
   <body>

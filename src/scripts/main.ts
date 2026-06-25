@@ -5,6 +5,17 @@ import { initReveal, initContentReveal } from '../lib/reveal';
 import { initCursor } from '../lib/cursor';
 import { initFilters } from '../lib/filters';
 
+// Build mailto: hrefs at runtime from split user/domain attrs. The literal address
+// is never in the static HTML, so Cloudflare email obfuscation leaves it alone.
+// Runs on every page-load (incl. after View Transition swaps), so the footer link
+// is always live — unlike CF's one-shot decode script.
+function initMailto() {
+  document.querySelectorAll<HTMLAnchorElement>('a[data-mail-user]').forEach((a) => {
+    const { mailUser, mailDomain } = a.dataset;
+    if (mailUser && mailDomain) a.href = `mailto:${mailUser}@${mailDomain}`;
+  });
+}
+
 // Always begin at the top; never restore prior scroll across navigations.
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
@@ -28,6 +39,7 @@ const boot = () => {
   safe('contentReveal', initContentReveal);
   safe('cursor', initCursor);
   safe('filters', initFilters);
+  safe('mailto', initMailto);
 };
 
 const teardown = () => {

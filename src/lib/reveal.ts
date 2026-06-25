@@ -18,16 +18,18 @@ export function initReveal() {
 
   const loadEls = [...gsap.utils.toArray<HTMLElement>('[data-intro]'), ...above];
   if (loadEls.length) {
-    gsap.from(loadEls, {
-      autoAlpha: 0, x: -52, duration: 1.15, ease: 'power3.out', stagger: 0.09, delay: 0.15,
-    });
+    gsap.fromTo(loadEls,
+      { autoAlpha: 0, x: -52 },
+      { autoAlpha: 1, x: 0, duration: 1.15, ease: 'power3.out', stagger: 0.09, delay: 0.15 },
+    );
   }
 
   below.forEach((el) => {
-    gsap.from(el, {
-      autoAlpha: 0, y: 90, duration: 1.05, ease: 'back.out(1.3)',
-      scrollTrigger: { trigger: el, start: 'top 90%' },
-    });
+    gsap.fromTo(el,
+      { autoAlpha: 0, y: 90 },
+      { autoAlpha: 1, y: 0, duration: 1.05, ease: 'back.out(1.3)',
+        scrollTrigger: { trigger: el, start: 'top 90%' } },
+    );
   });
 
   ScrollTrigger.refresh();
@@ -42,9 +44,10 @@ export function initContentReveal() {
 
   const rise = gsap.utils.toArray<HTMLElement>('[data-rise]');
   if (rise.length) {
-    gsap.from(rise, {
-      autoAlpha: 0, y: 44, duration: 0.95, ease: 'power3.out', stagger: 0.08, delay: 0.1,
-    });
+    gsap.fromTo(rise,
+      { autoAlpha: 0, y: 44 },
+      { autoAlpha: 1, y: 0, duration: 0.95, ease: 'power3.out', stagger: 0.08, delay: 0.1 },
+    );
   }
 
   const prose = document.querySelector<HTMLElement>('.prose');
@@ -55,16 +58,20 @@ export function initContentReveal() {
     Array.from(prose.children).forEach((node) => {
       const el = node as HTMLElement;
       if (el.tagName === 'P') {
+        // CSS pre-hides the <p>; reveal the container, then hide+animate its lines.
+        gsap.set(el, { autoAlpha: 1 });
         const split = new SplitText(el, { type: 'lines', mask: 'lines', linesClass: 'line' });
-        gsap.from(split.lines, {
-          yPercent: 110, autoAlpha: 0, duration: 0.8, ease: 'power3.out', stagger: 0.1,
-          scrollTrigger: { trigger: el, start: 'top 86%' },
-        });
+        gsap.fromTo(split.lines,
+          { yPercent: 110, autoAlpha: 0 },
+          { yPercent: 0, autoAlpha: 1, duration: 0.8, ease: 'power3.out', stagger: 0.1,
+            scrollTrigger: { trigger: el, start: 'top 86%' } },
+        );
       } else {
-        gsap.from(el, {
-          autoAlpha: 0, y: 44, duration: 0.9, ease: 'power3.out',
-          scrollTrigger: { trigger: el, start: 'top 88%' },
-        });
+        gsap.fromTo(el,
+          { autoAlpha: 0, y: 44 },
+          { autoAlpha: 1, y: 0, duration: 0.9, ease: 'power3.out',
+            scrollTrigger: { trigger: el, start: 'top 88%' } },
+        );
       }
     });
     ScrollTrigger.refresh();

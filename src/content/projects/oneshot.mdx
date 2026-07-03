@@ -1,0 +1,66 @@
+---
+title: OneShot
+tagline: One room code, six party games, zero installs.
+types:
+  - Websites
+  - Games
+thumbnail: /thumbnails/oneshot.png
+role: Design · Full-stack
+team: 1
+year: 2026
+stack:
+  - React
+  - TypeScript
+  - Colyseus
+  - Node.js
+  - Vite
+  - Docker
+repo: https://github.com/junsangyooo/oneshot
+links:
+  - label: Play live
+    url: https://oneshot.jsyoo.dev
+order: 0
+---
+
+import Callout from '../../components/content/Callout.astro';
+import Figure from '../../components/content/Figure.astro';
+import TwoUp from '../../components/content/TwoUp.astro';
+import Stat from '../../components/content/Stat.astro';
+
+*OneShot* began as an attempt to rebuild The Great Dalmuti, the card game that owned my friend group's drinking nights. Two walls went up fast: the systems I loved are someone else's IP and couldn't be lifted as-is, and a solo developer with no designer can't polish one game until it deserves to stand alone. So I turned the project sideways — instead of one deep game, a **hub of fast, simple drinking games**, where the product isn't any single game but how quickly a table gets from "let's play something" to actually playing.
+
+## Problem
+
+A bar table is the most hostile UX environment I've designed for. Nobody installs an app for one round; phones are a mix of everything; nobody makes an account. The games have to be explainable in one sentence, because the rules get shouted, not read. And the app has to survive how parties actually go — someone's phone dies, someone disappears for ten minutes, someone rage-quits — without ever stalling the table.
+
+One more constraint I cared about: taste. A single look divides a party — some people want loud and techy, others find it exhausting. I didn't want anyone to open it and go "ugh."
+
+## Approach
+
+**A room that outlives its games.** One tap creates a room with a 5-character code drawn from an ambiguity-free alphabet (no 0/O/1/I to misread at 1am). Friends join by typing the code, tapping the invite link, or scanning the QR on the host's screen — nickname only, guests included. The room is the container for the whole night: pick a game from the library, play, see the podium, pick the next one. Even the Enter key follows intent on the home screen — with a code typed it joins, otherwise it creates.
+
+<Figure src="/uploads/oneshot-lobby-cyber.webp" alt="OneShot lobby in the cyber theme: sector access code, invite link, QR entry, module grid, and a three-player operators manifest" caption="The lobby — code, link, and QR entry on the left, game modules in the middle, live seats on the right. Cozy-themed friends show up with their cozy avatars inside a cyber lobby." />
+
+**Two full identities, not a dark-mode toggle.** *Cyber* is a neon terminal HUD — scanlines, corner brackets, deadpan flavor text like `A SYSTEM OF CONTROLLED CHAOS`. *Cozy* is cream paper, handwritten type, and soft 3D buttons. One `data-theme` attribute swaps an entire CSS token block (226 override rules), all 16 avatars exist as separate art in both skins, and the theme is per-player — everyone sits at the same table wearing the look they chose. UI copy ships fully bilingual (KR/EN, 382 mirrored keys), and so does the game content itself.
+
+<TwoUp a="/uploads/oneshot-home-cozy.webp" b="/uploads/oneshot-home-cyber.webp" caption="The same home screen in Cozy and Cyber — different fonts, chrome, layout density, and mood, driven by one attribute on the root element." />
+
+**The server is the only referee.** Every room is a Colyseus WebSocket room keyed by its code; clients render state and send input, nothing more. Rules, validation, and RNG live in server-side game modules, and secrets travel only to their owner: the Liar's word, the King's pending mission, another player's hand all stay on the server — public state carries card *counts*, not cards.
+
+<TwoUp a="/uploads/oneshot-liar-word.webp" b="/uploads/oneshot-liar-liar.webp" caption="Liar, dealt to two phones in the same round — one player taps their card and sees the secret word, the other learns they're the liar. 450 bilingual words across 9 categories." />
+
+**Engineered for how parties fail.** A signed reconnect token restores your seat and private state for 24 hours, so a dead battery isn't a lost seat. There are deliberately no turn timers and no auto-kick — humans resolve the game, the app just keeps the secrets. Votes count their quorum against *connected* players only, phase-critical pairings are snapshotted so a mid-game kick can't orphan a card exchange, and the dice game quietly rolls for anyone who dropped so a round never hangs.
+
+<Callout title="Adding a game is filling slots">
+Every game is a plugin: one shared type, one catalog entry, one server module, one client screen, two registry lines. The lobby grid, host gating, setup phase, rank-sum scoring, early-end votes, both themes, and both languages come for free. Six games shipped through that pipeline — King Game, Liar, Fool Liar, Upstage, All Out, Dice — and Upstage, a shedding game where low cards win, is the Dalmuti itch this whole project started from, rebuilt from scratch with its own deck math.
+</Callout>
+
+## Outcome
+
+OneShot is live at [oneshot.jsyoo.dev](https://oneshot.jsyoo.dev), running as a single Docker container on an Oracle Cloud VM behind Caddy. Every game module has bot-playthrough tests that simulate full matches — including the ugly cases like kicks mid-vote and reconnects mid-round — plus Playwright journeys that drive several browsers through a real room.
+
+<Stat items={[{value:"6", label:"party games"},{value:"2×2", label:"themes × languages"},{value:"0", label:"installs or accounts"},{value:"24h", label:"reconnect window"}]} />
+
+What I actually took away is a respect for boring reliability. The flashy parts — neon HUD, themed avatars — were fun, but the feature that makes it work at a real table is that nothing ever waits on a missing person. Fast in, fast between games, impossible to strand.
+
+> Scan the code, pick a game, play. Built for the table, 2026.

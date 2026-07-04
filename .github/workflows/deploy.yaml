@@ -19,13 +19,25 @@ jobs:
       - name: 레포 코드 가져오기
         uses: actions/checkout@v4
 
+      - name: Node 준비
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
+      - name: 의존성 설치
+        run: npm ci
+
+      - name: 사이트 빌드
+        run: npm run build
+
       - name: Pages 설정 준비
         uses: actions/configure-pages@v5
 
       - name: 사이트 파일 묶기
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "."
+          path: "dist"
 
       - name: GitHub Pages에 배포
         id: deployment

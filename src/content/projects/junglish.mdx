@@ -1,0 +1,70 @@
+---
+title: Junglish
+tagline: One twelve-minute English mission a day, scheduled by FSRS.
+types:
+  - Websites
+  - Applications
+thumbnail: /thumbnails/junglish.png
+role: Design · Full-stack
+team: 1
+year: 2026
+stack:
+  - SvelteKit
+  - Svelte 5
+  - TypeScript
+  - SQLite
+  - ts-fsrs
+  - Python
+  - Docker
+repo: https://github.com/junsangyooo/junglish
+order: 0
+---
+
+import Callout from '../../components/content/Callout.astro';
+import Figure from '../../components/content/Figure.astro';
+import TwoUp from '../../components/content/TwoUp.astro';
+import Stat from '../../components/content/Stat.astro';
+
+*Junglish* is a language app built for exactly one learner: a Korean engineer who needs English that survives a customer call and a Slack thread on the same day. One mission a day, twelve minutes on a phone, a year of material written ahead of time. No leagues, no gems, no notifications begging me to come back.
+
+## Problem
+
+Most language apps optimise for the app, not the learner. The five-minute lesson that teaches three words exists because it makes a good retention metric, and the streak economy exists because it makes a good revenue metric. Neither survives contact with what I actually needed: vocabulary I *don't* already know, phrasing a colleague would really use, and a schedule that doesn't quietly re-teach me "important" for the fortieth time.
+
+The other half of the problem was supply. Spaced repetition only works if there is something worth repeating, and a year of decent bilingual material — words, patterns, dialogues, all in Korean that a Korean actually speaks — is far more writing than one person does on the side.
+
+## Approach
+
+**One mission, always the same seven steps.** Review → new words → new patterns → dialogue → shadowing → your own sentences → final review. The home screen draws them as a path with counts, so there is never a question of how much is left, and one button resumes exactly where I stopped.
+
+<Figure src="/uploads/junglish-home.png" alt="Junglish home screen: weekly streak dots and the day's seven-step path with counts" caption="Home — weekly streak, the day's path, and a single call to action that resumes mid-session." />
+
+**Recall first, evidence second.** A card shows the word alone; audio is one tap away but the answer never appears before an attempt. Flip it and the meaning arrives with a work sentence, a daily sentence and collocations. Three rating buttons only — 모름 / 애매 / 앎 — because a fourth choice on a phone is a coin flip, and each button renders the interval it buys from the same FSRS preview the scheduler will use. The cost of every answer is visible before you press it.
+
+<TwoUp a="/uploads/junglish-card-front.png" b="/uploads/junglish-card-back.png" caption="The word alone, then the evidence — meaning, two sentences, collocations, and what each rating does to the next review date." />
+
+**Nothing is learned in isolation.** The day's words and patterns come back inside a two-person scene at a robotics company, one blank at a time, with the line in question scrolled into view. Then the same scene is shadowed line by line through the Web Speech API. Once a card has been stable for two weeks it stops being multiple choice and asks you to type the word instead.
+
+<Figure src="/uploads/junglish-dialogue.png" alt="Dialogue step: a two-person conversation with one blank filled in at a time" caption="Dialogue — the day's patterns reused in a scene, answered one blank at a time." />
+
+**The server is the session.** The client never decides what comes next: `/api/step` advances a server-side `day_progress` row and is idempotent, so a double tap or a flaky subway connection cannot skip a step or double-complete a day. A failed rating keeps the card on screen with a retry button rather than moving on — a lost second is cheaper than a lost answer.
+
+**Two databases, on purpose.** `content.db` is opened read-only and is identical for everyone; `progress.db` holds users, card states, review logs and my own written sentences in WAL mode. A day of content can be regenerated and rebuilt in place without migrating a single row of learner data.
+
+<Callout title="A year of content, generated once and frozen">
+Words are seeded from NGSL, NAWL and BSL, with the 2,000 most frequent words dropped as already known and the rest ordered by frequency so difficulty ramps across the year. A Python pipeline then drives `claude -p` against a JSON schema per chunk — Sonnet writes the words and patterns, Opus the dialogues — across four resumable processes. Every day is validated afterwards: does the example really contain the word, inflections included; is the cloze answer part of the pattern; is the Korean actually Korean; does the dialogue use the three patterns it was given. Failures land in `failed.json` and are regenerated. Generation is a batch job that ran once, not a runtime dependency.
+</Callout>
+
+**Every colour is a token.** The whole app follows the system theme with nothing hard-coded, and the layout is a fixed column — a scrolling pane over a bar pinned to the thumb zone, both padded with `env(safe-area-inset-*)`, checked at 390×844 and 375×667. Buttons are solid with a 4px darker bottom edge that collapses on press, because a standalone PWA has no hover state and no browser back button.
+
+<TwoUp a="/uploads/junglish-home-dark.png" b="/uploads/junglish-dialogue-dark.png" caption="Dark mode is the same token block with different values — no separate stylesheet, no component knows which theme it is in." />
+
+## Outcome
+
+Junglish runs as a single Docker container on an Oracle Cloud ARM box behind nginx, with `data/` bind-mounted so progress survives every rebuild and nightly snapshots kept for thirty days. Server logic is covered by Vitest against in-memory SQLite using the production schema; the pipeline has its own pytest suite.
+
+<Stat items={[{value:"10,950", label:"words"},{value:"3,650", label:"patterns"},{value:"365", label:"dialogues"},{value:"114", label:"tests"}]} />
+
+The lesson I keep coming back to is that the hard part was never the scheduler — FSRS is a library. It was deciding what *not* to build. No social layer, no gamification, no fourth rating button, no skip on the writing step. Every one of those absences is a decision I can defend, and the app is small enough that I still read all of it.
+
+> One mission a day. Your only opponent is yesterday.

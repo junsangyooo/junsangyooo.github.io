@@ -1,6 +1,6 @@
 ---
 title: Junglish
-tagline: One twelve-minute English mission a day, scheduled by FSRS.
+tagline: One twenty-minute English mission a day, scheduled by FSRS.
 types:
   - Websites
   - Applications
@@ -14,6 +14,7 @@ stack:
   - TypeScript
   - SQLite
   - ts-fsrs
+  - PWA
   - Python
   - Docker
 repo: https://github.com/junsangyooo/junglish
@@ -24,7 +25,7 @@ import Callout from '../../components/content/Callout.astro';
 import Figure from '../../components/content/Figure.astro';
 import Stat from '../../components/content/Stat.astro';
 
-*Junglish* is a language app built for exactly one learner: a Korean engineer who needs English that survives a customer call and a Slack thread on the same day. One mission a day, twelve minutes on a phone, a year of material written ahead of time. No leagues, no gems, no notifications begging me to come back.
+*Junglish* is a language app built for exactly one learner: a Korean engineer who needs English that survives a customer call and a Slack thread on the same day. One mission a day, twenty minutes on a phone, a year of material written ahead of time. It works on the subway and reminds me once, at a time I picked. No leagues, no gems, no notifications begging me to come back.
 
 ## Problem
 
@@ -44,9 +45,13 @@ The other half of the problem was supply. Spaced repetition only works if there 
 
 <Figure src="/uploads/junglish-steps.png" alt="Four Junglish screens: dialogue quiz, shadowing, typing recall, and the stats tab" caption="Dialogue, shadowing, typing recall, and the stats tab — streak, cards in learning, a twelve-week grid, and the next seven days of review load." />
 
-**The server is the session.** The client never decides what comes next: `/api/step` advances a server-side `day_progress` row and is idempotent, so a double tap or a flaky subway connection cannot skip a step or double-complete a day. A failed rating keeps the card on screen with a retry button rather than moving on — a lost second is cheaper than a lost answer.
+**The server is the session.** The client never decides what comes next: `/api/step` advances a server-side `day_progress` row and is idempotent, so a double tap or a flaky subway connection cannot skip a step or double-complete a day. Only one save is in flight at a time, so a double tap cannot rate one card twice and skip the next.
 
-**Two databases, on purpose.** `content.db` is opened read-only and is identical for everyone; `progress.db` holds users, card states, review logs and my own written sentences in WAL mode. A day of content can be regenerated and rebuilt in place without migrating a single row of learner data.
+**Installable, and fine offline.** A service worker precaches the build and serves the last good copy of any screen already opened today; `/api/*` is never cached, because a cached rating would be a lie. A rating that cannot be sent goes into a localStorage outbox and the card moves on — a lost rating is worse than a lost second. The queue drains oldest-first when the network returns, and every rating carries the moment it happened, so a session finished at 23:50 and delivered at 00:10 still counts for the right day in Seoul. One web push a day, at a time I choose, opens the step I stopped at and stays quiet once the day is done.
+
+<Figure src="/uploads/junglish-access.png" alt="Four Junglish screens: the landing page, invite-only signup, reminder settings, and the day-complete screen" caption="The landing page and invite-only signup at the same URL as home, the reminder settings, and the screen that ends the day." />
+
+**Two databases, on purpose.** `content.db` is opened read-only and is identical for everyone; `progress.db` holds users, card states, review logs and my own written sentences in WAL mode. A day of content can be regenerated and rebuilt in place without migrating a single row of learner data. Signup is invite-only: the code is compared in constant time, passwords are scrypt, and login and signup are rate limited in separate buckets so a mistyped invite cannot lock anyone out.
 
 <Callout title="A year of content, generated once and frozen">
 Words are seeded from NGSL, NAWL and BSL, with the 2,000 most frequent words dropped as already known and the rest ordered by frequency so difficulty ramps across the year. A Python pipeline then drives `claude -p` against a JSON schema per chunk — Sonnet writes the words and patterns, Opus the dialogues — across four resumable processes. Every day is validated afterwards: does the example really contain the word, inflections included; is the cloze answer part of the pattern; is the Korean actually Korean; does the dialogue use the three patterns it was given. Failures land in `failed.json` and are regenerated. Generation is a batch job that ran once, not a runtime dependency.
@@ -56,10 +61,10 @@ Words are seeded from NGSL, NAWL and BSL, with the 2,000 most frequent words dro
 
 ## Outcome
 
-Junglish runs as a single Docker container on an Oracle Cloud ARM box behind nginx, with `data/` bind-mounted so progress survives every rebuild and nightly snapshots kept for thirty days. Server logic is covered by Vitest against in-memory SQLite using the production schema; the pipeline has its own pytest suite.
+Junglish runs as a single Docker container on an Oracle Cloud ARM box behind nginx, with `data/` bind-mounted so progress survives every rebuild and nightly snapshots kept for thirty days. Server logic and the offline outbox are covered by Vitest against in-memory SQLite using the production schema; the pipeline has its own pytest suite. Per-request work stays proportional to the screen — on a profile with 12,000 cards and 120,000 review logs, home builds in about a millisecond and stats in five.
 
-<Stat items={[{value:"10,950", label:"words"},{value:"3,650", label:"patterns"},{value:"365", label:"dialogues"},{value:"114", label:"tests"}]} />
+<Stat items={[{value:"10,950", label:"words"},{value:"3,650", label:"patterns"},{value:"365", label:"dialogues"},{value:"155", label:"tests"}]} />
 
-The lesson I keep coming back to is that the hard part was never the scheduler — FSRS is a library. It was deciding what *not* to build. No social layer, no gamification, no fourth rating button, no skip on the writing step. Every one of those absences is a decision I can defend, and the app is small enough that I still read all of it.
+The lesson I keep coming back to is that the hard part was never the scheduler — FSRS is a library. It was deciding what *not* to build. No social layer, no gamification, no fourth rating button, no skip on the writing step, one reminder a day and not two. Every one of those absences is a decision I can defend, and the app is small enough that I still read all of it.
 
 > One mission a day. Your only opponent is yesterday.

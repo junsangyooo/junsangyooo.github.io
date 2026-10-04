@@ -15,7 +15,7 @@ Everything is data-driven — NEVER hand-edit list/route/filter code; a content 
 ## Read first (the contract)
 1. **`CONTENT.md`** (repo root) — single source of truth for frontmatter + the body vocabulary + the 5 blocks (with exact import lines). Follow it literally.
 2. `src/content.config.ts` — the zod schema (enforced at build; a bad field fails loudly).
-3. `CLAUDE.md` §5 (content model), §6 (tokens), §7 (motion) — for tone/feel.
+3. `AGENTS.md` §5 (content model), §6 (tokens), §7 (motion) — for tone/feel.
 
 ## Output (one file + assets, COMMITTED but NOT pushed)
 - Body: `src/content/projects/{slug}.mdx` (use `.mdx` for rich blocks; `.md` is fine for plain text).
@@ -64,7 +64,7 @@ Everything is data-driven — NEVER hand-edit list/route/filter code; a content 
    the user pushes; Cloudflare auto-deploys on push (~1 min).
 
 ## Guardrails
-- Design tokens & effects are fixed (CLAUDE.md §6/§7). Never invent colors or new effects — use the
+- Design tokens & effects are fixed (AGENTS.md §6/§7). Never invent colors or new effects — use the
   5 blocks + plain markdown only.
 - Don't touch list/route/filter code, the schema, or the console. Content files are the whole job.
 - Keep the tagline one line; keep the body tight and skimmable; match the existing tone.

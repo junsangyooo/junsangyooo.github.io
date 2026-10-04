@@ -14,7 +14,7 @@ export const onRequestPost = async ({ request, env }) => {
   }
   if (!safeEqual(String(password), env.CONSOLE_PASSWORD)) {
     // Throttle wrong guesses: makes sequential online brute-force slow & expensive.
-    // (The real ceiling is a Cloudflare WAF rate-limit rule on /api/login — see CLAUDE.md.)
+    // (The real ceiling is a Cloudflare WAF rate-limit rule on /api/login — see AGENTS.md.)
     await sleep(800);
     return json({ error: 'Wrong password.' }, 401);
   }

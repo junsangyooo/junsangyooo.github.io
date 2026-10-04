@@ -32,7 +32,7 @@
 ```
 .
 ├── README.md                  # 공개 레포 표지 (센터 히어로 + 뱃지)
-├── CLAUDE.md
+├── AGENTS.md
 ├── CONTENT.md                  # 콘텐츠 저작 계약(본문 어휘 + 5 MDX 블록 + 경로) = 정규화 가이드
 ├── astro.config.mjs            # site=github.jsyoo.dev, output: static, integrations:[mdx()]
 ├── .nvmrc                      # Node 22 (Cloudflare Pages 빌드용)

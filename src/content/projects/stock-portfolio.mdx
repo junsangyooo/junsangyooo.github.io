@@ -1,0 +1,77 @@
+---
+title: Stock Portfolio
+tagline: My own brokerage accounts, the market around them, and an AI that reads both.
+types:
+  - Websites
+  - AI
+  - Tools
+thumbnail: /thumbnails/stock-portfolio.png
+role: Design · Full-stack · Infra
+team: 1
+year: 2026
+stack:
+  - Python
+  - FastAPI
+  - SQLite
+  - pandas
+  - Claude Code CLI
+  - llama.cpp
+  - Vanilla JS
+  - nginx
+  - Cloudflare
+repo: https://github.com/junsangyooo/stock-portfolio
+order: 0
+---
+
+import Callout from '../../components/content/Callout.astro';
+import Figure from '../../components/content/Figure.astro';
+import TwoUp from '../../components/content/TwoUp.astro';
+import Stat from '../../components/content/Stat.astro';
+
+*Stock Portfolio* is the research desk I wanted and couldn't buy. It follows several of my own brokerage accounts across Korean and US markets, keeps a daily record of holdings, P&L and trades, and puts price structure, financial statements and news next to every position. On top of that sit three kinds of LLM work: a per-symbol verdict, a daily news briefing by theme, and a chat assistant that can look things up in the account on its own. It is a personal tool, not a product — every account in it is mine, each one is PIN-locked, and the code is shaped around one person's mornings.
+
+*Every amount in the screenshots below is blurred, and the account names are replaced. Percentages and the shape of the charts are left as they are.*
+
+## Problem
+
+My money sits across several brokers and two markets, and none of their apps agree on what a "position" is. Getting a straight answer to "how is this account doing, and should I care about this one holding today?" meant four apps, a spreadsheet, and twenty browser tabs of news I would skim and forget.
+
+The research half was worse. Chart reads, fundamentals and news live in different places, so a judgment about a stock was always assembled from whichever of the three I happened to look at last. I wanted the evidence to meet *before* I decided — and I wanted someone to have read the news when I hadn't.
+
+## Approach
+
+**News first, sorted by mood.** Twice a day a cron job pulls a curated set of feeds, tags each article to the themes it touches — 23 in all — and has a model write a summary and an importance score for it. The home page compresses that into one grid: a week of sentiment per theme, today's swing, and the first line of the busiest story. Beside it, only the articles scored important enough to interrupt me.
+
+<Figure src="/uploads/stock-portfolio-news.webp" alt="The news page: a seven-day sentiment grid across 23 market themes, and a column of today's high-importance stories" caption="The public news page. Each row is a theme, each cell a day's mood from negative (orange) to positive (violet); the right column only shows stories scored 4 or higher." />
+
+**One book per account.** Holdings, cash, trade history and daily asset snapshots are kept per account in KRW and USD, priced against live quotes. The account page answers the morning question in one screen — total, today's P&L, what moved it, how concentrated I am — and every holding row carries the latest AI verdict and when it was made.
+
+<Figure src="/uploads/stock-portfolio-account.webp" alt="An account overview with total assets, asset trend chart, holdings table with verdict badges, and a composition donut" caption="An account overview, with every won amount and the account name blurred. Top contributors, the three-month asset line against principal, holdings with their verdicts, and the mix by symbol." />
+
+**Deterministic first, model second.** Everything that can be computed is computed in Python: 15 indicators across trend, momentum, volatility and volume on daily, weekly and monthly bars; swing points, support and resistance, trendlines and divergences; standardized statements with Piotroski F, Altman Z and peer percentiles within the sector. Only then does one model call read chart, fundamentals and news *together* and return a verdict, a target, an invalidation level and the case against itself. The analysis is deliberately not split into three calls merged afterwards — evidence has to meet before the judgment, not after.
+
+<Figure src="/uploads/stock-portfolio-analysis.webp" alt="A symbol page: the price chart with the AI's stop, target, entry and support levels drawn in, the position card, and the verdict card" caption="One holding. The levels the model chose are drawn on the price chart; the verdict sits on a five-step scale with a score and a confidence, and says plainly when data is missing." />
+
+<Figure src="/uploads/stock-portfolio-signals.webp" alt="The signal board: fifteen indicators in four groups, each read on daily, weekly and monthly bars" caption="The signal board is the model's input made visible — every indicator on three timeframes, computed before any model is called." />
+
+**Shallow validation, no invented numbers.** Inputs reach the model as `{id, reference, data, status}` envelopes, so a missing series arrives labelled as missing rather than as zero. On the way back, enums are coerced and numbers clamped, but a level the model didn't give stays empty. The "한계" (limits) list under every verdict is part of the contract, not decoration.
+
+<TwoUp a="/uploads/stock-portfolio-rationale.webp" b="/uploads/stock-portfolio-chat.webp" altA="The rationale behind a verdict: why, risks, three scenarios and limits" altB="The account chat answering a question about a stock that isn't held" caption="Left: the reasoning behind one verdict — why, risk, three scenarios, and what the model couldn't see. Right: the account chat, answering from the market data it looked up itself." />
+
+**A chat that can only read one account.** The assistant answers by calling a small, read-only lookup CLI — holdings, trades, quotes, charts, fundamentals, news, screeners. It runs from an empty working directory, may execute exactly one command family, and its account binding is signed by the server; no command takes an account id, credential-shaped environment variables are stripped from the subprocess, and its session transcripts are wiped nightly.
+
+**Dependencies point one way.** Market data, research and analysis take a list of symbols and know nothing about who holds them, so one stored analysis serves every account. A test walks the AST of every module and fails if an import goes the wrong way (`core ← universe · market · research ← portfolio ← api ← dashboard_web`). Three SQLite files in WAL mode each have one owner — the account book, shared market facts, and news — and are backed up nightly with `VACUUM INTO` behind an integrity check.
+
+<Callout title="Subscription, not an API bill">
+Judgment calls run through `claude -p` as a subprocess on my existing subscription — Sonnet for analysis, Haiku for article enrichment, Opus for chat. Mechanical summarization (daily, weekly and monthly theme roll-ups) runs on an open-weight Qwen model served by llama.cpp on the same box, with Haiku as the fallback. Every call's token usage is appended to a JSONL log so spend can be traced by stage. A symbol is re-analyzed only when something changed — price crossed a stored level, a filing landed, important news named it, or the last verdict aged out — not every symbol every day.
+</Callout>
+
+**Scored afterwards.** Stored verdicts are checked against what the price actually did over 5, 10 and 20 trading days, so a prompt change is compared by numbers rather than by how convincing the prose sounds.
+
+## Outcome
+
+It runs on a single Oracle Cloud ARM VM behind nginx and Cloudflare, with the app listening on localhost only and nginx accepting traffic from Cloudflare alone. Cron does all the collecting — news, fundamentals, ETF facts, closing snapshots after each market's close, the screener cache, the symbol master and the evening analysis batch — and the web process only reads. Pages are server-rendered with vanilla JS, hand-drawn SVG charts and Figma-exported tokens, under a strict per-request CSP nonce. No build step.
+
+<Stat items={[{value:"23", label:"news themes"},{value:"15", label:"indicators × 3 timeframes"},{value:"3", label:"SQLite books"},{value:"642", label:"tests"}]} />
+
+The thing I keep relearning is that the model is the easy part. What makes a verdict worth reading is everything that happens before the call — a source that raises instead of returning an empty frame, an unfinished weekly bar that is never treated as closed, a missing number that stays missing. The AI is only as honest as the envelope it is handed.
